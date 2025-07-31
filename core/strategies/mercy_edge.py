@@ -1,6 +1,5 @@
 # core/strategies/mercy_edge.py
 import MetaTrader5 as mt5
-import pandas_ta as ta
 from .base_strategy import BaseStrategy
 from core.data.fetch import get_rates
 
