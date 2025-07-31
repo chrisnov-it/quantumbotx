@@ -17,8 +17,15 @@ def ambil_semua_bot():
     """
     try:
         all_bots_data = queries.get_all_bots()
-        logger.info(f"Memuat {len(all_bots_data)} bot dari database.")
-        # Anda bisa menambahkan logika untuk memulai bot yang statusnya 'Aktif' di sini jika perlu
+        if not all_bots_data:
+            logger.info("Database tidak memiliki bot untuk dimuat.")
+            return
+            
+        logger.info(f"Memuat {len(all_bots_data)} bot dari database. Memeriksa bot yang perlu diaktifkan ulang...")
+        for bot_data in all_bots_data:
+            if bot_data.get('status') == 'Aktif':
+                logger.info(f"Bot ID {bot_data['id']} ({bot_data['name']}) memiliki status 'Aktif'. Mencoba memulai ulang...")
+                mulai_bot(bot_data['id'])
     except Exception as e:
         logger.error(f"Gagal memuat bot dari database saat startup: {e}", exc_info=True)
 

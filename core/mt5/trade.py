@@ -13,20 +13,21 @@ def place_trade(symbol, order_type, volume, sl_pips, tp_pips, magic):
         logger.error(f"Gagal mendapatkan info untuk simbol {symbol}, order dibatalkan.")
         return None
 
-    # --- PERBAIKAN UTAMA DI SINI ---
-    # 1. Gunakan atribut yang benar: 'filling_mode' (singular)
-    # 2. Pilih filling mode yang didukung. IOC lebih fleksibel daripada FOK.
-    #    FOK (Fill Or Kill): Seluruh order harus terpenuhi, atau dibatalkan.
-    #    IOC (Immediate Or Cancel): Bagian dari order bisa terpenuhi, sisanya dibatalkan.
-    
     # Ambil filling mode yang diizinkan oleh simbol
     allowed_filling_mode = symbol_info.filling_mode
 
-    # Pilih tipe filling. Prioritaskan IOC jika tersedia, jika tidak, FOK.
+    # --- PERBAIKAN: Gunakan nilai literal untuk kompatibilitas ---
+    # Beberapa versi library MT5 tidak memiliki konstanta SYMBOL_FILLING_*.
+    # Menggunakan nilai integer langsung lebih aman dan kompatibel mundur.
+    # FOK_MODE_FLAG = 1
+    # IOC_MODE_FLAG = 2
+
     filling_type = mt5.ORDER_FILLING_FOK # Default
-    if allowed_filling_mode & mt5.ORDER_FILLING_IOC:
+    # Prioritaskan IOC jika didukung oleh broker untuk simbol ini
+    if allowed_filling_mode & 2:  # Cek flag untuk IOC (nilai 2)
         filling_type = mt5.ORDER_FILLING_IOC
-    elif allowed_filling_mode & mt5.ORDER_FILLING_FOK:
+    # Jika tidak, gunakan FOK jika didukung
+    elif allowed_filling_mode & 1:  # Cek flag untuk FOK (nilai 1)
         filling_type = mt5.ORDER_FILLING_FOK
     else:
         logger.warning(f"Simbol {symbol} tidak mendukung FOK atau IOC. Menggunakan FOK sebagai fallback.")
@@ -93,9 +94,12 @@ def close_trade(position):
         return None
         
     allowed_filling_mode = symbol_info.filling_mode
+    # Terapkan logika yang sama untuk menutup posisi
     filling_type = mt5.ORDER_FILLING_FOK
-    if allowed_filling_mode & mt5.ORDER_FILLING_IOC:
+    if allowed_filling_mode & 2:  # Cek flag untuk IOC (nilai 2)
         filling_type = mt5.ORDER_FILLING_IOC
+    elif allowed_filling_mode & 1:  # Cek flag untuk FOK (nilai 1)
+        filling_type = mt5.ORDER_FILLING_FOK
 
     request = {
         "action": mt5.TRADE_ACTION_DEAL, "symbol": symbol, "volume": float(volume),
