@@ -1,7 +1,11 @@
 # /core/data/fetch.py
 import MetaTrader5 as mt5
 import pandas as pd
+import logging
 from datetime import datetime, timedelta
+
+# Gunakan logger yang konsisten dengan seluruh aplikasi
+logger = logging.getLogger(__name__)
 
 # =================================================
 # FUNGSI-FUNGSI PENGAMBILAN DATA DARI METATRADER 5
@@ -17,7 +21,7 @@ def get_rates(symbol: str, timeframe: int, count: int = 100):
         
         # Periksa apakah data berhasil diambil
         if rates is None or len(rates) == 0:
-            print(f"[FETCH ERROR] Gagal mengambil data harga untuk {symbol} (Timeframe: {timeframe}). MT5 mengembalikan None atau data kosong.")
+            logger.warning(f"Gagal mengambil data harga untuk {symbol} (Timeframe: {timeframe}). MT5 mengembalikan None atau data kosong.")
             return None
         
         # Konversi ke DataFrame
@@ -27,7 +31,7 @@ def get_rates(symbol: str, timeframe: int, count: int = 100):
         
         return df
     except Exception as e:
-        print(f"[FETCH CRITICAL] Terjadi error tak terduga saat get_rates untuk {symbol}: {e}")
+        logger.error(f"Error tak terduga saat get_rates untuk {symbol}: {e}", exc_info=True)
         return None
 
 def get_mt5_account_info():
@@ -38,10 +42,10 @@ def get_mt5_account_info():
         if info:
             return info._asdict()
         else:
-            print(f"[FETCH ERROR] Gagal mengambil info akun. MT5 mengembalikan None. Error: {mt5.last_error()}")
+            logger.error(f"Gagal mengambil info akun. MT5 mengembalikan None. Error: {mt5.last_error()}")
             return None
     except Exception as e:
-        print(f"[FETCH CRITICAL] Terjadi error tak terduga saat get_mt5_account_info: {e}")
+        logger.error(f"Error tak terduga saat get_mt5_account_info: {e}", exc_info=True)
         return None
 
 def get_todays_profit():
@@ -58,7 +62,7 @@ def get_todays_profit():
         # Gunakan generator expression untuk efisiensi
         return sum(d.profit for d in deals if d.entry == 1)
     except Exception as e:
-        print(f"[FETCH CRITICAL] Terjadi error tak terduga saat get_todays_profit: {e}")
+        logger.error(f"Error tak terduga saat get_todays_profit: {e}", exc_info=True)
         return 0.0
 
 def get_trade_history_from_mt5(days_history: int = 30):
@@ -70,7 +74,7 @@ def get_trade_history_from_mt5(days_history: int = 30):
         deals = mt5.history_deals_get(from_date, to_date)
 
         if deals is None:
-            print("[FETCH ERROR] Gagal mengambil histori deals dari MT5.")
+            logger.warning("Gagal mengambil histori deals dari MT5. MT5 mengembalikan None.")
             return []
 
         # Proses data hanya jika ada deals yang ditemukan
@@ -83,7 +87,7 @@ def get_trade_history_from_mt5(days_history: int = 30):
         return []
 
     except Exception as e:
-        print(f"[FETCH CRITICAL] Terjadi error tak terduga saat get_trade_history: {e}")
+        logger.error(f"Error tak terduga saat get_trade_history: {e}", exc_info=True)
         return []
 
 def get_open_positions_from_mt5():
@@ -106,5 +110,5 @@ def get_open_positions_from_mt5():
             for pos in positions
         ]
     except Exception as e:
-        print(f"[FETCH CRITICAL] Terjadi error tak terduga saat get_open_positions: {e}")
+        logger.error(f"Error tak terduga saat get_open_positions: {e}", exc_info=True)
         return []

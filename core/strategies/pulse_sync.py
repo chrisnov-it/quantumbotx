@@ -1,38 +1,37 @@
 # core/strategies/pulse_sync.py
 import pandas_ta as ta
 import MetaTrader5 as mt5
+from .base_strategy import BaseStrategy
 from core.data.fetch import get_rates
-from core.utils.ollama import ask_ollama
 
-def analyze(bot):
-    symbol = bot.market.replace('/', '')
-    tf = bot.tf_map.get(bot.timeframe, mt5.TIMEFRAME_H1)
-    df = get_rates(symbol, tf, 100)
+class PulseSyncStrategy(BaseStrategy):
+    name = 'Pulse Sync (AI)'
+    description = 'Menggunakan AI untuk menganalisis momentum harga berdasarkan Simple Moving Average (SMA).'
 
-    if df is None or df.empty or len(df) < 30:
-        return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup"}
+    def analyze(self):
+        tf_const = self.bot.tf_map.get(self.bot.timeframe, mt5.TIMEFRAME_H1)
+        df = get_rates(self.bot.market_for_mt5, tf_const, 100)
 
-    df['SMA21'] = ta.sma(df['close'], length=21)
-    last = df.iloc[-1]
+        if df is None or df.empty or len(df) < 30:
+            return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup"}
 
-    prompt = f"""
-    I'm building an AI trading bot. The current price of {symbol} is {last['close']:.5f}.
-    The 21-period moving average is {last['SMA21']:.5f}.
-    Based on this info, what would you recommend: BUY or SELL? 
-    Respond only with 'BUY' or 'SELL'.
-    """
+        df['SMA21'] = ta.sma(df['close'], length=21)
+        df.dropna(inplace=True)
 
-    ai_decision = ask_ollama(prompt)
-    ai_decision = ai_decision.upper() if ai_decision else "HOLD"
+        if len(df) < 1:
+            return {"signal": "HOLD", "price": None, "explanation": "Indikator belum matang."}
 
-    signal = "HOLD"
-    if "BUY" in ai_decision:
-        signal = "BUY"
-    elif "SELL" in ai_decision:
-        signal = "SELL"
+        last = df.iloc[-1]
+        price = last["close"]
 
-    return {
-        "signal": signal,
-        "price": last["close"],
-        "explanation": f"Ollama AI recommends: {ai_decision}"
-    }
+        # AI functionality is temporarily disabled.
+        signal = "HOLD"
+        explanation = "AI functionality is currently disabled for performance reasons."
+
+        analysis_data = {
+            "signal": signal,
+            "price": price,
+            "explanation": explanation,
+            "SMA_21": last.get('SMA21'),
+        }
+        return analysis_data

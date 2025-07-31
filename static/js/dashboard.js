@@ -13,10 +13,10 @@ async function updateDashboardStats() {
         if (!response.ok) throw new Error('Gagal mengambil statistik dasbor');
         const stats = await response.json();
 
-        document.getElementById('total-equity')!.textContent = formatter.format(stats.equity);
-        document.getElementById('todays-profit')!.textContent = formatter.format(stats.todays_profit);
-        document.getElementById('active-bots-count')!.textContent = stats.active_bots_count;
-        document.getElementById('total-bots-count')!.textContent = stats.total_bots;
+        document.getElementById('total-equity').textContent = formatter.format(stats.equity);
+        document.getElementById('todays-profit').textContent = formatter.format(stats.todays_profit);
+        document.getElementById('active-bots-count').textContent = stats.active_bots_count;
+        document.getElementById('total-bots-count').textContent = stats.total_bots;
 
         // Warna profit/loss
         const profitEl = document.getElementById('todays-profit');
@@ -171,36 +171,43 @@ async function updateRsiChart(symbol = 'EURUSD') {
         }
 
     } catch (error) {
-        console.error('[RSI] Gagal update RSI Chart:', error);
-    }
-}
-
-// Ambil sinyal AI dari backend
-async function fetchAiSignal(symbol = 'EURUSD') {
-    try {
-        const response = await fetch(`/api/ai_analysis?symbol=${symbol}`);
-        const data = await response.json();
-
-        const container = document.getElementById('ai-signal-container');
-        if (!container) return;
-
-        container.innerHTML = `
-            <p><strong>Symbol:</strong> ${symbol}</p>
-            <p><strong>Decision:</strong> <span class="font-bold">${data.ai_decision}</span></p>
-            <p class="italic text-gray-600">"${data.ai_explanation}"</p>
-        `;
-    } catch (error) {
         console.error('[AI] Gagal memuat sinyal AI:', error);
+        if (aiSignalSymbolEl) aiSignalSymbolEl.textContent = 'Error';
+        if (aiSignalDecisionEl) aiSignalDecisionEl.textContent = 'Error';
+        if (aiSignalExplanationEl) aiSignalExplanationEl.textContent = 'Error loading AI signal.';
+        if (strategyNameEl) strategyNameEl.textContent = 'Error';
     }
 }
 
 // DOM ready
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Elemen Global AI Signal ---
+    const aiSignalSymbolEl = document.getElementById('ai-signal-symbol');
+    const aiSignalDecisionEl = document.getElementById('ai-signal-decision');
+    const aiSignalExplanationEl = document.getElementById('ai-signal-explanation');
+    const refreshAiSignalButton = document.getElementById('refresh-ai-signal-button');
+
     updateDashboardStats();
     fetchAllBots();
     updatePriceChart();
     updateRsiChart();
-    fetchAiSignal();
+
+    // Event listener untuk tombol refresh AI Signal
+    let isAiSignalLoading = false;
+    if (refreshAiSignalButton) {
+        refreshAiSignalButton.addEventListener('click', async () => {
+            if (isAiSignalLoading) return;
+            isAiSignalLoading = true;
+            refreshAiSignalButton.disabled = true;
+            refreshAiSignalButton.textContent = 'Refreshing...';
+
+            await fetchAiSignal();
+
+            isAiSignalLoading = false;
+            refreshAiSignalButton.disabled = false;
+            refreshAiSignalButton.textContent = 'Refresh AI Signal';
+        });
+    }
 
     // Interval refresh
     setInterval(updateDashboardStats, 10000);

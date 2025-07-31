@@ -5,7 +5,7 @@ import MetaTrader5 as mt5
 
 class PulseSyncStrategy(BaseStrategy):
     def analyze(self):
-        symbol = self.bot.market.replace('/', '')
+        self.bot.market.replace('/', '')
         df_d1 = self.bot.fetch_data(mt5.TIMEFRAME_D1, 200)
         df_h1 = self.bot.fetch_data(mt5.TIMEFRAME_H1, 100)
 

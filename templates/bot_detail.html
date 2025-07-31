@@ -58,22 +58,31 @@
                     </div>
                 </div>
             </header>
+
+            <!-- Konten Utama Halaman Detail Bot -->
+            <main class="p-6">
+                <!-- Header Halaman -->
+                <div class="flex justify-between items-start mb-6 bg-white p-4 rounded-lg shadow">
+                    <div>
                         <h2 id="bot-name-header" class="text-2xl font-bold text-gray-800">Memuat...</h2>
                         <p id="bot-market-header" class="text-gray-600">Memuat detail bot...</p>
                     </div>
                     <div id="bot-status-badge" class="px-4 py-2 rounded-full text-sm font-semibold bg-gray-200 text-gray-800">Memuat Status...</div>
                 </div>
 
+                <!-- Layout Grid Utama -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Kolom Kiri (Log Aktivitas) -->
                     <div class="lg:col-span-2 bg-white rounded-lg shadow">
                         <div class="p-4 border-b"><h3 class="text-lg font-semibold text-gray-800">Log Aktivitas</h3></div>
-                        <div id="history-log-container" class="space-y-1 overflow-y-auto" style="max-height: 60vh;">
+                        <div id="history-log-container" class="overflow-y-auto" style="max-height: 60vh;">
                             <p class="text-center text-gray-500 p-4">Memuat riwayat...</p>
                         </div>
                     </div>
 
+                    <!-- Kolom Kanan (Info & Analisis) -->
                     <div class="space-y-6">
-                        <div id="fundamentals-section"></div>
+                        
                         <div class="bg-white rounded-lg shadow p-4">
                             <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Parameter</h3>
                             <div id="bot-parameters-container" class="text-sm space-y-2">
@@ -85,7 +94,7 @@
                             <div id="bot-analysis-container" class="text-sm space-y-2">
                                 <p class="text-center text-gray-500">Memuat...</p>
                             </div>
-                            <div id="analysis-signal" class="mt-4 text-center font-bold text-lg p-2 rounded-md bg-gray-100 text-gray-600">-</div>
+                            <div id="analysis-signal" class="mt-4 text-center font-bold text-lg p-2 rounded-md bg-gray-100 text-gray-600">-</div>                         
                         </div>
                     </div>
                 </div>

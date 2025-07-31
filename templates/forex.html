@@ -85,62 +85,24 @@
         </div>
     </div>
     
-    <script>
-        // Toggle sidebar
-        document.getElementById('sidebar-toggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-        });
-
-        // Fungsi untuk mengambil data forex
-        function fetchForexData() {
-            fetch('/api/forex-data') // Mengambil dari endpoint API yang sudah kita buat
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const tableBody = document.getElementById('forex-table-body');
-                    if (!tableBody) return;
-
-                    tableBody.innerHTML = ''; // Kosongkan tabel
-
-                    const symbols = Object.keys(data); // Dapatkan semua key (misal: "EURUSD")
-
-                    if (symbols.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Tidak ada data forex dari MT5.</td></tr>';
-                        return;
-                    }
-
-                    symbols.forEach(symbolKey => {
-                        const pair = data[symbolKey];
-                        const row = document.createElement('tr');
-                        
-                        // Format spread agar lebih mudah dibaca
-                        const spreadInPips = pair.spread / (pair.digits > 3 ? 10 : 1);
-
-                        row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap"><div class="font-medium text-gray-900">${pair.name}</div></td>
-                            <td class="px-6 py-4 whitespace-nowrap font-medium">${pair.bid.toFixed(pair.digits)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap font-medium">${pair.ask.toFixed(pair.digits)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${spreadInPips.toFixed(1)} pips</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right"><button class="bg-blue-600 text-white py-1 px-3 rounded-md text-sm font-medium hover:bg-blue-700">Trade</button></td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching forex data:', error);
-                    const tableBody = document.getElementById('forex-table-body');
-                    if (tableBody) {
-                        tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Gagal memuat data.</td></tr>';
-                    }
-                });
-        }
-
-        // Panggil fungsi saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', fetchForexData);
-    </script>
+    <!-- Modal -->
+    <div id="forex-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title"></h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500" id="modal-content"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="close-modal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/forex.js') }}"></script>
 </body>
 </html>

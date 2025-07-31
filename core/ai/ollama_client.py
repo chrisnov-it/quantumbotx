@@ -2,7 +2,7 @@
 
 import ollama
 
-def ask_ollama(prompt, model="llama3"):
+def ask_ollama(prompt, model="qwen2.5-coder:1.5b"):
     try:
         response = ollama.chat(
             model=model,

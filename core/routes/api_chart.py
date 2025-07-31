@@ -11,11 +11,11 @@ def api_chart_data():
     symbol = request.args.get('symbol', 'EURUSD')
     df = get_rates_from_mt5(symbol, mt5.TIMEFRAME_H1, 100)
     
-    if df is None:
+    if df is None or df.empty:
         return jsonify({"error": "Gagal mengambil data grafik"}), 500
     
     chart_data = {
-        "labels": df['time'].dt.strftime('%H:%M').tolist(),
+        "labels": df.index.strftime('%H:%M').tolist(),
         "data": df['close'].tolist()
     }
     return jsonify(chart_data)

@@ -83,6 +83,58 @@
             </table>
         </div>
     </main>
+    <!-- Modal Elegan Buat Bot -->
+    <div id="create-bot-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm flex">
+    <div class="bg-white shadow-2xl rounded-xl p-6 w-full max-w-md animate-fadeIn border border-blue-300">
+        <h2 id="modal-title" class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">🚀 Buat Bot Baru</h2>
+        <form id="create-bot-form" class="space-y-4 text-sm">
+            <div>
+                <label for="name" class="block text-xs font-medium text-gray-600 mb-1">Nama Bot</label>
+                <input type="text" id="name" name="name" placeholder="Contoh: Scalper Emas" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+            </div>
+            <div>
+                <label for="market" class="block text-xs font-medium text-gray-600 mb-1">Pasar</label>
+                <input type="text" id="market" name="market" placeholder="Contoh: XAU/USD atau BTC/USDT" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+            </div>
+            <div>
+                <label for="strategy" class="block text-xs font-medium text-gray-600 mb-1">Strategi</label>
+                <select name="strategy" id="strategy" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="lot_size" class="block text-xs font-medium text-gray-600 mb-1">Ukuran Lot</label>
+                    <input type="number" id="lot_size" name="lot_size" placeholder="0.01" step="0.01" value="0.01" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                </div>
+                <div>
+                    <label for="timeframe" class="block text-xs font-medium text-gray-600 mb-1">Timeframe</label>
+                    <input type="text" id="timeframe" name="timeframe" placeholder="H1" value="H1" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="sl_pips" class="block text-xs font-medium text-gray-600 mb-1">Stop Loss (pips)</label>
+                    <input type="number" id="sl_pips" name="sl_pips" placeholder="100" value="100" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                </div>
+                <div>
+                    <label for="tp_pips" class="block text-xs font-medium text-gray-600 mb-1">Take Profit (pips)</label>
+                    <input type="number" id="tp_pips" name="tp_pips" placeholder="200" value="200" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                </div>
+            </div>
+            <div>
+                <label for="check_interval_seconds" class="block text-xs font-medium text-gray-600 mb-1">Interval Cek (detik)</label>
+                <input type="number" id="check_interval_seconds" name="check_interval_seconds" placeholder="60" value="60" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+            </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+            <button type="button" id="cancel-create" class="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded">Batal</button>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded shadow-lg">Buat Bot</button>
+        </div>
+        </form>
+    </div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/trading_bots.js') }}"></script>
 </body>
 </html>

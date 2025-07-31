@@ -1,12 +1,5 @@
 // static/js/main.js
-fetch("/api/dashboard/stats")
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("balance").textContent = data.balance.toFixed(2);
-    document.getElementById("equity").textContent = data.equity.toFixed(2);
-    document.getElementById("todays-profit").textContent = data.todays_profit.toFixed(2);
-  })
-  .catch(err => console.error("Gagal load dashboard stats:", err));
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // --- Logika untuk Sidebar Toggle ---

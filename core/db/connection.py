@@ -1,45 +1,24 @@
-# core/db/connection.py
+# core/db/connection.py - VERSI FINAL
 
 import sqlite3
 import os
 
-DB_PATH = os.getenv("DB_PATH", "bots.db")
+# Menentukan path absolut ke file database
+# Ini memastikan DB ditemukan dari mana pun skrip dijalankan
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, '..', '..', 'bots.db')
 
-def get_connection():
+def get_db_connection():
+    """
+    Membuat dan mengembalikan koneksi ke database SQLite.
+    Fungsi ini adalah satu-satunya sumber koneksi database untuk seluruh aplikasi.
+    """
     try:
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row  # biar hasilnya bisa dipanggil pakai nama kolom
+        # check_same_thread=False diperlukan untuk aplikasi multi-threaded seperti Flask
+        conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+        # 'row_factory' membuat hasil query bisa diakses seperti dictionary
+        conn.row_factory = sqlite3.Row
         return conn
     except sqlite3.Error as e:
-        print(f"[DB] Gagal koneksi ke database: {e}")
+        print(f"FATAL: Gagal koneksi ke database di {DB_PATH}: {e}")
         return None
-
-def fetch_all(query, params=()):
-    conn = get_connection()
-    if not conn:
-        return []
-    try:
-        cur = conn.cursor()
-        cur.execute(query, params)
-        results = cur.fetchall()
-        return [dict(row) for row in results]
-    except sqlite3.Error as e:
-        print(f"[DB] Error saat fetch_all: {e}")
-        return []
-    finally:
-        conn.close()
-
-def execute_query(query, params=()):
-    conn = get_connection()
-    if not conn:
-        return False
-    try:
-        cur = conn.cursor()
-        cur.execute(query, params)
-        conn.commit()
-        return True
-    except sqlite3.Error as e:
-        print(f"[DB] Error saat execute_query: {e}")
-        return False
-    finally:
-        conn.close()

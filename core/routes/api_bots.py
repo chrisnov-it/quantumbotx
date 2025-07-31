@@ -1,157 +1,134 @@
-# core/routes/api_bots.py
+# core/routes/api_bots.py - VERSI PERBAIKAN LENGKAP
 
-from flask import Blueprint, request, jsonify
-from core.db.queries import get_db_connection
-from core.bots.trading_bot import TradingBot
-from core.bots.controller import active_bots
-from core.utils.validation import validate_bot_params
-import sqlite3
+import logging
+from flask import Blueprint, jsonify, request
+import pandas_ta as ta
+import MetaTrader5 as mt5
+from core.bots import controller
+from core.db import queries
+from core.data.fetch import get_rates
+from core.utils.mt5 import TIMEFRAME_MAP
+from core.strategies.strategy_map import STRATEGY_MAP
 
 api_bots = Blueprint('api_bots', __name__)
+logger = logging.getLogger(__name__)
+
+@api_bots.route('/api/strategies', methods=['GET'])
+def get_strategies_route():
+    try:
+        strategies = []
+        for key, strategy_class in STRATEGY_MAP.items():
+            strategies.append({
+                'id': key,
+                'name': getattr(strategy_class, 'name', key.replace('_', ' ').title()),
+                'description': getattr(strategy_class, 'description', 'No description available.')
+            })
+        return jsonify(strategies)
+    except Exception as e:
+        logger.error(f"Gagal memuat daftar strategi: {e}", exc_info=True)
+        return jsonify({"error": "Gagal memuat daftar strategi"}), 500
 
 @api_bots.route('/api/bots', methods=['GET'])
-def get_bots():
-    conn = get_db_connection()
-    bots = conn.execute('SELECT * FROM bots').fetchall()
-    conn.close()
-    return jsonify([dict(bot) for bot in bots])
+def get_bots_route():
+    """Mengambil semua bot."""
+    bots = queries.get_all_bots()
+    # Perkaya data bot dengan nama strategi yang mudah dibaca
+    for bot in bots:
+        strategy_key = bot.get('strategy')
+        strategy_class = STRATEGY_MAP.get(strategy_key)
+        if strategy_class:
+            bot['strategy_name'] = getattr(strategy_class, 'name', strategy_key)
+        else:
+            bot['strategy_name'] = strategy_key # Fallback jika tidak ditemukan
+    return jsonify(bots)
 
 @api_bots.route('/api/bots/<int:bot_id>', methods=['GET'])
-def get_bot(bot_id):
-    conn = get_db_connection()
-    bot = conn.execute('SELECT * FROM bots WHERE id = ?', (bot_id,)).fetchone()
-    conn.close()
-    if not bot:
-        return jsonify({'error': 'Bot tidak ditemukan'}), 404
-    return jsonify(dict(bot))
+def get_single_bot_route(bot_id):
+    """Mengambil detail satu bot."""
+    bot = queries.get_bot_by_id(bot_id)
+    return jsonify(bot) if bot else (jsonify({"error": "Bot tidak ditemukan"}), 404)
 
 @api_bots.route('/api/bots', methods=['POST'])
-def create_bot():
-    data = request.json
-    errors = validate_bot_params(data)
-    if errors:
-        return jsonify({'error': errors}), 400
-
-    bot_name = data['name']
-    bot_market = data['market']
-    lot_size = data.get('lot_size', 0.01)
-    sl_pips = data.get('sl_pips', 100)
-    tp_pips = data.get('tp_pips', 200)
-    timeframe = data.get('timeframe', 'H1')
-    check_interval = data.get('check_interval_seconds', 60)
-    strategy = data.get('strategy', 'MA_CROSSOVER')
-
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            'INSERT INTO bots (name, market, status, lot_size, sl_pips, tp_pips, timeframe, check_interval_seconds, strategy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            (bot_name, bot_market, 'Dijeda', lot_size, sl_pips, tp_pips, timeframe, check_interval, strategy)
-        )
-        bot_id = cursor.lastrowid
-        cursor.execute(
-            'INSERT INTO trade_history (bot_id, action, details) VALUES (?, ?, ?)',
-            (bot_id, 'Dibuat', f"Bot '{bot_name}' ({strategy}) untuk pasar '{bot_market}' telah dibuat.")
-        )
-        conn.commit()
-        conn.close()
-
-        new_bot = TradingBot(bot_id=bot_id, name=bot_name, market=bot_market,
-                             status='Dijeda', lot_size=float(lot_size),
-                             sl_pips=int(sl_pips), tp_pips=int(tp_pips),
-                             timeframe=timeframe, check_interval_seconds=int(check_interval),
-                             strategy=strategy)
-        active_bots[bot_id] = new_bot
-
-        return jsonify({'message': 'Bot berhasil dibuat', 'bot_id': bot_id}), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@api_bots.route('/api/bots/<int:bot_id>/start', methods=['POST'])
-def start_bot(bot_id):
-    bot = active_bots.get(bot_id)
-    if bot:
-        bot.start()
-        conn = get_db_connection()
-        conn.execute(
-            'INSERT INTO trade_history (bot_id, action, details) VALUES (?, ?, ?)',
-            (bot_id, 'Mulai', 'Bot diaktifkan oleh pengguna.')
-        )
-        conn.execute('UPDATE bots SET status = ? WHERE id = ?', ('Aktif', bot_id))
-        conn.commit()
-        conn.close()
-        return jsonify({'message': f'Bot {bot.name} dimulai.'})
-    return jsonify({'error': 'Bot tidak ditemukan'}), 404
-
-@api_bots.route('/api/bots/<int:bot_id>/stop', methods=['POST'])
-def stop_bot(bot_id):
-    bot = active_bots.get(bot_id)
-    if bot:
-        bot.stop()
-        conn = get_db_connection()
-        conn.execute(
-            'INSERT INTO trade_history (bot_id, action, details) VALUES (?, ?, ?)',
-            (bot_id, 'Berhenti', 'Bot dijeda oleh pengguna.')
-        )
-        conn.execute('UPDATE bots SET status = ? WHERE id = ?', ('Dijeda', bot_id))
-        conn.commit()
-        conn.close()
-        return jsonify({'message': f'Bot {bot.name} dihentikan.'})
-    return jsonify({'error': 'Bot tidak ditemukan'}), 404
+def add_bot_route():
+    """Membuat bot baru."""
+    data = request.get_json()
+    new_bot_id = queries.add_bot(
+        name=data.get('name'), market=data.get('market'), lot_size=data.get('lot_size'),
+        sl_pips=data.get('sl_pips'), tp_pips=data.get('tp_pips'), timeframe=data.get('timeframe'),
+        interval=data.get('check_interval_seconds'), strategy=data.get('strategy')
+    )
+    if new_bot_id:
+        controller.add_new_bot_to_controller(new_bot_id)
+        return jsonify({"message": "Bot berhasil dibuat", "bot_id": new_bot_id}), 201
+    return jsonify({"error": "Gagal menyimpan bot"}), 500
 
 @api_bots.route('/api/bots/<int:bot_id>', methods=['PUT'])
-def update_bot(bot_id):
-    bot = active_bots.get(bot_id)
-    if not bot:
-        return jsonify({'error': 'Bot tidak ditemukan'}), 404
+def update_bot_route(bot_id):
+    """Memperbarui pengaturan bot."""
+    bot_data = request.get_json()
+    
+    bot_instance = controller.get_bot_instance_by_id(bot_id)
+    bot_was_running = bot_instance and bot_instance.status == 'Aktif'
 
-    data = request.json
-    errors = validate_bot_params(data)
-    if errors:
-        return jsonify({'error': errors}), 400
-
-    try:
-        conn = get_db_connection()
-        details = f"Pengaturan diubah: Nama='{data['name']}', Strategi='{data['strategy']}', Pasar='{data['market']}', Lot={data['lot_size']}, SL={data['sl_pips']}, TP={data['tp_pips']}, TF='{data['timeframe']}'"
-        conn.execute(
-            'INSERT INTO trade_history (bot_id, action, details) VALUES (?, ?, ?)',
-            (bot_id, 'Edit', details)
-        )
-        conn.execute(
-            '''UPDATE bots SET name = ?, market = ?, lot_size = ?, sl_pips = ?, tp_pips = ?, timeframe = ?, check_interval_seconds = ?, strategy = ?
-               WHERE id = ?''',
-            (data['name'], data['market'], data['lot_size'], data['sl_pips'], data['tp_pips'],
-             data['timeframe'], data['check_interval_seconds'], data['strategy'], bot_id)
-        )
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        return jsonify({'error': f'Gagal memperbarui bot: {str(e)}'}), 500
-
-    bot.name = data['name']
-    bot.market = data['market']
-    bot.lot_size = float(data['lot_size'])
-    bot.sl_pips = int(data['sl_pips'])
-    bot.tp_pips = int(data['tp_pips'])
-    bot.timeframe = data['timeframe']
-    bot.check_interval = int(data['check_interval_seconds'])
-    bot.strategy = data['strategy']
-
-    return jsonify({'message': f'Bot {bot.name} berhasil diperbarui.'})
+    success, result = controller.perbarui_bot(bot_id, bot_data)
+    
+    if success:
+        if bot_was_running:
+            controller.mulai_bot(bot_id)
+        return jsonify({"message": "Bot berhasil diperbarui."}), 200
+    
+    return jsonify({"error": result or "Gagal memperbarui bot"}), 500
 
 @api_bots.route('/api/bots/<int:bot_id>', methods=['DELETE'])
-def delete_bot(bot_id):
-    bot = active_bots.get(bot_id)
-    if not bot:
-        return jsonify({'error': 'Bot tidak ditemukan'}), 404
+def delete_bot_route(bot_id):
+    """Menghapus bot."""
+    if controller.hapus_bot(bot_id):
+        return jsonify({"message": "Bot berhasil dihapus."}), 200
+    else:
+        return jsonify({"error": "Gagal menghapus bot dari database"}), 500
 
-    bot.stop()
-    del active_bots[bot_id]
+@api_bots.route('/api/bots/<int:bot_id>/start', methods=['POST'])
+def start_bot_route(bot_id):
+    """Memulai bot."""
+    success, message = controller.mulai_bot(bot_id)
+    return jsonify({'message': message}) if success else (jsonify({'error': message}), 500)
 
-    conn = get_db_connection()
-    conn.execute('DELETE FROM trade_history WHERE bot_id = ?', (bot_id,))
-    conn.execute('DELETE FROM bots WHERE id = ?', (bot_id,))
-    conn.commit()
-    conn.close()
+@api_bots.route('/api/bots/<int:bot_id>/stop', methods=['POST'])
+def stop_bot_route(bot_id):
+    """Menghentikan bot."""
+    success, message = controller.stop_bot(bot_id)
+    return jsonify({'message': message}) if success else (jsonify({'error': message}), 500)
 
-    return jsonify({'message': 'Bot dan riwayatnya berhasil dihapus.'})
+@api_bots.route('/api/bots/<int:bot_id>/analysis', methods=['GET'])
+def get_analysis_route(bot_id):
+    """Mendapatkan data analisis terakhir."""
+    data = controller.get_bot_analysis_data(bot_id)
+    return jsonify(data if data else {"signal": "Data belum tersedia"})
+
+@api_bots.route('/api/bots/<int:bot_id>/history', methods=['GET'])
+def get_bot_history_route(bot_id):
+    """Mengembalikan riwayat aktivitas untuk bot."""
+    history = queries.get_history_by_bot_id(bot_id)
+    return jsonify(history)
+
+@api_bots.route('/api/rsi_data', methods=['GET'])
+def get_rsi_data_route():
+    """Menyediakan data RSI untuk grafik di dashboard."""
+    symbol = request.args.get('symbol', 'EURUSD', type=str)
+    timeframe_str = request.args.get('timeframe', 'H1', type=str)
+    
+    timeframe = TIMEFRAME_MAP.get(timeframe_str, mt5.TIMEFRAME_H1)
+    
+    df = get_rates(symbol, timeframe, 100)
+    
+    if df is None or df.empty:
+        return jsonify({"error": f"Tidak dapat mengambil data untuk {symbol}"}), 404
+        
+    df['rsi'] = ta.rsi(df['close'], length=14)
+    df.dropna(inplace=True)
+    
+    chart_data = {
+        'timestamps': [dt.strftime('%H:%M') for dt in df['time'].tail(50)],
+        'rsi_values': list(df['rsi'].tail(50))
+    }
+    return jsonify(chart_data)

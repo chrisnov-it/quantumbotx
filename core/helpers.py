@@ -3,13 +3,11 @@ import locale
 
 locale.setlocale(locale.LC_NUMERIC, 'C')
 
-
 def parse_decimal(val):
     try:
         return float(str(val).replace(',', '.'))
     except Exception:
         return 0.0
-
 
 def initialize_mt5(account, password, server):
     if not mt5.initialize():
@@ -21,7 +19,6 @@ def initialize_mt5(account, password, server):
         return False
     print(f"Berhasil login ke akun MT5: {account} di server {server}")
     return True
-
 
 def place_trade(symbol, trade_type, lot, sl_pips, tp_pips, magic_number):
     info = mt5.symbol_info(symbol)
@@ -52,7 +49,6 @@ def place_trade(symbol, trade_type, lot, sl_pips, tp_pips, magic_number):
         return None
     print(f"Order dikirim! Ticket: {result.order}")
     return result
-
 
 def close_trade(position):
     price = mt5.symbol_info_tick(position.symbol).bid if position.type == mt5.ORDER_TYPE_BUY else mt5.symbol_info_tick(position.symbol).ask

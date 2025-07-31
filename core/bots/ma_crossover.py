@@ -1,6 +1,5 @@
 import pandas_ta as ta
 from core.bots.base_bot import BaseStrategy
-import MetaTrader5 as mt5
 
 class MACrossoverStrategy(BaseStrategy):
     def analyze(self):

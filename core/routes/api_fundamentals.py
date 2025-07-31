@@ -2,7 +2,7 @@
 
 from flask import Blueprint, jsonify
 import sqlite3
-from core.utils.external import get_recommendation_trends, get_company_profile
+
 
 api_fundamentals = Blueprint('api_fundamentals', __name__)
 
@@ -23,7 +23,4 @@ def get_bot_fundamentals(bot_id):
         return jsonify({})  # Skip if not stock
 
     symbol = bot['market']
-    return jsonify({
-        'recommendations': get_recommendation_trends(symbol),
-        'profile': get_company_profile(symbol)
-    })
+    return jsonify({})

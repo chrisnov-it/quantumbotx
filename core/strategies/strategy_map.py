@@ -1,9 +1,23 @@
-from core.strategies.logic_ma import run_ma_crossover
-from core.strategies.logic_rsi import run_rsi_breakout
-from core.strategies.logic_mercy import run_full_mercy
+# core/strategies/strategy_map.py
 
-STRATEGY_FUNCTIONS = {
-    'MA_CROSSOVER': run_ma_crossover,
-    'RSI_BREAKOUT': run_rsi_breakout,
-    'FULL_MERCY': run_full_mercy
+# Import the STRATEGY CLASSES, not the old analyze functions.
+from .ma_crossover import MACrossoverStrategy
+from .quantumbotx_hybrid import QuantumBotXHybridStrategy
+from .rsi_breakout import RSIBreakoutStrategy
+from .bollinger_bands import BollingerBandsStrategy
+from .bollinger_squeeze import BollingerSqueezeStrategy
+from .mercy_edge import MercyEdgeStrategy
+from .pulse_sync import PulseSyncStrategy
+
+STRATEGY_MAP = {
+    # The map is now a simple key-to-class mapping.
+    'MA_CROSSOVER': MACrossoverStrategy,
+    'QUANTUMBOTX_HYBRID': QuantumBotXHybridStrategy,
+    'RSI_BREAKOUT': RSIBreakoutStrategy,
+    'BOLLINGER_BANDS': BollingerBandsStrategy,
+    'BOLLINGER_SQUEEZE': BollingerSqueezeStrategy,
+    'MERCY_EDGE': MercyEdgeStrategy,
+    'PULSE_SYNC': PulseSyncStrategy,
 }
+
+# NOTE: You will need to refactor your other strategy files
