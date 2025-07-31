@@ -8,11 +8,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTitle = document.getElementById('modal-title');
     const createBotBtn = document.getElementById('create-bot-btn');
     const cancelBtn = document.getElementById('cancel-create');
+    const paramsContainer = document.getElementById('strategy-params-container');
     const strategySelect = document.getElementById('strategy');
     let currentBotId = null; // Variabel untuk melacak bot yang sedang diedit
 
     // --- Fungsi ---
 
+    // Fungsi untuk mengisi nilai parameter strategi saat mengedit bot
+    function fillStrategyParams(params) {
+        if (!params) return;
+        Object.entries(params).forEach(([key, value]) => {
+            const inputElement = document.getElementById(key);
+            if (inputElement) {
+                inputElement.value = value;
+            }
+        });
+    }
     // Fungsi untuk memuat daftar strategi ke dalam form
     async function loadStrategies() {
         try {
@@ -95,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Buka modal untuk membuat bot baru
     createBotBtn.addEventListener("click", () => {
         currentBotId = null;
+        paramsContainer.innerHTML = ''; // Kosongkan parameter
         form.reset();
         modalTitle.textContent = '🚀 Buat Bot Baru';
         // Set nilai default
@@ -124,6 +136,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 data[key] = value;
             }
         });
+
+        // Kumpulkan parameter strategi dinamis
+        const params = {};
+        const paramInputs = paramsContainer.querySelectorAll('input');
+        paramInputs.forEach(input => {
+            params[input.name] = parseFloat(input.value) || input.value;
+        });
+        data.params = params;
 
         const url = currentBotId ? `/api/bots/${currentBotId}` : '/api/bots';
         const method = currentBotId ? 'PUT' : 'POST';
@@ -170,6 +190,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             form.elements[key].value = bot[key];
                         }
                     }
+                    // Trigger perubahan strategi untuk memuat dan mengisi parameter
+                    strategySelect.dispatchEvent(new Event('change', { 'bubbles': true }));
+                    // Isi nilai parameter yang sudah ada
+                    if (bot.strategy_params) {
+                        setTimeout(() => fillStrategyParams(bot.strategy_params), 200); // Beri waktu untuk form dibuat
+                    }
                     modal.classList.remove('hidden');
                 } else {
                     alert(`❌ Gagal memuat data bot: ${bot.error}`);
@@ -212,6 +238,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Event listener untuk dropdown strategi
+    strategySelect.addEventListener('change', async (e) => {
+        const strategyId = e.target.value;
+        paramsContainer.innerHTML = '<p class="text-sm text-gray-500">Memuat parameter...</p>';
+        if (!strategyId) {
+            paramsContainer.innerHTML = '';
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/strategies/${strategyId}/params`);
+            const params = await res.json();
+            paramsContainer.innerHTML = ''; // Kosongkan lagi
+
+            if (params.length > 0) {
+                params.forEach(param => {
+                    const paramField = `
+                        <div class="col-span-1">
+                            <label for="${param.name}" class="block text-sm font-medium text-gray-700">${param.label}</label>
+                            <input type="${param.type || 'number'}" name="${param.name}" id="${param.name}" value="${param.default}" step="${param.step || 'any'}"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                    `;
+                    paramsContainer.innerHTML += paramField;
+                });
+            } else {
+                paramsContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-2">Strategi ini tidak memiliki parameter kustom.</p>';
+            }
+        } catch (err) {
+            console.error('Gagal memuat parameter strategi:', err);
+            paramsContainer.innerHTML = '<p class="text-sm text-red-500 col-span-2">Gagal memuat parameter.</p>';
+        }
+    });
 
     // --- Panggilan Awal ---
     loadStrategies(); // Muat strategi saat halaman pertama kali dibuka

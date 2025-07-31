@@ -8,6 +8,14 @@ class MACrossoverStrategy(BaseStrategy):
     name = 'Moving Average Crossover'
     description = 'Sinyal berdasarkan persilangan antara dua Moving Averages (misal, 20 & 50). Cocok untuk pasar trending.'
 
+    @classmethod
+    def get_definable_params(cls):
+        """Mengembalikan parameter yang bisa diatur untuk strategi ini."""
+        return [
+            {"name": "fast_period", "label": "Periode MA Cepat", "type": "number", "default": 20},
+            {"name": "slow_period", "label": "Periode MA Lambat", "type": "number", "default": 50}
+        ]
+
     def analyze(self):
         """
         Menganalisis pasar menggunakan strategi Moving Average Crossover (20/50).
@@ -23,8 +31,12 @@ class MACrossoverStrategy(BaseStrategy):
             return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup untuk MA Crossover."}
 
         # --- Hitung Indikator ---
-        df["ma_fast"] = ta.sma(df["close"], length=20)
-        df["ma_slow"] = ta.sma(df["close"], length=50)
+        # Gunakan parameter dinamis, dengan fallback ke nilai default
+        fast_period = self.params.get('fast_period', 20)
+        slow_period = self.params.get('slow_period', 50)
+
+        df["ma_fast"] = ta.sma(df["close"], length=fast_period)
+        df["ma_slow"] = ta.sma(df["close"], length=slow_period)
         df.dropna(inplace=True)
         
         if len(df) < 2:
@@ -35,17 +47,17 @@ class MACrossoverStrategy(BaseStrategy):
 
         price = last["close"]
         signal = "HOLD"
-        explanation = f"MA(20): {last['ma_fast']:.2f}, MA(50): {last['ma_slow']:.2f}. Tidak ada sinyal."
+        explanation = f"MA({fast_period}): {last['ma_fast']:.2f}, MA({slow_period}): {last['ma_slow']:.2f}. Tidak ada sinyal."
 
         # --- Logika Sinyal ---
         # Golden Cross (Sinyal Beli)
         if prev["ma_fast"] <= prev["ma_slow"] and last["ma_fast"] > last["ma_slow"]:
             signal = "BUY"
-            explanation = f"Golden Cross: MA(20) [{last['ma_fast']:.2f}] memotong ke atas MA(50) [{last['ma_slow']:.2f}]"
+            explanation = f"Golden Cross: MA({fast_period}) [{last['ma_fast']:.2f}] memotong ke atas MA({slow_period}) [{last['ma_slow']:.2f}]"
         # Death Cross (Sinyal Jual)
         elif prev["ma_fast"] >= prev["ma_slow"] and last["ma_fast"] < last["ma_slow"]:
             signal = "SELL"
-            explanation = f"Death Cross: MA(20) [{last['ma_fast']:.2f}] memotong ke bawah MA(50) [{last['ma_slow']:.2f}]"
+            explanation = f"Death Cross: MA({fast_period}) [{last['ma_fast']:.2f}] memotong ke bawah MA({slow_period}) [{last['ma_slow']:.2f}]"
 
         return {
             "signal": signal, "price": price, "explanation": explanation,

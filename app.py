@@ -2,10 +2,12 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+import atexit  # <-- 1. Impor modul atexit
 from flask import Flask, render_template, send_from_directory
 from dotenv import load_dotenv
 
 # Import modul inti yang diperlukan saat startup
+import MetaTrader5 as mt5  # <-- 2. Impor MT5 secara langsung
 from core.utils.mt5 import initialize_mt5
 from core.bots.controller import ambil_semua_bot
 
@@ -116,6 +118,22 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+# --- Fungsi Shutdown ---
+def shutdown_handler():
+    """Fungsi yang akan dipanggil saat aplikasi akan keluar."""
+    logger.info("Menerima sinyal shutdown. Memulai proses pembersihan...")
+    
+    # Impor controller di sini untuk menghindari circular import
+    from core.bots import controller
+    
+    # Hentikan semua bot yang aktif
+    active_bot_ids = list(controller.active_bots.keys())
+    for bot_id in active_bot_ids:
+        controller.stop_bot(bot_id)
+    
+    mt5.shutdown()
+    logger.info("Koneksi MetaTrader 5 ditutup. Shutdown selesai.")
+
 # --- Titik Eksekusi Utama ---
 if __name__ == '__main__':
     # Memuat kredensial MT5 dari .env dengan aman
@@ -145,6 +163,9 @@ if __name__ == '__main__':
             logger.info("Semua bot dari database berhasil dimuat.")
         except Exception as e:
             logger.error(f"Terjadi kesalahan saat memuat bot: {e}", exc_info=True)
+
+        # --- 3. Daftarkan fungsi shutdown ---
+        atexit.register(shutdown_handler)
 
         # Jalankan aplikasi Flask
         app.run(

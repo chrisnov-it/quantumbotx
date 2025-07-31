@@ -1,21 +1,14 @@
 # core/routes/api_fundamentals.py
 
 from flask import Blueprint, jsonify
-import sqlite3
-
+# Hapus 'import sqlite3' dan gunakan fungsi dari queries
+from core.db import queries
 
 api_fundamentals = Blueprint('api_fundamentals', __name__)
 
-def get_bot(bot_id):
-    conn = sqlite3.connect('bots.db')
-    conn.row_factory = sqlite3.Row
-    bot = conn.execute('SELECT * FROM bots WHERE id = ?', (bot_id,)).fetchone()
-    conn.close()
-    return bot
-
 @api_fundamentals.route('/api/bots/<int:bot_id>/fundamentals')
 def get_bot_fundamentals(bot_id):
-    bot = get_bot(bot_id)
+    bot = queries.get_bot_by_id(bot_id) # Gunakan fungsi terpusat
     if not bot:
         return jsonify({'error': 'Bot tidak ditemukan'}), 404
 

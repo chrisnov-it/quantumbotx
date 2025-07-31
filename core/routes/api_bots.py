@@ -1,5 +1,6 @@
 # core/routes/api_bots.py - VERSI PERBAIKAN LENGKAP
 
+import json
 import logging
 from flask import Blueprint, jsonify, request
 import pandas_ta as ta
@@ -28,6 +29,20 @@ def get_strategies_route():
         logger.error(f"Gagal memuat daftar strategi: {e}", exc_info=True)
         return jsonify({"error": "Gagal memuat daftar strategi"}), 500
 
+@api_bots.route('/api/strategies/<strategy_id>/params', methods=['GET'])
+def get_strategy_params_route(strategy_id):
+    """Mengembalikan parameter yang bisa diatur untuk sebuah strategi."""
+    strategy_class = STRATEGY_MAP.get(strategy_id)
+    if not strategy_class:
+        return jsonify({"error": "Strategi tidak ditemukan"}), 404
+    
+    # Panggil metode class untuk mendapatkan parameter
+    if hasattr(strategy_class, 'get_definable_params'):
+        params = strategy_class.get_definable_params()
+        return jsonify(params)
+    
+    return jsonify([]) # Kembalikan array kosong jika tidak ada parameter
+
 @api_bots.route('/api/bots', methods=['GET'])
 def get_bots_route():
     """Mengambil semua bot."""
@@ -46,16 +61,22 @@ def get_bots_route():
 def get_single_bot_route(bot_id):
     """Mengambil detail satu bot."""
     bot = queries.get_bot_by_id(bot_id)
+    if bot and bot.get('strategy_params'):
+        # Ubah string JSON menjadi objek untuk frontend
+        bot['strategy_params'] = json.loads(bot['strategy_params'])
     return jsonify(bot) if bot else (jsonify({"error": "Bot tidak ditemukan"}), 404)
 
 @api_bots.route('/api/bots', methods=['POST'])
 def add_bot_route():
     """Membuat bot baru."""
     data = request.get_json()
+    params_json = json.dumps(data.get('params', {}))
+
     new_bot_id = queries.add_bot(
         name=data.get('name'), market=data.get('market'), lot_size=data.get('lot_size'),
         sl_pips=data.get('sl_pips'), tp_pips=data.get('tp_pips'), timeframe=data.get('timeframe'),
-        interval=data.get('check_interval_seconds'), strategy=data.get('strategy')
+        interval=data.get('check_interval_seconds'), strategy=data.get('strategy'),
+        strategy_params=params_json
     )
     if new_bot_id:
         controller.add_new_bot_to_controller(new_bot_id)

@@ -1,5 +1,6 @@
 # core/bots/controller.py
 
+import json
 import logging
 from core.db import queries
 from .trading_bot import TradingBot
@@ -38,12 +39,16 @@ def mulai_bot(bot_id: int):
     if not bot_data:
         return False, f"Bot dengan ID {bot_id} tidak ditemukan."
 
+    # Ubah string JSON dari DB menjadi dictionary Python
+    params_dict = json.loads(bot_data.get('strategy_params', '{}'))
+
     try:
         bot_thread = TradingBot(
             id=bot_data['id'], name=bot_data['name'], market=bot_data['market'],
             lot_size=bot_data['lot_size'], sl_pips=bot_data['sl_pips'],
             tp_pips=bot_data['tp_pips'], timeframe=bot_data['timeframe'],
-            check_interval=bot_data['check_interval_seconds'], strategy=bot_data['strategy']
+            check_interval=bot_data['check_interval_seconds'], strategy=bot_data['strategy'],
+            strategy_params=params_dict
         )
         bot_thread.start()
         active_bots[bot_id] = bot_thread
@@ -82,10 +87,23 @@ def perbarui_bot(bot_id: int, data: dict):
     # menjadi 'interval' yang sesuai dengan kolom database.
     if 'check_interval_seconds' in data:
         data['interval'] = data.pop('check_interval_seconds')
-    # --- AKHIR PERBAIKAN ---
+
+    # Ambil parameter kustom, ubah jadi string JSON, dan simpan
+    custom_params = data.pop('params', {})
+    data['strategy_params'] = json.dumps(custom_params)
+
+    # --- PERBAIKAN BARU: Filter data untuk mencegah TypeError ---
+    # Hanya teruskan argumen yang diharapkan oleh fungsi queries.update_bot
+    expected_args = [
+        'name', 'market', 'lot_size', 'sl_pips', 'tp_pips',
+        'timeframe', 'interval', 'strategy', 'strategy_params'
+    ]
+    
+    update_data = {key: data[key] for key in expected_args if key in data}
 
     try:
-        success = queries.update_bot(bot_id=bot_id, **data)
+        # Gunakan dictionary yang sudah difilter
+        success = queries.update_bot(bot_id=bot_id, **update_data)
         if success:
             logger.info(f"Konfigurasi bot {bot_id} berhasil diperbarui di database.")
             return True, "Bot berhasil diperbarui."

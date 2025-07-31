@@ -83,57 +83,90 @@
             </table>
         </div>
     </main>
-    <!-- Modal Elegan Buat Bot -->
-    <div id="create-bot-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm flex">
-    <div class="bg-white shadow-2xl rounded-xl p-6 w-full max-w-md animate-fadeIn border border-blue-300">
-        <h2 id="modal-title" class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">🚀 Buat Bot Baru</h2>
-        <form id="create-bot-form" class="space-y-4 text-sm">
-            <div>
-                <label for="name" class="block text-xs font-medium text-gray-600 mb-1">Nama Bot</label>
-                <input type="text" id="name" name="name" placeholder="Contoh: Scalper Emas" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-            </div>
-            <div>
-                <label for="market" class="block text-xs font-medium text-gray-600 mb-1">Pasar</label>
-                <input type="text" id="market" name="market" placeholder="Contoh: XAU/USD atau BTC/USDT" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-            </div>
-            <div>
-                <label for="strategy" class="block text-xs font-medium text-gray-600 mb-1">Strategi</label>
-                <select name="strategy" id="strategy" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
-                    <!-- Options will be populated by JavaScript -->
-                </select>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label for="lot_size" class="block text-xs font-medium text-gray-600 mb-1">Ukuran Lot</label>
-                    <input type="number" id="lot_size" name="lot_size" placeholder="0.01" step="0.01" value="0.01" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                </div>
-                <div>
-                    <label for="timeframe" class="block text-xs font-medium text-gray-600 mb-1">Timeframe</label>
-                    <input type="text" id="timeframe" name="timeframe" placeholder="H1" value="H1" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label for="sl_pips" class="block text-xs font-medium text-gray-600 mb-1">Stop Loss (pips)</label>
-                    <input type="number" id="sl_pips" name="sl_pips" placeholder="100" value="100" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                </div>
-                <div>
-                    <label for="tp_pips" class="block text-xs font-medium text-gray-600 mb-1">Take Profit (pips)</label>
-                    <input type="number" id="tp_pips" name="tp_pips" placeholder="200" value="200" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                </div>
-            </div>
-            <div>
-                <label for="check_interval_seconds" class="block text-xs font-medium text-gray-600 mb-1">Interval Cek (detik)</label>
-                <input type="number" id="check_interval_seconds" name="check_interval_seconds" placeholder="60" value="60" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-            </div>
-
-        <div class="flex justify-end gap-3 pt-2">
-            <button type="button" id="cancel-create" class="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded">Batal</button>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded shadow-lg">Buat Bot</button>
+<!-- Modal untuk Membuat/Mengedit Bot -->
+<div id="create-bot-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
+    <!-- PERBAIKAN: Panel modal kini menggunakan flexbox vertikal dan tinggi maksimal -->
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+        
+        <!-- Header Modal (Tidak akan ikut ter-scroll) -->
+        <div class="flex-shrink-0 flex items-start justify-between p-5 border-b rounded-t">
+            <h3 id="modal-title" class="text-xl font-semibold text-gray-900">
+                🚀 Buat Bot Baru
+            </h3>
+            <button type="button" id="cancel-create" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
+                <i class="fas fa-times"></i>
+                <span class="sr-only">Tutup modal</span>
+            </button>
         </div>
+
+        <!-- Form (Area ini yang akan bisa di-scroll) -->
+        <form id="create-bot-form" class="flex-grow overflow-y-auto">
+            <div class="p-6 space-y-6">
+                <!-- Baris 1: Nama & Pasar -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Nama Bot</label>
+                        <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Contoh: XAUUSD Hybrid H1" required>
+                    </div>
+                    <div>
+                        <label for="market" class="block mb-2 text-sm font-medium text-gray-900">Pasar</label>
+                        <input type="text" name="market" id="market" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Contoh: XAUUSD atau EURUSD" required>
+                    </div>
+                </div>
+                <!-- Baris 2: Lot, SL, TP -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="lot_size" class="block mb-2 text-sm font-medium text-gray-900">Ukuran Lot</label>
+                        <input type="number" name="lot_size" id="lot_size" value="0.01" step="0.01" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    </div>
+                    <div>
+                        <label for="sl_pips" class="block mb-2 text-sm font-medium text-gray-900">Stop Loss (pips)</label>
+                        <input type="number" name="sl_pips" id="sl_pips" value="100" step="1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    </div>
+                    <div>
+                        <label for="tp_pips" class="block mb-2 text-sm font-medium text-gray-900">Take Profit (pips)</label>
+                        <input type="number" name="tp_pips" id="tp_pips" value="200" step="1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    </div>
+                </div>
+                <!-- Baris 3: Timeframe & Interval -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="timeframe" class="block mb-2 text-sm font-medium text-gray-900">Timeframe</label>
+                        <select id="timeframe" name="timeframe" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="M1">1 Menit</option>
+                            <option value="M5">5 Menit</option>
+                            <option value="M15">15 Menit</option>
+                            <option value="M30">30 Menit</option>
+                            <option value="H1" selected>1 Jam</option>
+                            <option value="H4">4 Jam</option>
+                            <option value="D1">1 Hari</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="check_interval_seconds" class="block mb-2 text-sm font-medium text-gray-900">Interval Cek (detik)</label>
+                        <input type="number" name="check_interval_seconds" id="check_interval_seconds" value="60" step="1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    </div>
+                </div>
+                <!-- Baris 4: Strategi & Parameternya -->
+                <div>
+                    <label for="strategy" class="block mb-2 text-sm font-medium text-gray-900">Strategi</label>
+                    <select id="strategy" name="strategy" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <option value="" disabled selected>Pilih sebuah strategi</option>
+                    </select>
+                </div>
+                <div id="strategy-params-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                    <!-- Parameter strategi akan dimuat di sini oleh JavaScript -->
+                </div>
+            </div>
         </form>
+
+        <!-- Footer Modal (Tidak akan ikut ter-scroll) -->
+        <div class="flex-shrink-0 flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b">
+            <button type="submit" form="create-bot-form" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Buat Bot</button>
+            <button type="button" id="cancel-create-footer" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">Batal</button>
+        </div>
     </div>
-    </div>
+</div>
 
     <script src="{{ url_for('static', filename='js/trading_bots.js') }}"></script>
 </body>

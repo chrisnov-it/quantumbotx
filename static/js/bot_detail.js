@@ -35,16 +35,29 @@ document.addEventListener('DOMContentLoaded', function() {
             botMarketHeader.textContent = `Pasar: ${botData.market} | Timeframe: ${botData.timeframe}`;
             botStatusBadge.textContent = botData.status;
 
-            // Render Parameter
-            paramsContainer.innerHTML = `
+            // Render Parameter Standar
+            let paramsHTML = `
                 <div class="grid grid-cols-2 gap-4">
                     <div><p class="text-gray-500">Lot Size</p><p class="font-semibold text-gray-800">${botData.lot_size}</p></div>
                     <div><p class="text-gray-500">Stop Loss</p><p class="font-semibold text-gray-800">${botData.sl_pips} pips</p></div>
                     <div><p class="text-gray-500">Take Profit</p><p class="font-semibold text-gray-800">${botData.tp_pips} pips</p></div>
                     <div><p class="text-gray-500">Interval</p><p class="font-semibold text-gray-800">${botData.check_interval_seconds}s</p></div>
-                    <div><p class="text-gray-500">Strategi</p><p class="font-semibold text-gray-800">${botData.strategy}</p></div>
                 </div>
             `;
+
+            // Render Parameter Strategi Kustom jika ada
+            const customParams = botData.strategy_params || {}; // Backend sudah mengubahnya menjadi objek
+            const customParamKeys = Object.keys(customParams);
+
+            if (customParamKeys.length > 0) {
+                paramsHTML += '<div class="border-t mt-4 pt-3"><h4 class="text-sm font-semibold text-gray-700 mb-2">Parameter Strategi</h4><div class="grid grid-cols-2 gap-4">';
+                customParamKeys.forEach(key => {
+                    const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    paramsHTML += `<div><p class="text-gray-500">${label}</p><p class="font-semibold text-gray-800">${customParams[key]}</p></div>`;
+                });
+                paramsHTML += '</div></div>';
+            }
+            paramsContainer.innerHTML = paramsHTML;
             
         } catch (e) {
             console.error('Error fetching bot details:', e);

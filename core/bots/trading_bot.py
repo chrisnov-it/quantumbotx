@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class TradingBot(threading.Thread):
-    def __init__(self, id, name, market, lot_size, sl_pips, tp_pips, timeframe, check_interval, strategy, status='Dijeda'):
+    def __init__(self, id, name, market, lot_size, sl_pips, tp_pips, timeframe, check_interval, strategy, strategy_params={}, status='Dijeda'):
         super().__init__()
         self.id = id
         self.name = name
@@ -23,6 +23,7 @@ class TradingBot(threading.Thread):
         self.timeframe = timeframe
         self.check_interval = check_interval
         self.strategy_name = strategy
+        self.strategy_params = strategy_params
         self.market_for_mt5 = self.market.replace('/', '') # Versi simbol yang bersih untuk MT5
         self.status = status
 
@@ -43,7 +44,7 @@ class TradingBot(threading.Thread):
                 raise ValueError(f"Strategi '{self.strategy_name}' tidak ditemukan.")
 
             # --- PERBAIKAN: Inisialisasi kelas strategi dengan benar ---
-            self.strategy_instance = strategy_class(bot_instance=self)
+            self.strategy_instance = strategy_class(bot_instance=self, params=self.strategy_params)
 
         except Exception as e:
             self.log_activity('ERROR', f"Inisialisasi Gagal: {e}")
@@ -53,13 +54,17 @@ class TradingBot(threading.Thread):
         while not self._stop_event.is_set():
             try:
                 if not mt5.symbol_select(self.market_for_mt5, True):
-                    self.log_activity('WARNING', f"Gagal mengaktifkan simbol {self.market} (di MT5: {self.market_for_mt5}). Pastikan simbol ada di Market Watch.")
+                    msg = f"Gagal mengaktifkan simbol {self.market} (di MT5: {self.market_for_mt5}). Pastikan simbol ada di Market Watch."
+                    self.log_activity('WARNING', msg)
+                    self.last_analysis = {"signal": "ERROR", "price": None, "explanation": msg}
                     time.sleep(self.check_interval)
                     continue
 
                 symbol_info = mt5.symbol_info(self.market_for_mt5)
                 if not symbol_info:
-                    self.log_activity('WARNING', f"Tidak dapat mengambil info untuk simbol {self.market} (di MT5: {self.market_for_mt5}).")
+                    msg = f"Tidak dapat mengambil info untuk simbol {self.market} (di MT5: {self.market_for_mt5})."
+                    self.log_activity('WARNING', msg)
+                    self.last_analysis = {"signal": "ERROR", "price": None, "explanation": msg}
                     time.sleep(self.check_interval)
                     continue
 
