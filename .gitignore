@@ -38,8 +38,14 @@ logs/
 *.egg-info/
 dist/
 build/
-pip-wheel-metadata/
-node_modules/ # Untuk dependensi frontend di masa depan
+# Jangan abaikan package-lock.json, ini penting untuk instalasi konsisten
+# package-lock.json
+
+# Folder dependensi Node.js
+node_modules/
+
+# File konfigurasi & cache dari tooling frontend (ESLint, Prettier, dll)
+eslint.config.js
 
 # ==============================================================================
 # File Spesifik IDE & Sistem Operasi
