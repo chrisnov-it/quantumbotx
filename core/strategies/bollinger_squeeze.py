@@ -43,9 +43,11 @@ class BollingerSqueezeStrategy(BaseStrategy):
         rsi_period = self.params.get('rsi_period', 14)
         volume_factor = self.params.get('volume_factor', 1.5)
 
-        bbu_col = f'BBU_{bb_length}_{bb_std}'
-        bbm_col = f'BBM_{bb_length}_{bb_std}'
-        bbl_col = f'BBL_{bb_length}_{bb_std}'
+        # PERBAIKAN: Paksa format float dengan satu desimal pada nama kolom
+        # untuk mencegah KeyError (misal: 'BBU_20_2' vs 'BBU_20_2.0')
+        bbu_col = f'BBU_{bb_length}_{bb_std:.1f}'
+        bbm_col = f'BBM_{bb_length}_{bb_std:.1f}'
+        bbl_col = f'BBL_{bb_length}_{bb_std:.1f}'
 
         df.ta.bbands(length=bb_length, std=bb_std, append=True)
         df['BB_WIDTH'] = df[bbu_col] - df[bbl_col]

@@ -36,7 +36,7 @@ class TradingBot(threading.Thread):
     def run(self):
         """Metode utama yang dijalankan oleh thread, kini dengan eksekusi trade."""
         self.status = 'Aktif'
-        self.log_activity('START', f"Bot '{self.name}' dimulai dengan strategi {self.strategy_name}.")  # <-- Menggunakan log_activity
+        self.log_activity('START', f"Bot '{self.name}' dimulai.", is_notification=True)
 
         try:
             strategy_class = STRATEGY_MAP.get(self.strategy_name)
@@ -47,7 +47,7 @@ class TradingBot(threading.Thread):
             self.strategy_instance = strategy_class(bot_instance=self, params=self.strategy_params)
 
         except Exception as e:
-            self.log_activity('ERROR', f"Inisialisasi Gagal: {e}")
+            self.log_activity('ERROR', f"Inisialisasi Gagal: {e}", is_notification=True)
             self.status = 'Error'
             return
 
@@ -80,11 +80,11 @@ class TradingBot(threading.Thread):
 
                 time.sleep(self.check_interval)
             except Exception as e:
-                self.log_activity('ERROR', f"Error pada loop utama: {e}", exc_info=True)
+                self.log_activity('ERROR', f"Error pada loop utama: {e}", exc_info=True, is_notification=True)
                 time.sleep(self.check_interval * 2)
 
         self.status = 'Dijeda'
-        self.log_activity('STOP', f"Bot '{self.name}' dihentikan.")
+        self.log_activity('STOP', f"Bot '{self.name}' dihentikan.", is_notification=True)
 
     def stop(self):
         """Mengirim sinyal berhenti ke thread."""
@@ -94,11 +94,11 @@ class TradingBot(threading.Thread):
         """Memeriksa apakah thread sudah diberi sinyal berhenti."""
         return self._stop_event.is_set()
 
-    def log_activity(self, action, details, exc_info=False):
+    def log_activity(self, action, details, exc_info=False, is_notification=False):
         """Mencatat aktivitas bot ke database dan file log."""
         try:
             from core.db.queries import add_history_log
-            add_history_log(self.id, action, details)
+            add_history_log(self.id, action, details, is_notification)
             log_message = f"Bot {self.id} [{action}]: {details}"
             if exc_info:
                 logger.error(log_message, exc_info=True)
@@ -117,7 +117,7 @@ class TradingBot(threading.Thread):
                         return pos
             return None
         except Exception as e:
-            self.log_activity('ERROR', f"Gagal mendapatkan posisi terbuka: {e}", exc_info=True)
+            self.log_activity('ERROR', f"Gagal mendapatkan posisi terbuka: {e}", exc_info=True, is_notification=True)
             return None
 
     def _handle_trade_signal(self, signal, position):
@@ -126,24 +126,24 @@ class TradingBot(threading.Thread):
         if signal == 'BUY':
             # Jika ada posisi SELL, tutup dulu
             if position and position.type == mt5.ORDER_TYPE_SELL:
-                self.log_activity('CLOSE SELL', "Menutup posisi JUAL untuk membuka posisi BELI.")
+                self.log_activity('CLOSE SELL', "Menutup posisi JUAL untuk membuka posisi BELI.", is_notification=True)
                 close_trade(position)
                 position = None  # Reset posisi setelah ditutup
 
             # Jika tidak ada posisi, buka posisi BUY baru
             if not position:
-                self.log_activity('OPEN BUY', "Membuka posisi BELI berdasarkan sinyal.")
+                self.log_activity('OPEN BUY', "Membuka posisi BELI berdasarkan sinyal.", is_notification=True)
                 place_trade(self.market_for_mt5, mt5.ORDER_TYPE_BUY, self.lot_size, self.sl_pips, self.tp_pips, self.id)
 
         # Logika untuk sinyal SELL
         elif signal == 'SELL':
             # Jika ada posisi BUY, tutup dulu
             if position and position.type == mt5.ORDER_TYPE_BUY:
-                self.log_activity('CLOSE BUY', "Menutup posisi BELI untuk membuka posisi JUAL.")
+                self.log_activity('CLOSE BUY', "Menutup posisi BELI untuk membuka posisi JUAL.", is_notification=True)
                 close_trade(position)
                 position = None  # Reset posisi setelah ditutup
 
             # Jika tidak ada posisi, buka posisi SELL baru
             if not position:
-                self.log_activity('OPEN SELL', "Membuka posisi JUAL berdasarkan sinyal.")
+                self.log_activity('OPEN SELL', "Membuka posisi JUAL berdasarkan sinyal.", is_notification=True)
                 place_trade(self.market_for_mt5, mt5.ORDER_TYPE_SELL, self.lot_size, self.sl_pips, self.tp_pips, self.id)

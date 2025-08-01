@@ -127,6 +127,7 @@ Concept, Logic & Execution: `@reynov` aka BabyDev
 
 If you like this project, give it a ⭐ on GitHub, or buy me a coffee to support future versions:
 
+// eslint-disable-next-line markdown/fenced-code-language
 ```
 BTC Wallet: bc1qxxxxxxxxxxxxxx
 USDT TRC20: TRxxxxxxxxxxxx

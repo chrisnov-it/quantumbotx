@@ -128,11 +128,22 @@ def shutdown_handler():
     
     # Hentikan semua bot yang aktif
     active_bot_ids = list(controller.active_bots.keys())
-    for bot_id in active_bot_ids:
-        controller.stop_bot(bot_id)
+    if active_bot_ids:
+        logger.info(f"Menghentikan {len(active_bot_ids)} bot yang aktif...")
     
-    mt5.shutdown()
-    logger.info("Koneksi MetaTrader 5 ditutup. Shutdown selesai.")
+    for bot_id in active_bot_ids:
+        try:
+            logger.info(f"Memberi sinyal berhenti untuk bot ID {bot_id}...")
+            controller.stop_bot(bot_id)
+        except KeyboardInterrupt:
+            # Abaikan Ctrl+C tambahan saat proses shutdown sedang berlangsung.
+            logger.warning(f"KeyboardInterrupt diterima saat menghentikan bot {bot_id}. Melanjutkan proses shutdown.")
+            continue
+        except Exception as e:
+            logger.error(f"Error tak terduga saat menghentikan bot {bot_id} selama shutdown: {e}")
+    
+    mt5.shutdown() # Pastikan koneksi MT5 selalu ditutup
+    logger.info("Koneksi MetaTrader 5 ditutup. Proses shutdown selesai.")
 
 # --- Titik Eksekusi Utama ---
 if __name__ == '__main__':

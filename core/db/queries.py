@@ -77,13 +77,13 @@ def update_bot_status(bot_id, status):
     except sqlite3.Error as e:
         logger.error(f"Gagal update status bot {bot_id}: {e}")
 
-def add_history_log(bot_id, action, details):
+def add_history_log(bot_id, action, details, is_notification=False):
     """Menambahkan log aktivitas/riwayat untuk bot tertentu."""
     try:
         with get_db_connection() as conn:
             conn.execute(
-                'INSERT INTO trade_history (bot_id, action, details) VALUES (?, ?, ?)',
-                (bot_id, action, details)
+                'INSERT INTO trade_history (bot_id, action, details, is_notification, is_read) VALUES (?, ?, ?, ?, ?)',
+                (bot_id, action, details, is_notification, False) # is_read selalu False saat dibuat
             )
             conn.commit()
     except sqlite3.Error as e:
@@ -101,3 +101,35 @@ def get_history_by_bot_id(bot_id):
     except sqlite3.Error as e:
         logger.error(f"Database error saat mengambil riwayat bot {bot_id}: {e}")
         return []
+
+def get_notifications():
+    """Mengambil semua log yang ditandai sebagai notifikasi."""
+    try:
+        with get_db_connection() as conn:
+            notifications = conn.execute('''
+                SELECT h.id, h.action, h.details, h.is_read, h.timestamp, b.name as bot_name
+                FROM trade_history h
+                JOIN bots b ON h.bot_id = b.id
+                WHERE h.is_notification = 1
+                ORDER BY h.timestamp DESC
+            ''').fetchall()
+            return [dict(row) for row in notifications]
+    except sqlite3.Error as e:
+        logger.error(f"Database error saat mengambil notifikasi: {e}")
+        return []
+
+def get_unread_notifications_count():
+    """Menghitung jumlah notifikasi yang belum dibaca."""
+    try:
+        with get_db_connection() as conn:
+            count = conn.execute('SELECT COUNT(id) as unread_count FROM trade_history WHERE is_notification = 1 AND is_read = 0').fetchone()
+            return dict(count) if count else {'unread_count': 0}
+    except sqlite3.Error as e:
+        logger.error(f"Database error saat menghitung notifikasi: {e}")
+        return {'unread_count': 0}
+
+def mark_notifications_as_read():
+    """Menandai semua notifikasi sebagai sudah dibaca."""
+    with get_db_connection() as conn:
+        conn.execute('UPDATE trade_history SET is_read = 1 WHERE is_notification = 1 AND is_read = 0')
+        conn.commit()

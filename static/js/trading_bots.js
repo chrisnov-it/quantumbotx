@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('create-bot-modal');
     const form = document.getElementById('create-bot-form');
     const modalTitle = document.getElementById('modal-title');
+    const submitBtn = document.getElementById('submit-bot-btn'); // <-- 1. Ambil elemen tombol
     const createBotBtn = document.getElementById('create-bot-btn');
     const cancelBtn = document.getElementById('cancel-create');
     const paramsContainer = document.getElementById('strategy-params-container');
@@ -108,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentBotId = null;
         paramsContainer.innerHTML = ''; // Kosongkan parameter
         form.reset();
+        submitBtn.textContent = 'Buat Bot'; // <-- 2. Set teks untuk mode 'Create'
         modalTitle.textContent = '🚀 Buat Bot Baru';
         // Set nilai default
         form.elements.lot_size.value = 0.01;
@@ -183,6 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const bot = await res.json();
                 if (res.ok) {
                     currentBotId = botId;
+                    submitBtn.textContent = 'Ubah Bot'; // <-- 3. Set teks untuk mode 'Edit'
                     modalTitle.textContent = '✏️ Edit Bot';
                     // Isi form dengan data bot yang ada
                     for (const key in bot) {

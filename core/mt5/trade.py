@@ -1,116 +1,104 @@
 # core/mt5/trade.py
-import MetaTrader5 as mt5
+
 import logging
+import MetaTrader5 as mt5
 
 logger = logging.getLogger(__name__)
 
-def place_trade(symbol, order_type, volume, sl_pips, tp_pips, magic):
+def place_trade(symbol, order_type, volume, sl_pips, tp_pips, magic_id):
     """
-    Menempatkan order trading ke MetaTrader 5 dengan logika yang lebih tangguh.
+    Menempatkan trade dengan perhitungan SL/TP yang dinamis berdasarkan 'point' simbol.
     """
-    symbol_info = mt5.symbol_info(symbol)
-    if symbol_info is None:
-        logger.error(f"Gagal mendapatkan info untuk simbol {symbol}, order dibatalkan.")
-        return None
+    try:
+        # 1. Dapatkan informasi simbol untuk point dan digits
+        symbol_info = mt5.symbol_info(symbol)
+        if symbol_info is None:
+            logger.error(f"Gagal mendapatkan info untuk simbol {symbol}. Order dibatalkan.")
+            return None, "Symbol not found"
 
-    # Ambil filling mode yang diizinkan oleh simbol
-    allowed_filling_mode = symbol_info.filling_mode
+        point = symbol_info.point
+        digits = symbol_info.digits
 
-    # --- PERBAIKAN: Gunakan nilai literal untuk kompatibilitas ---
-    # Beberapa versi library MT5 tidak memiliki konstanta SYMBOL_FILLING_*.
-    # Menggunakan nilai integer langsung lebih aman dan kompatibel mundur.
-    # FOK_MODE_FLAG = 1
-    # IOC_MODE_FLAG = 2
+        # 2. Tentukan harga entry (ask untuk BUY, bid untuk SELL)
+        if order_type == mt5.ORDER_TYPE_BUY:
+            price = mt5.symbol_info_tick(symbol).ask
+        elif order_type == mt5.ORDER_TYPE_SELL:
+            price = mt5.symbol_info_tick(symbol).bid
+        else:
+            logger.error(f"Tipe order tidak valid: {order_type}")
+            return None, "Invalid order type"
 
-    filling_type = mt5.ORDER_FILLING_FOK # Default
-    # Prioritaskan IOC jika didukung oleh broker untuk simbol ini
-    if allowed_filling_mode & 2:  # Cek flag untuk IOC (nilai 2)
-        filling_type = mt5.ORDER_FILLING_IOC
-    # Jika tidak, gunakan FOK jika didukung
-    elif allowed_filling_mode & 1:  # Cek flag untuk FOK (nilai 1)
-        filling_type = mt5.ORDER_FILLING_FOK
-    else:
-        logger.warning(f"Simbol {symbol} tidak mendukung FOK atau IOC. Menggunakan FOK sebagai fallback.")
+        # 3. Hitung SL dan TP berdasarkan pips dan point
+        # Asumsi umum: 1 pip = 10 points. Ini membuat kode konsisten di semua pair.
+        pip_value = 10 * point
+        
+        sl_level = 0.0
+        tp_level = 0.0
 
-    point = symbol_info.point
-    price = mt5.symbol_info_tick(symbol).ask if order_type == mt5.ORDER_TYPE_BUY else mt5.symbol_info_tick(symbol).bid
+        if order_type == mt5.ORDER_TYPE_BUY:
+            sl_level = price - (sl_pips * pip_value)
+            tp_level = price + (tp_pips * pip_value)
+        elif order_type == mt5.ORDER_TYPE_SELL:
+            sl_level = price + (sl_pips * pip_value)
+            tp_level = price - (tp_pips * pip_value)
+            
+        # Bulatkan ke jumlah digit yang benar untuk menghindari error presisi
+        sl_level = round(sl_level, digits)
+        tp_level = round(tp_level, digits)
 
-    sl = 0.0
-    tp = 0.0
+        # 4. Siapkan request order
+        request = {
+            "action": mt5.TRADE_ACTION_DEAL,
+            "symbol": symbol,
+            "volume": float(volume),
+            "type": order_type,
+            "price": price,
+            "sl": sl_level,
+            "tp": tp_level,
+            "magic": magic_id,
+            "comment": "QuantumBotX Trade",
+            "type_time": mt5.ORDER_TIME_GTC,
+            "type_filling": mt5.ORDER_FILLING_FOK, # FOK lebih umum didukung oleh broker ECN
+        }
 
-    if order_type == mt5.ORDER_TYPE_BUY:
-        sl = price - sl_pips * point if sl_pips > 0 else 0.0
-        tp = price + tp_pips * point if tp_pips > 0 else 0.0
-    elif order_type == mt5.ORDER_TYPE_SELL:
-        sl = price + sl_pips * point if sl_pips > 0 else 0.0
-        tp = price - tp_pips * point if tp_pips > 0 else 0.0
+        # 5. Kirim order
+        result = mt5.order_send(request)
 
-    request = {
-        "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": symbol,
-        "volume": float(volume),
-        "type": order_type,
-        "price": price,
-        "sl": sl,
-        "tp": tp,
-        "magic": magic,
-        "comment": "QuantumBotX Trade",
-        "type_time": mt5.ORDER_TIME_GTC,
-        "type_filling": filling_type,
-    }
+        # 6. Cek hasil dan log
+        if result.retcode != mt5.TRADE_RETCODE_DONE:
+            logger.error(f"Order GAGAL, retcode={result.retcode}, comment: {result.comment}")
+            logger.error(f"Request Gagal: {request}")
+            return None, result.comment
+        
+        logger.info(f"Order BERHASIL ditempatkan: Deal #{result.deal}, Order #{result.order}")
+        return result, "Order placed successfully"
 
-    logger.info(f"Mengirim order: {request}")
-    result = mt5.order_send(request)
-
-    if result is None:
-        logger.error(f"order_send gagal, last_error()={mt5.last_error()}")
-        return None
-
-    if result.retcode != mt5.TRADE_RETCODE_DONE:
-        logger.error(f"Order GAGAL, retcode={result.retcode}, comment: {result.comment}")
-        logger.error(f"Request Gagal: {request}")
-    else:
-        logger.info(f"Order BERHASIL, ticket={result.order}, comment: {result.comment}")
-
-    return result
-
+    except Exception as e:
+        logger.error(f"Exception saat menempatkan trade: {e}", exc_info=True)
+        return None, str(e)
 
 def close_trade(position):
     """
-    Menutup posisi trading yang ada.
+    Menutup posisi yang ada.
     """
-    if position is None:
-        return
+    try:
+        close_order_type = mt5.ORDER_TYPE_SELL if position.type == mt5.ORDER_TYPE_BUY else mt5.ORDER_TYPE_BUY
+        price = mt5.symbol_info_tick(position.symbol).bid if close_order_type == mt5.ORDER_TYPE_SELL else mt5.symbol_info_tick(position.symbol).ask
 
-    symbol = position.symbol
-    ticket = position.ticket
-    volume = position.volume
-    order_type = mt5.ORDER_TYPE_SELL if position.type == mt5.ORDER_TYPE_BUY else mt5.ORDER_TYPE_BUY
-    price = mt5.symbol_info_tick(symbol).bid if position.type == mt5.ORDER_TYPE_BUY else mt5.symbol_info_tick(symbol).ask
+        request = {
+            "action": mt5.TRADE_ACTION_DEAL, "position": position.ticket, "symbol": position.symbol,
+            "volume": position.volume, "type": close_order_type, "price": price, "magic": position.magic,
+            "comment": "QuantumBotX Close", "type_time": mt5.ORDER_TIME_GTC, "type_filling": mt5.ORDER_FILLING_FOK,
+        }
 
-    symbol_info = mt5.symbol_info(symbol)
-    if symbol_info is None:
-        logger.error(f"Gagal mendapatkan info untuk simbol {symbol} saat menutup posisi, order dibatalkan.")
-        return None
-        
-    allowed_filling_mode = symbol_info.filling_mode
-    # Terapkan logika yang sama untuk menutup posisi
-    filling_type = mt5.ORDER_FILLING_FOK
-    if allowed_filling_mode & 2:  # Cek flag untuk IOC (nilai 2)
-        filling_type = mt5.ORDER_FILLING_IOC
-    elif allowed_filling_mode & 1:  # Cek flag untuk FOK (nilai 1)
-        filling_type = mt5.ORDER_FILLING_FOK
+        result = mt5.order_send(request)
+        if result.retcode != mt5.TRADE_RETCODE_DONE:
+            logger.error(f"Gagal menutup posisi #{position.ticket}, retcode={result.retcode}, comment: {result.comment}")
+            return None, result.comment
 
-    request = {
-        "action": mt5.TRADE_ACTION_DEAL, "symbol": symbol, "volume": float(volume),
-        "type": order_type, "position": ticket, "price": price, "magic": position.magic,
-        "comment": "QuantumBotX Close", "type_time": mt5.ORDER_TIME_GTC, "type_filling": filling_type,
-    }
+        logger.info(f"Posisi #{position.ticket} berhasil ditutup.")
+        return result, "Position closed successfully"
 
-    logger.info(f"Menutup posisi: {request}")
-    result = mt5.order_send(request)
-
-    if result and result.retcode == mt5.TRADE_RETCODE_DONE:
-        logger.info(f"Posisi {ticket} berhasil ditutup.")
-    else:
-        logger.error(f"Gagal menutup posisi, retcode={result.retcode if result else 'N/A'}, comment: {result.comment if result else mt5.last_error()}")
+    except Exception as e:
+        logger.error(f"Exception saat menutup posisi: {e}", exc_info=True)
+        return None, str(e)

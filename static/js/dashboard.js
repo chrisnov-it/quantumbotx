@@ -45,12 +45,12 @@ async function fetchAllBots() {
         if (activeBots.length === 0) {
             listEl.innerHTML = '<p class="p-4 text-gray-500">Tidak ada bot yang sedang aktif.</p>';
         } else {
-            activeBots.forEach(bot => {
+            const botsHtml = activeBots.map(bot => {
                 const badge = bot.strategy === 'MERCY_EDGE'
                     ? `<span class="ml-2 px-2 py-0.5 text-xs bg-purple-100 text-purple-800 rounded-full">AI</span>`
                     : '';
 
-                const html = `
+                return `
                     <div class="p-4 hover:bg-gray-50 transition">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
@@ -72,8 +72,8 @@ async function fetchAllBots() {
                         </div>
                     </div>
                 `;
-                listEl.innerHTML += html;
-            });
+            }).join('');
+            listEl.innerHTML = botsHtml;
         }
 
     } catch (error) {
@@ -119,7 +119,8 @@ async function updatePriceChart(symbol = 'EURUSD') {
             priceChart.data.datasets[0].data = chartData.data;
             priceChart.update();
         } else {
-            priceChart = new Chart(ctx, config);
+             
+            priceChart = new Chart(ctx, config); // eslint-disable-line no-undef
         }
 
     } catch (error) {
@@ -166,48 +167,25 @@ async function updateRsiChart(symbol = 'EURUSD') {
             rsiChart.data.labels = rsiData.timestamps;
             rsiChart.data.datasets[0].data = rsiData.rsi_values;
             rsiChart.update();
-        } else {
-            rsiChart = new Chart(ctx, config);
+        } else {  
+            rsiChart = new Chart(ctx, config); // eslint-disable-line no-undef
         }
 
     } catch (error) {
-        console.error('[AI] Gagal memuat sinyal AI:', error);
-        if (aiSignalSymbolEl) aiSignalSymbolEl.textContent = 'Error';
-        if (aiSignalDecisionEl) aiSignalDecisionEl.textContent = 'Error';
-        if (aiSignalExplanationEl) aiSignalExplanationEl.textContent = 'Error loading AI signal.';
-        if (strategyNameEl) strategyNameEl.textContent = 'Error';
+        console.error('[RSI Chart] Gagal update grafik RSI:', error);
+        const ctx = document.getElementById('rsiChart');
+        if (ctx && ctx.parentElement) {
+            ctx.parentElement.innerHTML = '<p class="text-center text-red-500">Gagal memuat data RSI.</p>';
+        }
     }
 }
 
 // DOM ready
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Elemen Global AI Signal ---
-    const aiSignalSymbolEl = document.getElementById('ai-signal-symbol');
-    const aiSignalDecisionEl = document.getElementById('ai-signal-decision');
-    const aiSignalExplanationEl = document.getElementById('ai-signal-explanation');
-    const refreshAiSignalButton = document.getElementById('refresh-ai-signal-button');
-
     updateDashboardStats();
     fetchAllBots();
     updatePriceChart();
     updateRsiChart();
-
-    // Event listener untuk tombol refresh AI Signal
-    let isAiSignalLoading = false;
-    if (refreshAiSignalButton) {
-        refreshAiSignalButton.addEventListener('click', async () => {
-            if (isAiSignalLoading) return;
-            isAiSignalLoading = true;
-            refreshAiSignalButton.disabled = true;
-            refreshAiSignalButton.textContent = 'Refreshing...';
-
-            await fetchAiSignal();
-
-            isAiSignalLoading = false;
-            refreshAiSignalButton.disabled = false;
-            refreshAiSignalButton.textContent = 'Refresh AI Signal';
-        });
-    }
 
     // Interval refresh
     setInterval(updateDashboardStats, 10000);
