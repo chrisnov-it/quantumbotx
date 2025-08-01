@@ -120,6 +120,18 @@ def stop_bot_route(bot_id):
     success, message = controller.stop_bot(bot_id)
     return jsonify({'message': message}) if success else (jsonify({'error': message}), 500)
 
+@api_bots.route('/api/bots/start_all', methods=['POST'])
+def start_all_bots_route():
+    """Memulai semua bot yang dijeda."""
+    success, message = controller.start_all_bots()
+    return jsonify({'message': message}) if success else (jsonify({'error': message}), 400)
+
+@api_bots.route('/api/bots/stop_all', methods=['POST'])
+def stop_all_bots_route():
+    """Menghentikan semua bot yang aktif."""
+    success, message = controller.stop_all_bots()
+    return jsonify({'message': message}) if success else (jsonify({'error': message}), 400)
+
 @api_bots.route('/api/bots/<int:bot_id>/analysis', methods=['GET'])
 def get_analysis_route(bot_id):
     """Mendapatkan data analisis terakhir."""

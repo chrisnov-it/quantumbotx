@@ -63,9 +63,15 @@
                 <h2 class="text-2xl font-bold text-gray-800">Trading Bots</h2>
                 <p class="text-gray-600">Kelola semua bot trading aktif dan non-aktif Anda.</p>
             </div>
-            <button id="create-bot-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
-                <i class="fas fa-plus mr-2"></i> Buat Bot Baru
-            </button>
+            <div class="flex items-center space-x-2">
+                <button id="start-all-btn" class="bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition flex items-center" title="Jalankan semua bot yang dijeda">
+                    <i class="fas fa-play mr-2"></i> Start All
+                </button>
+                <button id="stop-all-btn" class="bg-red-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-600 transition flex items-center" title="Hentikan semua bot yang aktif">
+                    <i class="fas fa-stop mr-2"></i> Stop All
+                </button>
+                <button id="create-bot-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition flex items-center"><i class="fas fa-plus mr-2"></i> Buat Bot Baru</button>
+            </div>
         </div>
 
         <div class="bg-white rounded-lg shadow overflow-hidden">

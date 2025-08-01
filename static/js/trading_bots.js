@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTitle = document.getElementById('modal-title');
     const submitBtn = document.getElementById('submit-bot-btn'); // <-- 1. Ambil elemen tombol
     const createBotBtn = document.getElementById('create-bot-btn');
+    const startAllBtn = document.getElementById('start-all-btn');
+    const stopAllBtn = document.getElementById('stop-all-btn');
     const cancelBtn = document.getElementById('cancel-create');
     const paramsContainer = document.getElementById('strategy-params-container');
     const strategySelect = document.getElementById('strategy');
@@ -120,6 +122,44 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.remove('hidden');
     });
 
+    // Event listener untuk tombol Start All
+    startAllBtn.addEventListener('click', async () => {
+        if (!confirm('Apakah Anda yakin ingin menjalankan semua bot yang sedang dijeda?')) return;
+
+        try {
+            const res = await fetch('/api/bots/start_all', { method: 'POST' });
+            const result = await res.json();
+            if (res.ok) {
+                alert(`✅ ${result.message}`);
+                fetchBots(); // Refresh tabel
+            } else {
+                alert(`❌ ${result.error}`);
+            }
+        } catch (err) {
+            console.error('Error starting all bots:', err);
+            alert('❌ Gagal terhubung ke server.');
+        }
+    });
+
+    // Event listener untuk tombol Stop All
+    stopAllBtn.addEventListener('click', async () => {
+        if (!confirm('Apakah Anda yakin ingin menghentikan semua bot yang sedang berjalan?')) return;
+
+        try {
+            const res = await fetch('/api/bots/stop_all', { method: 'POST' });
+            const result = await res.json();
+            if (res.ok) {
+                alert(`✅ ${result.message}`);
+                fetchBots(); // Refresh tabel
+            } else {
+                alert(`❌ ${result.error}`);
+            }
+        } catch (err) {
+            console.error('Error stopping all bots:', err);
+            alert('❌ Gagal terhubung ke server.');
+        }
+    });
+
     // Tutup modal
     cancelBtn.addEventListener("click", () => {
         modal.classList.add('hidden');
@@ -166,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert(`❌ Gagal: ${result.error || 'Terjadi kesalahan tidak diketahui'}`);
             }
         } catch (err) {
-            console.error(err);
+            console.error('Error submitting bot form:', err);
             alert("❌ Gagal terhubung ke server.");
         }
     });
@@ -204,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(`❌ Gagal memuat data bot: ${bot.error}`);
                 }
             } catch (err) {
-                console.error(err);
+                console.error(`Error fetching bot ${botId} for edit:`, err);
                 alert('❌ Gagal terhubung ke server untuk mengedit.');
             }
             return;
@@ -236,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert(`❌ ${result.error || 'Operasi gagal'}`);
             }
         } catch (err) {
-            console.error(err);
+            console.error(`Error performing action '${action}' on bot ${botId}:`, err);
             alert("❌ Gagal terhubung ke server untuk melakukan aksi.");
         }
     });

@@ -62,18 +62,47 @@ def mulai_bot(bot_id: int):
 
 def stop_bot(bot_id: int):
     """Menghentikan thread bot yang sedang berjalan."""
-    if bot_id in active_bots and active_bots[bot_id].is_alive():
-        bot_thread = active_bots[bot_id]
+    # PERBAIKAN: Gunakan .pop() untuk mengambil dan menghapus bot secara atomik.
+    # Ini mencegah race condition di mana dua proses mencoba menghentikan bot yang sama.
+    bot_thread = active_bots.pop(bot_id, None)
+
+    if bot_thread and bot_thread.is_alive():
         bot_thread.stop()
         bot_thread.join(timeout=10) # Tunggu thread berhenti
-        del active_bots[bot_id]
         queries.update_bot_status(bot_id, 'Dijeda')
         logger.info(f"Bot {bot_id} berhasil dihentikan.")
         return True, f"Bot {bot_thread.name} berhasil dihentikan."
     
-    # Jika bot tidak ada di memori tapi statusnya 'Aktif' di DB (state tidak konsisten)
-    queries.update_bot_status(bot_id, 'Dijeda')
-    return True, f"Bot {bot_id} dihentikan (state tidak konsisten telah diperbaiki)."
+    # Jika bot tidak ada di memori (mungkin sudah dihentikan oleh proses lain)
+    # atau jika status di DB tidak konsisten, pastikan status di DB benar.
+    queries.update_bot_status(bot_id, 'Dijeda') # Pastikan status di DB adalah 'Dijeda'
+    return True, f"Bot {bot_id} sudah dihentikan atau tidak sedang berjalan."
+
+def start_all_bots():
+    """Memulai semua bot yang statusnya 'Dijeda'."""
+    all_bots = queries.get_all_bots()
+    bots_to_start = [bot for bot in all_bots if bot['status'] == 'Dijeda']
+    
+    if not bots_to_start:
+        return False, "Tidak ada bot yang bisa dimulai (semua sudah aktif atau error)."
+
+    started_count = 0
+    for bot in bots_to_start:
+        success, _ = mulai_bot(bot['id'])
+        if success:
+            started_count += 1
+    
+    return True, f"Berhasil memulai {started_count} dari {len(bots_to_start)} bot."
+
+def stop_all_bots():
+    """Menghentikan semua bot yang sedang berjalan."""
+    running_bot_ids = list(active_bots.keys())
+    if not running_bot_ids:
+        return False, "Tidak ada bot yang sedang berjalan."
+
+    for bot_id in running_bot_ids:
+        stop_bot(bot_id)
+    return True, f"Sinyal berhenti telah dikirim ke {len(running_bot_ids)} bot."
 
 def perbarui_bot(bot_id: int, data: dict):
     """Memperbarui konfigurasi bot di database."""
