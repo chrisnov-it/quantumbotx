@@ -2,9 +2,7 @@
 
 import pandas_ta as ta
 import numpy as np
-import MetaTrader5 as mt5
 from .base_strategy import BaseStrategy
-from core.data.fetch import get_rates
 
 class QuantumVelocityStrategy(BaseStrategy):
     name = 'Quantum Velocity'
@@ -21,15 +19,10 @@ class QuantumVelocityStrategy(BaseStrategy):
             {"name": "squeeze_factor", "label": "Faktor Squeeze", "type": "number", "default": 0.7, "step": 0.1},
         ]
 
-    def analyze(self):
+    def analyze(self, df):
         """
         Menganalisis pasar dengan filter tren jangka panjang dan pemicu breakout.
         """
-        tf_const = self.bot.tf_map.get(self.bot.timeframe, mt5.TIMEFRAME_H1)
-        
-        # Butuh data yang cukup untuk EMA 200
-        df = get_rates(self.bot.market_for_mt5, tf_const, 250)
-
         if df is None or df.empty or len(df) < 201:
             return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup untuk Quantum Velocity."}
 

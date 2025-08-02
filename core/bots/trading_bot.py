@@ -68,9 +68,13 @@ class TradingBot(threading.Thread):
                     time.sleep(self.check_interval)
                     continue
 
-                # --- PERBAIKAN: Panggil metode analyze dari objek strategi ---
-                # Metode analyze tidak lagi memerlukan argumen
-                self.last_analysis = self.strategy_instance.analyze()
+                # --- PERBAIKAN: Bot sekarang yang mengambil data ---
+                from core.data.fetch import get_rates
+                tf_const = self.tf_map.get(self.timeframe, mt5.TIMEFRAME_H1)
+                # Ambil data yang cukup untuk strategi terkompleks (misal, 250 bar untuk EMA 200)
+                df = get_rates(self.market_for_mt5, tf_const, 250)
+
+                self.last_analysis = self.strategy_instance.analyze(df)
                 logger.info(f"Bot {self.id} [{self.strategy_name}] - Last Analysis: {self.last_analysis}")
                 signal = self.last_analysis.get("signal", "HOLD")
 

@@ -1,8 +1,6 @@
 # /core/strategies/quantumbotx_hybrid.py
 import pandas_ta as ta
-import MetaTrader5 as mt5
 from .base_strategy import BaseStrategy
-from core.data.fetch import get_rates
 
 class QuantumBotXHybridStrategy(BaseStrategy):
     name = 'QuantumBotX Hybrid'
@@ -20,19 +18,13 @@ class QuantumBotXHybridStrategy(BaseStrategy):
             {"name": "bb_std", "label": "Std Dev BB", "type": "number", "default": 2.0, "step": 0.1}
         ]
 
-    def analyze(self):
+    def analyze(self, df):
         """
         Menganalisis pasar menggunakan strategi Hybrid yang adaptif.
         Menggunakan MA Crossover saat trending (ADX > 25) dan
         Bollinger Bands saat ranging (ADX < 25).
         """
-        tf_const = self.bot.tf_map.get(self.bot.timeframe, mt5.TIMEFRAME_H1)
-        
-        # PERBAIKAN: Minta lebih banyak data. Indikator kompleks seperti ADX
-        # butuh "pemanasan" lebih lama. 100 bar adalah angka yang lebih aman.
-        data_points_to_fetch = 100
         required_data_points = 51 # Tetap butuh minimal 51 untuk SMA(50)
-        df = get_rates(self.bot.market_for_mt5, tf_const, data_points_to_fetch)
 
         if df is None or df.empty or len(df) < required_data_points:
             return {"signal": "HOLD", "price": None, "explanation": f"Data tidak cukup ({len(df) if df is not None else 0}/{required_data_points} bar)."}

@@ -19,7 +19,7 @@ class MercyEdgeStrategy(BaseStrategy):
             {"name": "stoch_smooth", "label": "Stoch Smooth", "type": "number", "default": 3},
         ]
 
-    def analyze(self):
+    def analyze(self, df_h1):
         # Ambil parameter dinamis
         macd_fast = self.params.get('macd_fast', 12)
         macd_slow = self.params.get('macd_slow', 26)
@@ -28,9 +28,8 @@ class MercyEdgeStrategy(BaseStrategy):
         stoch_d = self.params.get('stoch_d', 3)
         stoch_smooth = self.params.get('stoch_smooth', 3)
 
-        # Gunakan fungsi get_rates yang terstandarisasi
+        # Ambil data sekunder (D1), data primer (H1) sudah diberikan
         df_d1 = get_rates(self.bot.market_for_mt5, mt5.TIMEFRAME_D1, 200)
-        df_h1 = get_rates(self.bot.market_for_mt5, mt5.TIMEFRAME_H1, 100)
 
         if df_d1 is None or df_h1 is None or len(df_d1) < 50 or len(df_h1) < 30:
             return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup"}

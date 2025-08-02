@@ -1,137 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - QuantumBotX</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="bg-gray-100 font-sans">
-    <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <div id="sidebar" class="sidebar bg-white w-64 shadow-lg flex flex-col">
-            <div class="p-4 flex items-center border-b">
-                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                    QT
+<!-- templates/settings.html (Setelah Refactor) -->
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Pengaturan</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4">Profil</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-700">Nama Lengkap</label>
+                    <input type="text" value="Reynov Christian" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
-                <div class="ml-3 logo-text">
-                    <h1 class="text-xl font-bold text-gray-800">QuantumBotX</h1>
-                    <p class="text-xs text-gray-500">The AI-Powered Strategy Platform</p>
+                <div>
+                    <label class="text-sm font-medium text-gray-700">Alamat Email</label>
+                    <input type="email" value="contact@chrisnov.com" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm" readonly>
                 </div>
-            </div>
-            <div class="flex-1 overflow-y-auto">
-                <nav class="mt-6">
-                    <div class="px-4 mb-4">
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider sidebar-text">Navigation</p>
-                    </div>
-                    
-                    <a href="/" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50">
-                        <i class="fas fa-chart-line"></i>
-                        <span class="ml-3 sidebar-text">Dashboard</span>
-                    </a>
-                    <a href="/trading_bots" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50">
-                        <i class="fas fa-robot"></i>
-                        <span class="ml-3 sidebar-text">Trading Bots</span>
-                    </a>
-                    <a href="/portfolio" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50">
-                        <i class="fas fa-wallet"></i>
-                        <span class="ml-3 sidebar-text">Portfolio</span>
-                    </a>
-                    <a href="/history" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50">
-                        <i class="fas fa-history"></i>
-                        <span class="ml-3 sidebar-text">History</span>
-                    </a>
-                    <a href="/settings" class="nav-item flex items-center px-4 py-3 text-blue-600 bg-blue-50 border-r-4 border-blue-600">
-                        <i class="fas fa-cog"></i>
-                        <span class="ml-3 sidebar-text">Settings</span>
-                    </a>
-                    
-                    <div class="px-4 mt-8 mb-4">
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider sidebar-text">Market Data</p>
-                    </div>
-                    
-                    <a href="/cryptocurrency" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50">
-                        <i class="fab fa-bitcoin"></i>
-                        <span class="ml-3 sidebar-text">Cryptocurrency</span>
-                    </a>
-                    <a href="/stocks" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50">
-                        <i class="fas fa-chart-bar"></i>
-                        <span class="ml-3 sidebar-text">Stocks</span>
-                    </a>
-                    <a href="/forex" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50">
-                        <i class="fas fa-exchange-alt"></i>
-                        <span class="ml-3 sidebar-text">Forex</span>
-                    </a>
-                </nav>
-            </div>
-            <div class="p-4 border-t">
-                <a href="/profile" class="flex items-center group">
-                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-user text-gray-600"></i>
-                    </div>
-                    <div class="ml-3 sidebar-text ">
-                        <p class="text-sm font-medium text-gray-800 group-hover:text-blue-600">Reynov Christian</p>
-                        <p class="text-xs text-gray-500 group-hover:text-blue-600">Developer</p>
-                    </div>
-                </a>
+                <button class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700">Simpan Perubahan</button>
             </div>
         </div>
-        
-        <!-- Main Content -->
-        <div class="flex-1 overflow-auto">
-            <!-- Top Navigation -->
-            <header class="bg-white shadow-sm">
-                <div class="flex items-center justify-between px-6 py-4">
-                    <div class="flex items-center">
-                        <button id="sidebar-toggle" class="text-gray-500 focus:outline-none">
-                            <i class="fas fa-bars"></i>
-                        </button>
-                        <div class="ml-4 relative">
-                            <input type="text" class="w-64 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Search markets, bots...">
-                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <a href="/notifications" class="relative text-gray-500 hover:text-blue-600">
-                            <i class="fas fa-bell"></i>
-                            <span id="notification-dot" class="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500 hidden"></span>
-                        </a>
-                        <a href="/profile" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300">
-                            <i class="fas fa-user text-gray-600"></i>
-                        </a>
-                    </div>
-                </div>
-            </header>
-            
-            <main class="p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Pengaturan</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 space-y-6">
-                        <div class="bg-white p-6 rounded-lg shadow">
-                            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4">Profil</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700">Nama Lengkap</label>
-                                    <input type="text" value="Reynov Christian" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700">Alamat Email</label>
-                                    <input type="email" value="contact@chrisnov.com" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm" readonly>
-                                </div>
-                                <button class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700">Simpan Perubahan</button>
-                            </div>
-                        </div>
-                        <div class="bg-white p-6 rounded-lg shadow">
-                            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4">API Keys Bursa</h3>
-                            </div>
-                    </div>
-                </div>
-            </main>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4">API Keys Bursa</h3>
+            <!-- Konten untuk API Keys bisa ditambahkan di sini -->
         </div>
     </div>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

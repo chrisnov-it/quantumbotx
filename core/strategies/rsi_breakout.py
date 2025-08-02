@@ -1,8 +1,6 @@
 # /core/strategies/rsi_breakout.py
 import pandas_ta as ta
-import MetaTrader5 as mt5
 from .base_strategy import BaseStrategy
-from core.data.fetch import get_rates
 
 class RSIBreakoutStrategy(BaseStrategy):
     name = 'RSI Breakout'
@@ -17,14 +15,10 @@ class RSIBreakoutStrategy(BaseStrategy):
             {"name": "oversold_level", "label": "Level Oversold", "type": "number", "default": 30}
         ]
 
-    def analyze(self):
-        tf_const = self.bot.tf_map.get(self.bot.timeframe, mt5.TIMEFRAME_H1)
-        
+    def analyze(self, df):
         rsi_period = self.params.get('rsi_period', 14)
         overbought_level = self.params.get('overbought_level', 70)
         oversold_level = self.params.get('oversold_level', 30)
-
-        df = get_rates(self.bot.market_for_mt5, tf_const, rsi_period + 5)
 
         if df is None or df.empty or len(df) < rsi_period + 2:
             return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup untuk RSI."}

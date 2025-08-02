@@ -34,22 +34,22 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 
 # --- Registrasi Blueprints ---
 # Impor blueprints setelah 'app' dibuat untuk menghindari circular import
-from core.routes.api_dashboard import api_dashboard  # noqa: E402
-from core.routes.api_chart import api_chart  # noqa: E402
-from core.routes.api_bots import api_bots  # noqa: E402
-from core.routes.api_profile import api_profile  # noqa: E402
-from core.routes.api_portfolio import api_portfolio  # noqa: E402
-from core.routes.api_history import api_history  # noqa: E402
-from core.routes.api_notifications import api_notifications  # noqa: E402
-from core.routes.api_stocks import api_stocks  # noqa: E402
-from core.routes.api_forex import api_forex  # noqa: E402
-from core.routes.api_crypto import api_crypto  # noqa: E402
-from core.routes.api_fundamentals import api_fundamentals  # noqa: E402
+from core.routes.api_dashboard import api_dashboard
+from core.routes.api_chart import api_chart
+from core.routes.api_bots import api_bots
+from core.routes.api_profile import api_profile
+from core.routes.api_portfolio import api_portfolio
+from core.routes.api_history import api_history
+from core.routes.api_notifications import api_notifications
+from core.routes.api_stocks import api_stocks
+from core.routes.api_forex import api_forex
+from core.routes.api_fundamentals import api_fundamentals
+from core.routes.api_backtest import api_backtest
 
 # Buat daftar semua blueprints untuk registrasi yang lebih rapi
 blueprints = [
     api_dashboard, api_chart, api_bots, api_profile, api_portfolio, api_history,
-    api_notifications, api_stocks, api_forex, api_crypto, api_fundamentals
+    api_notifications, api_stocks, api_forex, api_fundamentals, api_backtest
 ]
 
 # Daftarkan setiap blueprint ke aplikasi
@@ -59,48 +59,47 @@ for blueprint in blueprints:
 # --- Rute Halaman (Views) ---
 @app.route('/')
 def dashboard():
-    return render_template('index.html')
+    return render_template('index.html', active_page='dashboard')
 
 @app.route('/trading_bots')
 def bots_page():
-    return render_template('trading_bots.html')
+    return render_template('trading_bots.html', active_page='trading_bots')
 
 @app.route('/bots/<int:bot_id>')
 def bot_detail_page(bot_id):
-    return render_template('bot_detail.html')
+    return render_template('bot_detail.html', active_page='trading_bots') # Tetap di menu trading_bots
 
-# ... (rute-rute halaman lainnya tetap sama) ...
+@app.route('/backtesting')
+def backtesting_page():
+    return render_template('backtesting.html', active_page='backtesting')
+
 @app.route('/portfolio')
 def portfolio_page():
-    return render_template('portfolio.html')
+    return render_template('portfolio.html', active_page='portfolio')
 
 @app.route('/history')
 def history_page():
-    return render_template('history.html')
+    return render_template('history.html', active_page='history')
 
 @app.route('/settings')
 def settings_page():
-    return render_template('settings.html')
+    return render_template('settings.html', active_page='settings')
 
 @app.route('/profile')
 def profile_page():
-    return render_template('profile.html')
+    return render_template('profile.html', active_page='profile') # Asumsi profile punya menu sendiri
 
 @app.route('/notifications')
 def notifications_page():
-    return render_template('notifications.html')
-
-@app.route('/cryptocurrency')
-def crypto_page():
-    return render_template('cryptocurrency.html')
+    return render_template('notifications.html', active_page='notifications')
 
 @app.route('/stocks')
 def stocks_page():
-    return render_template('stocks.html')
+    return render_template('stocks.html', active_page='stocks')
 
 @app.route('/forex')
 def forex_page():
-    return render_template('forex.html')
+    return render_template('forex.html', active_page='forex')
 
 # --- Error Handlers & Rute Lain-lain ---
 @app.errorhandler(404)
@@ -145,6 +144,21 @@ def shutdown_handler():
     mt5.shutdown() # Pastikan koneksi MT5 selalu ditutup
     logger.info("Koneksi MetaTrader 5 ditutup. Proses shutdown selesai.")
 
+# --- Filter Log Kustom ---
+class RequestLogFilter(logging.Filter):
+    """
+    Filter untuk menyembunyikan log permintaan (polling) yang tidak penting dari terminal.
+    """
+    def filter(self, record):
+        # Pesan log dari Werkzeug terlihat seperti: "GET /api/path HTTP/1.1" 200 -
+        msg = record.getMessage()
+        # Daftar path yang ingin kita sembunyikan dari log konsol
+        paths_to_ignore = [
+            "GET /api/notifications/unread-count",
+            "GET /api/bots/analysis" # <-- Ini juga sering di-poll
+        ]
+        return not any(path in msg for path in paths_to_ignore)
+
 # --- Titik Eksekusi Utama ---
 if __name__ == '__main__':
     # Memuat kredensial MT5 dari .env dengan aman
@@ -162,26 +176,34 @@ if __name__ == '__main__':
         exit(1)
 
     # Inisialisasi koneksi ke MetaTrader 5
-    if not initialize_mt5(ACCOUNT, PASSWORD, SERVER):
-        logger.critical("GAGAL terhubung ke MetaTrader 5. Pastikan kredensial benar dan terminal berjalan.")
-        exit(1)
-    else:
+    # PERBAIKAN: Jangan langsung exit. Coba hubungkan, tapi biarkan aplikasi tetap berjalan jika gagal.
+    # Koneksi akan dicoba lagi saat bot pertama kali dimulai.
+    if initialize_mt5(ACCOUNT, PASSWORD, SERVER):
         logger.info("Berhasil terhubung ke MetaTrader 5.")
-
         # Muat semua bot yang ada di database
         try:
             ambil_semua_bot()
             logger.info("Semua bot dari database berhasil dimuat.")
         except Exception as e:
             logger.error(f"Terjadi kesalahan saat memuat bot: {e}", exc_info=True)
+    else:
+        logger.warning("GAGAL terhubung ke MetaTrader 5 saat startup. Aplikasi akan berjalan tanpa koneksi live.")
+        logger.warning("Fitur bot live tidak akan berfungsi sampai koneksi MT5 pulih.")
 
-        # --- 3. Daftarkan fungsi shutdown ---
-        atexit.register(shutdown_handler)
-
-        # Jalankan aplikasi Flask
-        app.run(
-            debug=os.getenv('FLASK_DEBUG', 'False').lower() == 'true',
-            host=os.getenv('FLASK_HOST', '127.0.0.1'),
-            port=int(os.getenv('FLASK_PORT', 5000)),
-            use_reloader=False  # Penting: False untuk mencegah eksekusi ganda pada background thread
-        )
+    # --- Terapkan Filter Log ---
+    # Dapatkan logger bawaan Werkzeug dan tambahkan filter kita
+    werkzeug_logger = logging.getLogger('werkzeug')
+    werkzeug_logger.addFilter(RequestLogFilter())
+ 
+    # --- 3. Daftarkan fungsi shutdown ---
+    # PERBAIKAN: Pindahkan ke luar blok if/else agar selalu dijalankan.
+    atexit.register(shutdown_handler)
+ 
+    # Jalankan aplikasi Flask
+    # PERBAIKAN: Pindahkan ke luar blok if/else agar server selalu berjalan.
+    app.run(
+        debug=os.getenv('FLASK_DEBUG', 'False').lower() == 'true',
+        host=os.getenv('FLASK_HOST', '127.0.0.1'),
+        port=int(os.getenv('FLASK_PORT', 5000)),
+        use_reloader=False  # Penting: False untuk mencegah eksekusi ganda pada background thread
+    )

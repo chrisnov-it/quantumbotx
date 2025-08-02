@@ -1,8 +1,6 @@
 # /core/strategies/ma_crossover.py
 import pandas_ta as ta
-import MetaTrader5 as mt5
 from .base_strategy import BaseStrategy
-from core.data.fetch import get_rates
 
 class MACrossoverStrategy(BaseStrategy):
     name = 'Moving Average Crossover'
@@ -16,17 +14,11 @@ class MACrossoverStrategy(BaseStrategy):
             {"name": "slow_period", "label": "Periode MA Lambat", "type": "number", "default": 50}
         ]
 
-    def analyze(self):
+    def analyze(self, df):
         """
         Menganalisis pasar menggunakan strategi Moving Average Crossover (20/50).
         Ideal untuk pasar dengan tren kuat seperti XAUUSD.
         """
-        # Mengakses properti dari instance bot yang tersimpan
-        tf_const = self.bot.tf_map.get(self.bot.timeframe, mt5.TIMEFRAME_H1)
-        
-        # Butuh data yang cukup untuk MA 50
-        df = get_rates(self.bot.market_for_mt5, tf_const, 52)
-
         if df is None or df.empty or len(df) < 51:
             return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup untuk MA Crossover."}
 
