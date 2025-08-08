@@ -1,4 +1,4 @@
-# /core/strategies/bollinger_bands.py
+# /core/strategies/bollinger_reversion.py
 import pandas_ta as ta
 import numpy as np
 from .base_strategy import BaseStrategy
