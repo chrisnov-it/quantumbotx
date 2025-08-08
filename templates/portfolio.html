@@ -1,15 +1,6 @@
-<!-- templates/portfolio.html (Setelah Refactor) -->
+<!-- templates/portfolio.html -->
 {% extends "base.html" %}
-
 {% block title %}Portfolio Real-Time{% endblock %}
-
-{% block head_extra %}
-    <!-- 
-    Chart.js sudah ada di base.html. Kita hanya perlu menambahkan adapter tanggal. 
-    Namun, lebih baik memuat semua JS di akhir, jadi kita akan letakkan ini di blok 'scripts'.
-    Blok ini dibiarkan sebagai contoh jika butuh CSS khusus.
-    -->
-{% endblock %}
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
@@ -22,35 +13,43 @@
     </div>
 </div>
 
-<div class="mb-6 bg-white rounded-lg shadow p-4">
-    <h3 class="text-lg font-semibold text-gray-800 mb-2">Grafik Profit/Loss Terbuka (Real-Time)</h3>
-    <div style="height: 250px;"><canvas id="pnlChart"></canvas></div>
+<!-- Grid untuk menampung dua chart -->
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+    <!-- Chart P/L (lebih lebar) -->
+    <div class="lg:col-span-3 bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Grafik Profit/Loss Terbuka (Real-Time)</h3>
+        <div style="height: 250px;"><canvas id="pnlChart"></canvas></div>
+    </div>
+    
+    <!-- Chart Alokasi Aset (lebih kecil) -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Alokasi Aset</h3>
+        <div style="height: 250px;"><canvas id="assetAllocationChart"></canvas></div>
+    </div>
 </div>
 
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Simbol</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Buka</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit/Loss</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Magic Number</th>
-            </tr>
-        </thead>
-        <tbody id="portfolio-table-body" class="bg-white divide-y divide-gray-200">
-            <tr><td colspan="6" class="p-4 text-center text-gray-500">Memuat posisi terbuka...</td></tr>
-        </tbody>
-    </table>
-</div>
+<!-- Tabel Posisi Terbuka -->
+<table class="min-w-full bg-white rounded-lg shadow overflow-hidden">
+    <thead class="bg-gray-50">
+        <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Simbol</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Buka</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit/Loss</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Magic Number</th>
+        </tr>
+    </thead>
+    <tbody id="portfolio-table-body" class="bg-white divide-y divide-gray-200">
+        <tr><td colspan="6" class="p-4 text-center text-gray-500">Memuat posisi terbuka...</td></tr>
+    </tbody>
+</table>
+
 {% endblock %}
 
 {% block scripts %}
-<!-- 
-    Memuat adapter tanggal untuk Chart.js yang diperlukan di halaman ini, 
-    diikuti dengan skrip logika halaman portfolio. 
--->
+<!-- Library Chart.js utama, adapter, dan skrip halaman dimuat bersamaan -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>
 {% endblock %}

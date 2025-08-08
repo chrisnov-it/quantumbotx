@@ -24,10 +24,10 @@ class TradingBot(threading.Thread):
         self.check_interval = check_interval
         self.strategy_name = strategy
         self.strategy_params = strategy_params
-        self.market_for_mt5 = self.market.replace('/', '') # Versi simbol yang bersih untuk MT5
+        self.market_for_mt5 = None # Akan diisi setelah verifikasi simbol
         self.status = status
 
-        self.last_analysis = {}
+        self.last_analysis = {"signal": "MEMUAT", "explanation": "Bot sedang memulai, menunggu analisis pertama..."}
         self._stop_event = threading.Event()
         self.strategy_instance = None
         # Gunakan map yang diimpor untuk menjaga konsistensi
@@ -38,12 +38,23 @@ class TradingBot(threading.Thread):
         self.status = 'Aktif'
         self.log_activity('START', f"Bot '{self.name}' dimulai.", is_notification=True)
 
+        # --- PERBAIKAN: Verifikasi Simbol Cerdas ---
+        from core.utils.mt5 import find_mt5_symbol
+        self.market_for_mt5 = find_mt5_symbol(self.market)
+
+        if not self.market_for_mt5:
+            msg = f"Simbol '{self.market}' atau variasinya tidak dapat ditemukan/diaktifkan di Market Watch MT5."
+            self.log_activity('ERROR', msg, is_notification=True)
+            self.status = 'Error'
+            self.last_analysis = {"signal": "ERROR", "explanation": msg}
+            return # Hentikan eksekusi jika simbol tidak valid
+
         try:
             strategy_class = STRATEGY_MAP.get(self.strategy_name)
             if not strategy_class:
                 raise ValueError(f"Strategi '{self.strategy_name}' tidak ditemukan.")
 
-            # --- PERBAIKAN: Inisialisasi kelas strategi dengan benar ---
+            # Inisialisasi kelas strategi dengan benar
             self.strategy_instance = strategy_class(bot_instance=self, params=self.strategy_params)
 
         except Exception as e:
@@ -53,26 +64,28 @@ class TradingBot(threading.Thread):
 
         while not self._stop_event.is_set():
             try:
-                if not mt5.symbol_select(self.market_for_mt5, True):
-                    msg = f"Gagal mengaktifkan simbol {self.market} (di MT5: {self.market_for_mt5}). Pastikan simbol ada di Market Watch."
-                    self.log_activity('WARNING', msg)
-                    self.last_analysis = {"signal": "ERROR", "price": None, "explanation": msg}
-                    time.sleep(self.check_interval)
-                    continue
+                # Simbol sudah diverifikasi, jadi pemeriksaan ini menjadi redundan
+                # if not mt5.symbol_select(self.market_for_mt5, True): ...
 
                 symbol_info = mt5.symbol_info(self.market_for_mt5)
                 if not symbol_info:
-                    msg = f"Tidak dapat mengambil info untuk simbol {self.market} (di MT5: {self.market_for_mt5})."
+                    msg = f"Tidak dapat mengambil info untuk simbol {self.market_for_mt5}."
                     self.log_activity('WARNING', msg)
                     self.last_analysis = {"signal": "ERROR", "price": None, "explanation": msg}
                     time.sleep(self.check_interval)
                     continue
 
-                # --- PERBAIKAN: Bot sekarang yang mengambil data ---
-                from core.data.fetch import get_rates
+                # Bot sekarang yang mengambil data
+                from core.utils.mt5 import get_rates_mt5
                 tf_const = self.tf_map.get(self.timeframe, mt5.TIMEFRAME_H1)
-                # Ambil data yang cukup untuk strategi terkompleks (misal, 250 bar untuk EMA 200)
-                df = get_rates(self.market_for_mt5, tf_const, 250)
+                df = get_rates_mt5(self.market_for_mt5, tf_const, 250)
+
+                if df.empty:
+                    msg = f"Gagal mengambil data harga untuk {self.market_for_mt5}. Periksa koneksi atau ketersediaan data historis."
+                    self.log_activity('WARNING', msg)
+                    self.last_analysis = {"signal": "ERROR", "explanation": msg}
+                    time.sleep(self.check_interval)
+                    continue
 
                 self.last_analysis = self.strategy_instance.analyze(df)
                 logger.info(f"Bot {self.id} [{self.strategy_name}] - Last Analysis: {self.last_analysis}")
@@ -84,7 +97,10 @@ class TradingBot(threading.Thread):
 
                 time.sleep(self.check_interval)
             except Exception as e:
-                self.log_activity('ERROR', f"Error pada loop utama: {e}", exc_info=True, is_notification=True)
+                error_message = f"Error pada loop utama: {e}"
+                self.log_activity('ERROR', error_message, exc_info=True, is_notification=True)
+                # PERBAIKAN: Perbarui status analisis agar error terlihat di UI
+                self.last_analysis = {"signal": "ERROR", "explanation": str(e)}
                 time.sleep(self.check_interval * 2)
 
         self.status = 'Dijeda'

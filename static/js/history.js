@@ -3,8 +3,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const historyTableBody = document.getElementById('history-table-body');
 
-    const formatTimestamp = (isoString) => {
-        return new Date(isoString).toLocaleString('id-ID', {
+    const formatTimestamp = (timestampInSeconds) => {
+        const date = new Date(timestampInSeconds * 1000);
+        return date.toLocaleString('id-ID', {
             day: '2-digit', month: 'short', year: 'numeric',
             hour: '2-digit', minute: '2-digit'
         });
@@ -48,4 +49,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchGlobalHistory();
 });
-

@@ -1,4 +1,4 @@
-# backtester.py (VERSI DIPERBAIKI)
+# backtester.py
 import pandas as pd
 import pandas_ta as ta
 import matplotlib.pyplot as plt
@@ -111,9 +111,7 @@ def run_backtest(data_path, symbol, initial_balance=10000):
 
 # --- Jalankan Backtest ---
 if __name__ == '__main__':
-    # --- KONFIGURASI PENGUJIAN ---
-    symbol_to_test = "XAUUSD" # Ubah ini ke "EURUSD" jika ingin menguji EURUSD
-    # Gunakan nama file yang sesuai dengan data yang Anda download
+    symbol_to_test = "GBPJPY"
     file_name = "lab/XAUUSD_16385_data.csv" 
     
     run_backtest(file_name, symbol=symbol_to_test)

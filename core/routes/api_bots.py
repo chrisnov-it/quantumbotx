@@ -1,13 +1,12 @@
-# core/routes/api_bots.py - VERSI PERBAIKAN LENGKAP
+# core/routes/api_bots.py
 
 import json
 import logging
 from flask import Blueprint, jsonify, request
-import pandas_ta as ta
 import MetaTrader5 as mt5
 from core.bots import controller
 from core.db import queries
-from core.data.fetch import get_rates
+from core.utils.mt5 import get_rates_mt5
 from core.utils.mt5 import TIMEFRAME_MAP
 from core.strategies.strategy_map import STRATEGY_MAP
 
@@ -117,19 +116,19 @@ def start_bot_route(bot_id):
 @api_bots.route('/api/bots/<int:bot_id>/stop', methods=['POST'])
 def stop_bot_route(bot_id):
     """Menghentikan bot."""
-    success, message = controller.stop_bot(bot_id)
+    success, message = controller.hentikan_bot(bot_id)
     return jsonify({'message': message}) if success else (jsonify({'error': message}), 500)
 
 @api_bots.route('/api/bots/start_all', methods=['POST'])
 def start_all_bots_route():
     """Memulai semua bot yang dijeda."""
-    success, message = controller.start_all_bots()
+    success, message = controller.mulai_semua_bot()
     return jsonify({'message': message}) if success else (jsonify({'error': message}), 400)
 
 @api_bots.route('/api/bots/stop_all', methods=['POST'])
 def stop_all_bots_route():
     """Menghentikan semua bot yang aktif."""
-    success, message = controller.stop_all_bots()
+    success, message = controller.hentikan_semua_bot()
     return jsonify({'message': message}) if success else (jsonify({'error': message}), 400)
 
 @api_bots.route('/api/bots/<int:bot_id>/analysis', methods=['GET'])
@@ -150,18 +149,20 @@ def get_rsi_data_route():
     symbol = request.args.get('symbol', 'EURUSD', type=str)
     timeframe_str = request.args.get('timeframe', 'H1', type=str)
     
-    timeframe = TIMEFRAME_MAP.get(timeframe_str, mt5.TIMEFRAME_H1)
+    timeframe = TIMEFRAME_MAP.get(timeframe_str.upper(), mt5.TIMEFRAME_H1)
     
-    df = get_rates(symbol, timeframe, 100)
+    df = get_rates_mt5(symbol, timeframe, 100)
     
     if df is None or df.empty:
         return jsonify({"error": f"Tidak dapat mengambil data untuk {symbol}"}), 404
         
-    df['rsi'] = ta.rsi(df['close'], length=14)
+    df.ta.rsi(length=14, append=True)
     df.dropna(inplace=True)
     
+    last_50_rows = df.tail(50)
+
     chart_data = {
-        'timestamps': [dt.strftime('%H:%M') for dt in df['time'].tail(50)],
-        'rsi_values': list(df['rsi'].tail(50))
+        'timestamps': [ts.strftime('%H:%M') for ts in last_50_rows.index],
+        'rsi_values': list(last_50_rows.iloc[:, -1])
     }
     return jsonify(chart_data)

@@ -45,12 +45,14 @@ def get_crypto_data_from_cmc():
         return []
 
 def get_mt5_symbol_profile(symbol):
-    if not mt5.initialize():
-        print("MT5 initialization failed in external.py")
+    # PERBAIKAN: Jangan melakukan initialize/shutdown di sini.
+    # Koneksi sudah dikelola secara terpusat oleh run.py.
+    # Cukup periksa apakah koneksi ada.
+    if not mt5.terminal_info():
+        logger.error("Koneksi MT5 tidak aktif saat mencoba get_mt5_symbol_profile.")
         return None
 
     symbol_info = mt5.symbol_info(symbol)
-    mt5.shutdown()
 
     if symbol_info:
         return {

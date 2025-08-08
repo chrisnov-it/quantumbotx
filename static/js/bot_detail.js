@@ -98,46 +98,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 async function fetchAndDisplayAnalysis() {
-    if (!botData) { 
-        console.log("Menunggu detail bot...");
-        return;
-    }
     try {
-        console.log(`Fetching analysis for bot ID: ${botId}`);
         const res = await fetch(`/api/bots/${botId}/analysis`);
-        console.log('Response:', res);
+        if (!res.ok) throw new Error('Gagal memuat data analisis.');
         const analysis = await res.json();
-        console.log('Analysis data:', analysis);
-        if (!res.ok) throw new Error('Gagal memuat data analisis MT5.');
 
-        // Tampilkan sinyal utama
-        const signal = analysis.signal || "TAHAN";
+        const signal = (analysis.signal || "TAHAN").toUpperCase();
         analysisSignal.textContent = signal;
         let color = 'bg-gray-200 text-gray-800';
         if (signal.includes('BUY')) color = 'bg-green-100 text-green-800';
-        if (signal.includes('SELL')) color = 'bg-red-100 text-red-800';
+        else if (signal.includes('SELL')) color = 'bg-red-100 text-red-800';
         analysisSignal.className = `mt-4 text-center font-bold text-lg p-2 rounded-md ${color}`;
 
-        // --- PERBAIKAN: Tampilkan semua detail analisis secara dinamis ---
-        analysisContainer.innerHTML = ""; // Kosongkan kontainer
-        const specialKeys = ['signal', 'explanation']; // Kunci yang tidak perlu ditampilkan di sini
+        analysisContainer.innerHTML = ""; // Kosongkan untuk refresh
+        const specialKeys = ['signal', 'price', 'explanation'];
 
         Object.entries(analysis).forEach(([key, value]) => {
-            if (!specialKeys.includes(key) && value !== null && value !== undefined) {
-                let formattedValue = value;
-                // Format angka menjadi 2-5 desimal, boolean menjadi Ya/Tidak
-                if (typeof value === 'number') {
-                    formattedValue = value.toFixed(key === 'RSI' ? 2 : 5);
-                } else if (typeof value === 'boolean') {
-                    formattedValue = value ? 'Ya' : 'Tidak';
-                }
-                analysisContainer.innerHTML += `<div class="flex justify-between py-1"><span class="text-gray-500">${key.replace(/_/g, ' ')}</span><span class="font-semibold text-gray-800">${formattedValue}</span></div>`;
+            if (!specialKeys.includes(key) && value !== null) {
+                let formattedValue = typeof value === 'number' ? value.toFixed(4) : value;
+                const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                analysisContainer.innerHTML += `<div class="flex justify-between py-1"><span class="text-gray-500">${label}</span><span class="font-semibold text-gray-800">${formattedValue}</span></div>`;
             }
         });
 
+        if (analysis.explanation) {
+            analysisContainer.innerHTML += `<div class="mt-2 text-xs text-gray-500 italic">${analysis.explanation}</div>`;
+        }
+
     } catch (e) {
         console.error('Error fetching analysis:', e);
-        analysisSignal.textContent = 'Error';
+        analysisSignal.textContent = 'ERROR';
+        analysisSignal.className = `mt-4 text-center font-bold text-lg p-2 rounded-md bg-red-200 text-red-900`;
         analysisContainer.innerHTML = `<p class="text-center text-red-500">${e.message}</p>`;
     }
 }

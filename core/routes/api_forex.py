@@ -8,10 +8,12 @@ api_forex = Blueprint('api_forex', __name__)
 
 @api_forex.route('/api/forex-data')
 def get_forex_data():
+    """
+    Mengembalikan daftar simbol forex, diurutkan berdasarkan popularitas (volume harian).
+    Formatnya adalah array JSON, bukan dictionary, agar urutan tetap terjaga.
+    """
     forex_symbols = get_forex_symbols()
-    if forex_symbols:
-        return jsonify({s['name']: s for s in forex_symbols})
-    return jsonify({})
+    return jsonify(forex_symbols)
 
 @api_forex.route('/api/forex/<symbol>/profile')
 def get_forex_profile(symbol):
@@ -19,8 +21,3 @@ def get_forex_profile(symbol):
     if profile:
         return jsonify(profile)
     return jsonify({"error": "Could not fetch symbol profile from MT5"}), 404
-def get_forex_data():
-    forex_symbols = get_forex_symbols()
-    if forex_symbols:
-        return jsonify({s['name']: s for s in forex_symbols})
-    return jsonify({})

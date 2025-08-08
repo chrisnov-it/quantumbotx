@@ -109,7 +109,7 @@ def get_notifications():
             notifications = conn.execute('''
                 SELECT h.id, h.action, h.details, h.is_read, h.timestamp, b.name as bot_name
                 FROM trade_history h
-                JOIN bots b ON h.bot_id = b.id
+                LEFT JOIN bots b ON h.bot_id = b.id
                 WHERE h.is_notification = 1
                 ORDER BY h.timestamp DESC
             ''').fetchall()
@@ -133,3 +133,13 @@ def mark_notifications_as_read():
     with get_db_connection() as conn:
         conn.execute('UPDATE trade_history SET is_read = 1 WHERE is_notification = 1 AND is_read = 0')
         conn.commit()
+
+def get_all_backtest_history():
+    """Mengambil semua riwayat hasil backtest dari database."""
+    try:
+        with get_db_connection() as conn:
+            history = conn.execute('SELECT * FROM backtest_results ORDER BY timestamp DESC').fetchall()
+            return [dict(row) for row in history]
+    except sqlite3.Error as e:
+        logger.error(f"Database error saat mengambil riwayat backtest: {e}")
+        return []

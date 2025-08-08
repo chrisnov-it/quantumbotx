@@ -60,7 +60,7 @@ def mulai_bot(bot_id: int):
         queries.update_bot_status(bot_id, 'Error')
         return False, f"Gagal memulai bot: {e}"
 
-def stop_bot(bot_id: int):
+def hentikan_bot(bot_id: int):
     """Menghentikan thread bot yang sedang berjalan."""
     # PERBAIKAN: Gunakan .pop() untuk mengambil dan menghapus bot secara atomik.
     # Ini mencegah race condition di mana dua proses mencoba menghentikan bot yang sama.
@@ -78,7 +78,7 @@ def stop_bot(bot_id: int):
     queries.update_bot_status(bot_id, 'Dijeda') # Pastikan status di DB adalah 'Dijeda'
     return True, f"Bot {bot_id} sudah dihentikan atau tidak sedang berjalan."
 
-def start_all_bots():
+def mulai_semua_bot():
     """Memulai semua bot yang statusnya 'Dijeda'."""
     all_bots = queries.get_all_bots()
     bots_to_start = [bot for bot in all_bots if bot['status'] == 'Dijeda']
@@ -94,22 +94,25 @@ def start_all_bots():
     
     return True, f"Berhasil memulai {started_count} dari {len(bots_to_start)} bot."
 
-def stop_all_bots():
+def hentikan_semua_bot():
     """Menghentikan semua bot yang sedang berjalan."""
     running_bot_ids = list(active_bots.keys())
     if not running_bot_ids:
         return False, "Tidak ada bot yang sedang berjalan."
 
     for bot_id in running_bot_ids:
-        stop_bot(bot_id)
+        hentikan_bot(bot_id)
     return True, f"Sinyal berhenti telah dikirim ke {len(running_bot_ids)} bot."
+
+# Alias untuk dipanggil oleh atexit di run.py, memastikan nama sesuai.
+shutdown_all_bots = hentikan_semua_bot
 
 def perbarui_bot(bot_id: int, data: dict):
     """Memperbarui konfigurasi bot di database."""
     bot_instance = active_bots.get(bot_id)
     if bot_instance and bot_instance.is_alive():
         logger.info(f"Menghentikan bot {bot_id} sementara untuk pembaruan.")
-        stop_bot(bot_id)
+        hentikan_bot(bot_id)
 
     # --- PERBAIKAN DI SINI ---
     # Ganti nama kunci 'check_interval_seconds' dari frontend
@@ -144,7 +147,7 @@ def perbarui_bot(bot_id: int, data: dict):
 
 def hapus_bot(bot_id: int):
     """Menghentikan dan menghapus bot."""
-    stop_bot(bot_id) # Pastikan thread berhenti sebelum dihapus
+    hentikan_bot(bot_id) # Pastikan thread berhenti sebelum dihapus
     return queries.delete_bot(bot_id)
 
 def add_new_bot_to_controller(bot_id: int):

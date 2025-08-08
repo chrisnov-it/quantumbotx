@@ -16,7 +16,7 @@ else:
     print("Berhasil terhubung ke MT5")
 
     # --- Parameter Download ---
-    symbol = "SP500m"  # Ganti dengan simbol yang Anda inginkan
+    symbol = "GBPCHF"  # Ganti dengan simbol yang Anda inginkan
     timeframe = mt5.TIMEFRAME_H1 # Timeframe 1 Jam
     start_date = datetime(2020, 1, 1) # Mulai dari 1 Januari 2020
     end_date = datetime.now() # Sampai sekarang

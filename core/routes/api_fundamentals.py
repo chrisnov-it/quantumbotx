@@ -15,5 +15,5 @@ def get_bot_fundamentals(bot_id):
     if '/' in bot['market']:
         return jsonify({})  # Skip if not stock
 
-    symbol = bot['market']
+    bot['market']
     return jsonify({})

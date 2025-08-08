@@ -1,5 +1,6 @@
 # core/strategies/pulse_sync.py
 import pandas_ta as ta
+import numpy as np
 from .base_strategy import BaseStrategy
 
 class PulseSyncStrategy(BaseStrategy):
@@ -7,6 +8,7 @@ class PulseSyncStrategy(BaseStrategy):
     description = 'Menggunakan AI untuk menganalisis momentum harga berdasarkan Simple Moving Average (SMA).'
 
     def analyze(self, df):
+        """Metode untuk LIVE TRADING."""
         if df is None or df.empty or len(df) < 30:
             return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup"}
 
@@ -19,14 +21,12 @@ class PulseSyncStrategy(BaseStrategy):
         last = df.iloc[-1]
         price = last["close"]
 
-        # AI functionality is temporarily disabled.
         signal = "HOLD"
-        explanation = "AI functionality is currently disabled for performance reasons."
+        explanation = "AI functionality is currently disabled."
 
-        analysis_data = {
-            "signal": signal,
-            "price": price,
-            "explanation": explanation,
-            "SMA_21": last.get('SMA21'),
-        }
-        return analysis_data
+        return {"signal": signal, "price": price, "explanation": explanation}
+
+    def analyze_df(self, df):
+        """Metode untuk BACKTESTING. Dinonaktifkan untuk strategi ini."""
+        df['signal'] = 'HOLD'
+        return df

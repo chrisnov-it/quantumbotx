@@ -1,7 +1,7 @@
 # core/routes/api_dashboard.py
 
 from flask import Blueprint, jsonify
-from core.utils.mt5 import get_mt5_account_info, get_todays_profit
+from core.utils.mt5 import get_account_info_mt5, get_todays_profit_mt5
 from core.db import queries # <-- 1. Impor modul queries
 
 api_dashboard = Blueprint('api_dashboard', __name__)
@@ -9,8 +9,8 @@ api_dashboard = Blueprint('api_dashboard', __name__)
 @api_dashboard.route('/api/dashboard/stats')
 def api_dashboard_stats():
     try:
-        account_info = get_mt5_account_info()
-        todays_profit = get_todays_profit()
+        account_info = get_account_info_mt5()
+        todays_profit = get_todays_profit_mt5()
 
         # 2. Ambil semua bot sekali saja untuk efisiensi
         all_bots = queries.get_all_bots()

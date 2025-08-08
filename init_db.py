@@ -42,7 +42,8 @@ def main():
         tp_pips INTEGER NOT NULL DEFAULT 200,
         timeframe TEXT NOT NULL DEFAULT 'H1',
         check_interval_seconds INTEGER NOT NULL DEFAULT 60,
-        strategy TEXT NOT NULL
+        strategy TEXT NOT NULL,
+        strategy_params TEXT
     );
     """
 
@@ -54,21 +55,13 @@ def main():
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
         action TEXT NOT NULL,
         details TEXT,
-        FOREIGN KEY (bot_id) REFERENCES bots (id) ON DELETE CASCADE
-    );
-    """
-
-    # SQL statement untuk membuat tabel 'notifications'
-    sql_create_notifications_table = """
-    CREATE TABLE IF NOT EXISTS notifications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        bot_id INTEGER,
-        message TEXT NOT NULL,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_notification INTEGER NOT NULL DEFAULT 0,
         is_read INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (bot_id) REFERENCES bots (id) ON DELETE CASCADE
     );
     """
+
+    
 
     # Buat koneksi database
     conn = create_connection(DB_FILE)
@@ -81,8 +74,27 @@ def main():
         print("\nMembuat tabel 'trade_history'...")
         create_table(conn, sql_create_history_table)
         
-        print("\nMembuat tabel 'notifications'...")
-        create_table(conn, sql_create_notifications_table)
+        
+
+        # --- TAMBAHKAN INI ---
+        print("\nMembuat tabel 'backtest_results'...")
+        sql_create_backtest_results_table = """
+        CREATE TABLE IF NOT EXISTS backtest_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            strategy_name TEXT NOT NULL,
+            data_filename TEXT NOT NULL,
+            total_profit_pips REAL NOT NULL,
+            total_trades INTEGER NOT NULL,
+            win_rate_percent REAL NOT NULL,
+            max_drawdown_percent REAL NOT NULL,
+            equity_curve TEXT, -- Disimpan sebagai JSON
+            trade_log TEXT,    -- Disimpan sebagai JSON
+            parameters TEXT    -- Disimpan sebagai JSON
+        );
+        """
+        create_table(conn, sql_create_backtest_results_table)
+        # --- SELESAI PENAMBAHAN ---
 
         conn.close()
         print(f"\nDatabase '{DB_FILE}' berhasil dibuat dengan semua tabel yang diperlukan.")
