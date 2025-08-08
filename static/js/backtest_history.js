@@ -20,6 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Fungsi untuk mengekstrak nama pasar dari nama file
+    const extractMarketName = (filename) => {
+        if (!filename) return 'N/A';
+        const parts = filename.split('_');
+        if (parts.length > 0) {
+            return parts[0].toUpperCase();
+        }
+        return 'N/A';
+    };
+
     // Muat daftar riwayat backtest
     async function loadHistoryList() {
         try {
@@ -38,10 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
             history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             history.forEach(item => {
+                const marketName = extractMarketName(item.data_filename);
                 const itemElement = document.createElement('div');
                 itemElement.className = 'p-3 mb-2 bg-gray-50 rounded cursor-pointer hover:bg-gray-100 border border-gray-200';
                 itemElement.innerHTML = `
-                    <p class="font-medium text-gray-800">${item.strategy_name || 'Tidak Diketahui'}</p>
+                    <p class="font-medium text-gray-800">${item.strategy_name || 'Tidak Diketahui'} (${marketName})</p>
                     <p class="text-xs text-gray-500">${formatTimestamp(item.timestamp)}</p>
                     <p class="text-sm mt-1"><span class="font-semibold">Profit:</span> ${parseFloat(item.total_profit_pips).toFixed(2)} pips</p>
                 `;
@@ -61,12 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
         detailPlaceholder.classList.add('hidden');
         detailView.classList.remove('hidden');
 
+        const marketName = extractMarketName(item.data_filename);
+
         // Isi data dasar
         detailId.textContent = item.id;
         detailTimestamp.textContent = formatTimestamp(item.timestamp);
 
         // Isi ringkasan
         detailSummary.innerHTML = `
+            <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Strategi</p><p class="font-bold">${item.strategy_name || 'N/A'}</p></div>
+            <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Pasar</p><p class="font-bold">${marketName}</p></div>
             <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Total Profit</p><p class="font-bold">${parseFloat(item.total_profit_pips).toFixed(2)} pips</p></div>
             <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Max Drawdown</p><p class="font-bold">${parseFloat(item.max_drawdown_percent).toFixed(2)}%</p></div>
             <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Win Rate</p><p class="font-bold">${parseFloat(item.win_rate_percent).toFixed(2)}%</p></div>

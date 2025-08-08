@@ -65,7 +65,6 @@ def run_backtest(strategy_id, params, historical_data_df):
 
         # Cek SL/TP jika sedang dalam posisi
         if in_position:
-            profit = 0
             if position_type == 'BUY':
                 profit_pips = (current_price - entry_price) / pip_size
                 if current_price <= entry_price - (sl_pips * pip_size):

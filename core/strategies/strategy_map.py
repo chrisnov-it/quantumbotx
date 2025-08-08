@@ -8,6 +8,7 @@ from .bollinger_squeeze import BollingerSqueezeStrategy
 from .mercy_edge import MercyEdgeStrategy
 from .quantum_velocity import QuantumVelocityStrategy
 from .pulse_sync import PulseSyncStrategy
+from .turtle_breakout import TurtleBreakoutStrategy
 
 STRATEGY_MAP = {
     'MA_CROSSOVER': MACrossoverStrategy,
@@ -18,4 +19,5 @@ STRATEGY_MAP = {
     'MERCY_EDGE': MercyEdgeStrategy,
     'quantum_velocity': QuantumVelocityStrategy,
     'PULSE_SYNC': PulseSyncStrategy,
+    'TURTLE_BREAKOUT': TurtleBreakoutStrategy,
 }

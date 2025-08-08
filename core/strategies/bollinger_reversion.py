@@ -38,17 +38,17 @@ class BollingerBandsStrategy(BaseStrategy):
         last = df.iloc[-1]
         price = last["close"]
         signal = "HOLD"
-        explanation = f"Harga di dalam Bands atau tren tidak sesuai."
+        explanation = "Harga di dalam Bands atau tren tidak sesuai."
         
         is_uptrend = price > last[trend_filter_col]
         is_downtrend = price < last[trend_filter_col]
 
         if is_uptrend and last['low'] <= last[bbl_col]:
             signal = "BUY"
-            explanation = f"Uptrend & Oversold: Harga menyentuh Band Bawah."
+            explanation = "Uptrend & Oversold: Harga menyentuh Band Bawah."
         elif is_downtrend and last['high'] >= last[bbu_col]:
             signal = "SELL"
-            explanation = f"Downtrend & Overbought: Harga menyentuh Band Atas."
+            explanation = "Downtrend & Overbought: Harga menyentuh Band Atas."
 
         return {"signal": signal, "price": price, "explanation": explanation}
 

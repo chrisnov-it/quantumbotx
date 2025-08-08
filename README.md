@@ -13,6 +13,7 @@ Designed to be elegant, powerful, and flexible — whether you're a scalper, swi
 ## 🚀 Features
 
 - ✅ **Modular Strategy System**: Easily create and plug in your own trading strategies.
+- ✅ **Comprehensive Backtester**: Test your strategies against historical data with detailed performance metrics and visualizations.
 - ✅ **Real-Time Analysis**: Live dashboard with data visualization using Chart.js.
 - ✅ **Adaptive Logic**: Comes with a Hybrid strategy that adapts to trending or ranging markets.
 - ✅ **Automated Trading**: Full position handling (entry, exit, SL, TP) using bot-specific magic numbers.
@@ -47,7 +48,6 @@ Designed to be elegant, powerful, and flexible — whether you're a scalper, swi
 ## 📈 Roadmap
 
 - [ ] **Advanced Strategy**: `MACD_STOCH_FILTER` for more precise, filtered entries.
-- [ ] **Backtesting Module**: A simple UI to test strategies against historical data.
 - [ ] **Telegram Notifications**: Get real-time alerts for trades and errors.
 - [ ] **Portfolio Analytics**: Deeper insights into your trading performance.
 
@@ -127,15 +127,10 @@ Concept, Logic & Execution: `@reynov` aka BabyDev
 
 If you like this project, give it a ⭐ on GitHub, or buy me a coffee to support future versions:
 
-// eslint-disable-next-line markdown/fenced-code-language
-```
-BTC Wallet: bc1qxxxxxxxxxxxxxx
-USDT TRC20: TRxxxxxxxxxxxx
-```
+[<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal" />](https://www.paypal.com/paypalme/rebarakaz)
 
 ---
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE.md file for details.
-```bash

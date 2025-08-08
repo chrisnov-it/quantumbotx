@@ -1,5 +1,6 @@
 # core/routes/api_backtest.py
 
+import numpy as np
 import pandas as pd
 import json
 import logging
@@ -10,10 +11,6 @@ from core.db.connection import get_db_connection
 
 api_backtest = Blueprint('api_backtest', __name__)
 logger = logging.getLogger(__name__)
-
-import numpy as np
-
-# ... (kode lainnya)
 
 def save_backtest_result(strategy_name, filename, params, results):
     # ... (kode di dalam fungsi)
@@ -28,8 +25,8 @@ def save_backtest_result(strategy_name, filename, params, results):
             cursor.execute("""
                 INSERT INTO backtest_results (
                     strategy_name, data_filename, total_profit_pips, total_trades, 
-                    win_rate_percent, max_drawdown_percent, equity_curve, trade_log, parameters
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    win_rate_percent, max_drawdown_percent, wins, losses, equity_curve, trade_log, parameters
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 strategy_name,
                 filename,
@@ -37,6 +34,8 @@ def save_backtest_result(strategy_name, filename, params, results):
                 results.get('total_trades', 0),
                 results.get('win_rate_percent', 0),
                 results.get('max_drawdown_percent', 0),
+                results.get('wins', 0),
+                results.get('losses', 0),
                 json.dumps(results.get('equity_curve', [])),
                 json.dumps(results.get('trades', [])),
                 json.dumps(params)

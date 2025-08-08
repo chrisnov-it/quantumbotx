@@ -59,9 +59,7 @@ def main():
         is_read INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (bot_id) REFERENCES bots (id) ON DELETE CASCADE
     );
-    """
-
-    
+    """    
 
     # Buat koneksi database
     conn = create_connection(DB_FILE)
@@ -72,10 +70,8 @@ def main():
         create_table(conn, sql_create_bots_table)
 
         print("\nMembuat tabel 'trade_history'...")
-        create_table(conn, sql_create_history_table)
+        create_table(conn, sql_create_history_table)     
         
-        
-
         # --- TAMBAHKAN INI ---
         print("\nMembuat tabel 'backtest_results'...")
         sql_create_backtest_results_table = """
@@ -88,6 +84,8 @@ def main():
             total_trades INTEGER NOT NULL,
             win_rate_percent REAL NOT NULL,
             max_drawdown_percent REAL NOT NULL,
+            wins INTEGER NOT NULL,
+            losses INTEGER NOT NULL,
             equity_curve TEXT, -- Disimpan sebagai JSON
             trade_log TEXT,    -- Disimpan sebagai JSON
             parameters TEXT    -- Disimpan sebagai JSON
