@@ -9,6 +9,7 @@ from .mercy_edge import MercyEdgeStrategy
 from .quantum_velocity import QuantumVelocityStrategy
 from .pulse_sync import PulseSyncStrategy
 from .turtle_breakout import TurtleBreakoutStrategy
+from .ichimoku_cloud import IchimokuCloudStrategy
 
 STRATEGY_MAP = {
     'MA_CROSSOVER': MACrossoverStrategy,
@@ -20,4 +21,5 @@ STRATEGY_MAP = {
     'quantum_velocity': QuantumVelocityStrategy,
     'PULSE_SYNC': PulseSyncStrategy,
     'TURTLE_BREAKOUT': TurtleBreakoutStrategy,
+    'ICHIMOKU_CLOUD': IchimokuCloudStrategy,
 }

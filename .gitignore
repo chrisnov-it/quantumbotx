@@ -54,7 +54,6 @@ node_modules/
 .idea/
 .DS_Store # Untuk macOS
 Thumbs.db # Untuk Windows
-lab/ # Folder backtesting dan data mentahan
 # ==============================================================================
 # File Sementara & Backup
 # ==============================================================================

@@ -3,7 +3,6 @@
 import os
 from flask import Blueprint, jsonify
 from core.utils.mt5 import get_trade_history_mt5
-import sqlite3
 
 api_history = Blueprint('api_history', __name__)
 

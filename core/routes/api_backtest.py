@@ -13,7 +13,6 @@ api_backtest = Blueprint('api_backtest', __name__)
 logger = logging.getLogger(__name__)
 
 def save_backtest_result(strategy_name, filename, params, results):
-    # ... (kode di dalam fungsi)
     # Sanitasi data sebelum menyimpan
     for key, value in results.items():
         if isinstance(value, (np.floating, float)) and (np.isinf(value) or np.isnan(value)):
