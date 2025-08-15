@@ -95,7 +95,8 @@ DB_NAME=bots.db
     ```
 5.  **Run the application:**
     ```bash
-    python app.py
+
+    python run.py
     ```
 
 > **Important:** You must have the MetaTrader 5 terminal installed and running on the same machine.
