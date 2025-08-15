@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const startAllBtn = document.getElementById('start-all-btn');
     const stopAllBtn = document.getElementById('stop-all-btn');
     const cancelBtn = document.getElementById('cancel-create');
+    const cancelBtnFooter = document.getElementById('cancel-create-footer'); // Tombol Batal di footer
     const paramsContainer = document.getElementById('strategy-params-container');
     const strategySelect = document.getElementById('strategy');
     let currentBotId = null; // Variabel untuk melacak bot yang sedang diedit
@@ -122,9 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.remove('hidden');
     });
 
-    // Event listener untuk tombol Start All
+    // Event listener untuk tombol Start All dengan UX Improvement
     startAllBtn.addEventListener('click', async () => {
         if (!confirm('Apakah Anda yakin ingin menjalankan semua bot yang sedang dijeda?')) return;
+
+        const originalHtml = startAllBtn.innerHTML;
+        startAllBtn.disabled = true;
+        startAllBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Memulai...`;
 
         try {
             const res = await fetch('/api/bots/start_all', { method: 'POST' });
@@ -138,12 +143,19 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (err) {
             console.error('Error starting all bots:', err);
             alert('❌ Gagal terhubung ke server.');
+        } finally {
+            startAllBtn.disabled = false;
+            startAllBtn.innerHTML = originalHtml;
         }
     });
 
-    // Event listener untuk tombol Stop All
+    // Event listener untuk tombol Stop All dengan UX Improvement
     stopAllBtn.addEventListener('click', async () => {
         if (!confirm('Apakah Anda yakin ingin menghentikan semua bot yang sedang berjalan?')) return;
+
+        const originalHtml = stopAllBtn.innerHTML;
+        stopAllBtn.disabled = true;
+        stopAllBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Menghentikan...`;
 
         try {
             const res = await fetch('/api/bots/stop_all', { method: 'POST' });
@@ -157,13 +169,19 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (err) {
             console.error('Error stopping all bots:', err);
             alert('❌ Gagal terhubung ke server.');
+        } finally {
+            stopAllBtn.disabled = false;
+            stopAllBtn.innerHTML = originalHtml;
         }
     });
 
     // Tutup modal
-    cancelBtn.addEventListener("click", () => {
+    function closeModal() {
         modal.classList.add('hidden');
-    });
+    }
+
+    cancelBtn.addEventListener("click", closeModal);
+    cancelBtnFooter.addEventListener("click", closeModal);
 
     // Submit form (untuk membuat atau mengedit bot)
     form.addEventListener("submit", async (e) => {
@@ -220,35 +238,55 @@ document.addEventListener('DOMContentLoaded', function() {
         const botId = button.dataset.id;
 
         if (action === 'edit') {
-            try {
-                const res = await fetch(`/api/bots/${botId}`);
-                const bot = await res.json();
-                if (res.ok) {
-                    currentBotId = botId;
-                    submitBtn.textContent = 'Ubah Bot'; // <-- 3. Set teks untuk mode 'Edit'
-                    modalTitle.textContent = '✏️ Edit Bot';
-                    // Isi form dengan data bot yang ada
-                    for (const key in bot) {
-                        if (form.elements[key]) {
-                            form.elements[key].value = bot[key];
-                        }
+        // 1. Tampilkan modal & loading overlay segera untuk respons instan
+        modalTitle.textContent = '✏️ Memuat Data Bot...';
+        submitBtn.textContent = 'Ubah Bot';
+        form.reset();
+        paramsContainer.innerHTML = '';
+        modal.classList.remove('hidden');
+        const loadingOverlay = document.getElementById('modal-loading-overlay');
+        if(loadingOverlay) loadingOverlay.classList.remove('hidden');
+
+        try {
+            const res = await fetch(`/api/bots/${botId}`);
+            const bot = await res.json();
+
+            if (res.ok) {
+                modalTitle.textContent = '✏️ Edit Bot'; // Perbarui judul setelah data dimuat
+                currentBotId = botId;
+                
+                // 2. Isi form dengan data yang sudah diambil
+                for (const key in bot) {
+                    if (form.elements[key]) {
+                        form.elements[key].value = bot[key];
                     }
-                    // Trigger perubahan strategi untuk memuat dan mengisi parameter
-                    strategySelect.dispatchEvent(new Event('change', { 'bubbles': true }));
-                    // Isi nilai parameter yang sudah ada
-                    if (bot.strategy_params) {
-                        setTimeout(() => fillStrategyParams(bot.strategy_params), 200); // Beri waktu untuk form dibuat
-                    }
-                    modal.classList.remove('hidden');
-                } else {
-                    alert(`❌ Gagal memuat data bot: ${bot.error}`);
                 }
-            } catch (err) {
-                console.error(`Error fetching bot ${botId} for edit:`, err);
-                alert('❌ Gagal terhubung ke server untuk mengedit.');
+                
+                // 3. Trigger event untuk memuat parameter strategi
+                strategySelect.dispatchEvent(new Event('change', { 'bubbles': true }));
+                
+                // 4. Tunggu sebentar lalu isi parameter strategi
+                await new Promise(resolve => setTimeout(() => {
+                    if (bot.strategy_params) {
+                        fillStrategyParams(bot.strategy_params);
+                    }
+                    resolve();
+                }, 250));
+
+            } else {
+                alert(`❌ Gagal memuat data bot: ${bot.error}`);
+                modal.classList.add('hidden'); // Sembunyikan modal jika gagal
             }
-            return;
+        } catch (err) {
+            console.error(`Error fetching bot ${botId} for edit:`, err);
+            alert('❌ Gagal terhubung ke server untuk mengedit.');
+            modal.classList.add('hidden'); // Sembunyikan modal jika gagal
+        } finally {
+            // 5. Sembunyikan loading overlay setelah semua selesai
+            if(loadingOverlay) loadingOverlay.classList.add('hidden');
         }
+        return;
+    }
 
         if (action === 'delete') {
             if (!confirm('Apakah Anda yakin ingin menghapus bot ini?')) {

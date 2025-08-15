@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     {% block head_extra %}{% endblock %}
 </head>
 <body class="bg-gray-100 font-sans">
@@ -69,6 +71,8 @@
     </div>
 
     <!-- Skrip yang dibutuhkan oleh semua halaman -->
+    <!-- Toastify JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <!-- Blok untuk skrip spesifik halaman -->
     {% block scripts %}{% endblock %}
