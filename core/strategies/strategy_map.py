@@ -10,6 +10,8 @@ from .quantum_velocity import QuantumVelocityStrategy
 from .pulse_sync import PulseSyncStrategy
 from .turtle_breakout import TurtleBreakoutStrategy
 from .ichimoku_cloud import IchimokuCloudStrategy
+from .london_breakout import LondonBreakoutStrategy
+from .dynamic_breakout import DynamicBreakoutStrategy
 
 STRATEGY_MAP = {
     'MA_CROSSOVER': MACrossoverStrategy,
@@ -22,4 +24,6 @@ STRATEGY_MAP = {
     'PULSE_SYNC': PulseSyncStrategy,
     'TURTLE_BREAKOUT': TurtleBreakoutStrategy,
     'ICHIMOKU_CLOUD': IchimokuCloudStrategy,
+    'LONDON_BREAKOUT': LondonBreakoutStrategy,
+    'DYNAMIC_BREAKOUT': DynamicBreakoutStrategy,
 }

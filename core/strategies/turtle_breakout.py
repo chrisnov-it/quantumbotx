@@ -14,7 +14,10 @@ class TurtleBreakoutStrategy(BaseStrategy):
         ]
 
     def analyze(self, df):
-        """Metode untuk LIVE TRADING."""
+        """
+        Metode untuk LIVE TRADING.
+        Menganalisis state saat ini dan menghasilkan sinyal masuk atau keluar.
+        """
         entry_period = self.params.get('entry_period', 20)
         exit_period = self.params.get('exit_period', 10)
 
@@ -37,15 +40,31 @@ class TurtleBreakoutStrategy(BaseStrategy):
         signal = "HOLD"
         explanation = "Tidak ada sinyal."
 
-        # Logika Entry (hanya jika tidak ada posisi)
-        # Dalam live trading, bot.in_position akan mengelola state
-        # Kita hanya memberikan sinyal BUY/SELL jika kondisi terpenuhi
-        if price > last['entry_upper']:
-            signal = "BUY"
-            explanation = f"Harga menembus {entry_period}-periode tertinggi."
-        elif price < last['entry_lower']:
-            signal = "SELL"
-            explanation = f"Harga menembus {entry_period}-periode terendah."
+        # Dapatkan status posisi saat ini dari instance bot
+        in_position = getattr(self.bot, 'in_position', False)
+        position_type = getattr(self.bot, 'position_type', None) # 'BUY' or 'SELL'
+
+        # --- Logika Exit ---
+        if in_position:
+            if position_type == 'BUY' and price < last['exit_lower']:
+                signal = "SELL" # Sinyal untuk menutup posisi BUY
+                explanation = f"Keluar dari BUY: Harga di bawah {exit_period}-periode terendah."
+            elif position_type == 'SELL' and price > last['exit_upper']:
+                signal = "BUY" # Sinyal untuk menutup posisi SELL
+                explanation = f"Keluar dari SELL: Harga di atas {exit_period}-periode tertinggi."
+            
+            # Jika ada sinyal keluar, kembalikan. Jangan periksa sinyal masuk.
+            if signal != 'HOLD':
+                 return {"signal": signal, "price": price, "explanation": explanation}
+
+        # --- Logika Entry (Hanya jika tidak ada posisi) ---
+        if not in_position:
+            if price > last['entry_upper']:
+                signal = "BUY"
+                explanation = f"Masuk BUY: Harga menembus {entry_period}-periode tertinggi."
+            elif price < last['entry_lower']:
+                signal = "SELL"
+                explanation = f"Masuk SELL: Harga menembus {entry_period}-periode terendah."
 
         return {"signal": signal, "price": price, "explanation": explanation}
 
@@ -60,30 +79,28 @@ class TurtleBreakoutStrategy(BaseStrategy):
         df['exit_upper'] = df['high'].rolling(window=exit_period).max().shift(1)
         df['exit_lower'] = df['low'].rolling(window=exit_period).min().shift(1)
         
-        # Dropna untuk memastikan semua indikator terhitung
         df.dropna(inplace=True)
-        df = df.reset_index(drop=True) # Reset index setelah dropna
+        df = df.reset_index(drop=True)
 
         signals = ['HOLD'] * len(df)
         in_position = False
         position_type = None # 'BUY' or 'SELL'
 
-        # Loop melalui data untuk mensimulasikan stateful trading
         for i in range(len(df)):
             current_bar = df.iloc[i]
-            
-            # Pastikan channel values tersedia untuk bar saat ini
+            signals[i] = 'HOLD' # Default signal for the bar
+
             if pd.isna(current_bar['entry_upper']) or pd.isna(current_bar['exit_lower']):
-                continue # Lewati jika data indikator belum lengkap
+                continue
 
             # --- Logika Exit ---
             if in_position:
                 if position_type == 'BUY' and current_bar['close'] < current_bar['exit_lower']:
-                    signals[i] = 'HOLD' # Sinyal untuk menutup posisi
+                    signals[i] = 'SELL' # Sinyal untuk menutup posisi BUY
                     in_position = False
                     position_type = None
                 elif position_type == 'SELL' and current_bar['close'] > current_bar['exit_upper']:
-                    signals[i] = 'HOLD' # Sinyal untuk menutup posisi
+                    signals[i] = 'BUY' # Sinyal untuk menutup posisi SELL
                     in_position = False
                     position_type = None
 

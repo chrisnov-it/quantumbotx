@@ -166,4 +166,4 @@ class TradingBot(threading.Thread):
             # Jika tidak ada posisi, buka posisi SELL baru
             if not position:
                 self.log_activity('OPEN SELL', "Membuka posisi JUAL berdasarkan sinyal.", is_notification=True)
-                place_trade(self.market_for_mt5, mt5.ORDER_TYPE_SELL, self.lot_size, self.sl_pips, self.tp_pips, self.id)
+                place_trade(self.market_for_mt5, mt5.ORDER_TYPE_SELL, self.lot_size, self.sl_pips, self.tp_pips, self.id, self.timeframe)

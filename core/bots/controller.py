@@ -120,6 +120,12 @@ def perbarui_bot(bot_id: int, data: dict):
     if 'check_interval_seconds' in data:
         data['interval'] = data.pop('check_interval_seconds')
 
+    # --- PERBAIKAN BARU: Terjemahkan input ATR Multiplier ke kolom pips ---
+    if 'sl_atr_multiplier' in data:
+        data['sl_pips'] = data.pop('sl_atr_multiplier')
+    if 'tp_atr_multiplier' in data:
+        data['tp_pips'] = data.pop('tp_atr_multiplier')
+
     # Ambil parameter kustom, ubah jadi string JSON, dan simpan
     custom_params = data.pop('params', {})
     data['strategy_params'] = json.dumps(custom_params)

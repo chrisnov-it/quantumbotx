@@ -1,5 +1,6 @@
 # core/strategies/ichimoku_cloud.py
 import numpy as np
+import pandas_ta as ta
 from .base_strategy import BaseStrategy
 
 class IchimokuCloudStrategy(BaseStrategy):
@@ -20,17 +21,17 @@ class IchimokuCloudStrategy(BaseStrategy):
         tenkan_period = self.params.get('tenkan_period', 9)
         kijun_period = self.params.get('kijun_period', 26)
         senkou_period = self.params.get('senkou_period', 52)
-        use_cloud_filter = self.params.get('use_cloud_filter', True)
+        use_cloud_filter = str(self.params.get('use_cloud_filter', True)).lower() != 'false'
 
-        # Pastikan data cukup untuk semua indikator
-        if df is None or df.empty or len(df) < senkou_period + 26: # Senkou Span B butuh 26 bar ke depan
+        min_len = max(tenkan_period, kijun_period, senkou_period) + kijun_period
+        if df is None or df.empty or len(df) < min_len:
             return {"signal": "HOLD", "price": None, "explanation": "Data tidak cukup."}
 
         # Hitung Indikator Ichimoku
         df.ta.ichimoku(tenkan=tenkan_period, kijun=kijun_period, senkou=senkou_period, append=True)
         df.dropna(inplace=True)
         
-        if df.empty:
+        if len(df) < 2:
             return {"signal": "HOLD", "price": None, "explanation": "Indikator belum matang."}
 
         last = df.iloc[-1]
@@ -43,9 +44,13 @@ class IchimokuCloudStrategy(BaseStrategy):
         tenkan_col = f'ITS_{tenkan_period}'
         kijun_col = f'IKS_{kijun_period}'
         span_a_col = f'ISA_{tenkan_period}'
-        span_b_col = 'ISB_26' # Diperbaiki: pandas_ta menggunakan ISB_26 secara default
+        span_b_col = f'ISB_{kijun_period}' # DIPERBAIKI: Nama kolom dinamis
 
-        # Kondisi Awan (Filter Utama) - Menggunakan Span A saja
+        # Pastikan kolom ada sebelum digunakan
+        if not all(col in df.columns for col in [tenkan_col, kijun_col, span_a_col, span_b_col]):
+            return {"signal": "HOLD", "price": None, "explanation": "Kolom Ichimoku tidak ditemukan."}
+
+        # Kondisi Awan (Filter Utama)
         is_above_cloud = price > last[span_a_col] and price > last[span_b_col]
         is_below_cloud = price < last[span_a_col] and price < last[span_b_col]
         
@@ -76,37 +81,32 @@ class IchimokuCloudStrategy(BaseStrategy):
         tenkan_period = self.params.get('tenkan_period', 9)
         kijun_period = self.params.get('kijun_period', 26)
         senkou_period = self.params.get('senkou_period', 52)
-        use_cloud_filter = self.params.get('use_cloud_filter', True)
+        use_cloud_filter = str(self.params.get('use_cloud_filter', True)).lower() != 'false'
 
-        # Minimum data required for Ichimoku calculation
-        min_data_length_for_ichimoku = max(tenkan_period, kijun_period, senkou_period) + 26 
-
-        if df is None or df.empty or len(df) < min_data_length_for_ichimoku:
-            df['signal'] = 'HOLD' # Ensure signal column exists even if data is insufficient
+        min_len = max(tenkan_period, kijun_period, senkou_period) + kijun_period
+        if df is None or df.empty or len(df) < min_len:
+            df['signal'] = 'HOLD'
             return df
 
         # Hitung Indikator Ichimoku
         df.ta.ichimoku(tenkan=tenkan_period, kijun=kijun_period, senkou=senkou_period, append=True)
-        
-        # Hapus baris dengan NaN yang dihasilkan oleh indikator
         df.dropna(inplace=True)
-        df = df.reset_index(drop=True) # Reset index setelah dropna
+        df = df.reset_index(drop=True)
 
         # Nama kolom dari pandas_ta:
         tenkan_col = f'ITS_{tenkan_period}'
         kijun_col = f'IKS_{kijun_period}'
         span_a_col = f'ISA_{tenkan_period}'
-        span_b_col = 'ISB_26' # Diperbaiki: pandas_ta menggunakan ISB_26 secara default
+        span_b_col = f'ISB_{kijun_period}' # DIPERBAIKI: Nama kolom dinamis
 
-        # Ensure required Ichimoku columns exist after calculation and dropna
         required_cols = [tenkan_col, kijun_col, span_a_col, span_b_col]
         if not all(col in df.columns for col in required_cols):
             df['signal'] = 'HOLD'
             return df
 
-        # Kondisi Awan (Filter Utama) - Menggunakan Span A saja
-        is_above_cloud = df['close'] > df[span_a_col]
-        is_below_cloud = df['close'] < df[span_a_col]
+        # Kondisi Awan (Filter Utama) - DIPERBAIKI: Logika konsisten dengan 'analyze'
+        is_above_cloud = (df['close'] > df[span_a_col]) & (df['close'] > df[span_b_col])
+        is_below_cloud = (df['close'] < df[span_a_col]) & (df['close'] < df[span_b_col])
 
         # Kondisi Persilangan Tenkan/Kijun (Pemicu)
         tk_cross_up = (df[tenkan_col].shift(1) <= df[kijun_col].shift(1)) & (df[tenkan_col] > df[kijun_col])

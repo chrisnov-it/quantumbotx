@@ -73,7 +73,7 @@ def add_bot_route():
 
     new_bot_id = queries.add_bot(
         name=data.get('name'), market=data.get('market'), lot_size=data.get('lot_size'),
-        sl_pips=data.get('sl_pips'), tp_pips=data.get('tp_pips'), timeframe=data.get('timeframe'),
+        sl_pips=data.get('sl_atr_multiplier'), tp_pips=data.get('tp_atr_multiplier'), timeframe=data.get('timeframe'),
         interval=data.get('check_interval_seconds'), strategy=data.get('strategy'),
         strategy_params=params_json
     )

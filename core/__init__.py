@@ -32,19 +32,22 @@ def create_app():
     )    
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
     
-    log_dir = os.path.join(app.root_path, '..', 'logs')
-    os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, 'app.log')
-    file_handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024 * 5, backupCount=5)
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.INFO)
-    werkzeug_logger = logging.getLogger('werkzeug')
-    werkzeug_logger.addFilter(RequestLogFilter())
-    
-    app.logger.info("Aplikasi QuantumBotX sedang dimulai...")
+    # Hanya konfigurasi logging ke file jika TIDAK dalam mode debug
+    if os.getenv('FLASK_DEBUG', 'false').lower() != 'true':
+        log_dir = os.path.join(app.root_path, '..', 'logs')
+        os.makedirs(log_dir, exist_ok=True)
+        log_file = os.path.join(log_dir, 'app.log')
+        file_handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024 * 5, backupCount=5)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        werkzeug_logger = logging.getLogger('werkzeug')
+        werkzeug_logger.addFilter(RequestLogFilter())
+        app.logger.info("Aplikasi QuantumBotX dimulai dalam mode PRODUKSI.")
+    else:
+        app.logger.info("Aplikasi QuantumBotX dimulai dalam mode DEBUG.")
 
     from .routes.api_dashboard import api_dashboard
     from .routes.api_chart import api_chart

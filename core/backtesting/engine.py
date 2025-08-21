@@ -1,17 +1,18 @@
 # core/backtesting/engine.py
 
+import pandas_ta as ta
 from core.strategies.strategy_map import STRATEGY_MAP
 
 def run_backtest(strategy_id, params, historical_data_df):
     """
     Menjalankan simulasi backtesting untuk strategi tertentu pada data historis.
-    VERSI OPTIMIZED: Indikator dihitung sekali di awal.
+    VERSI BARU: Menggunakan SL/TP dinamis berbasis ATR.
     """
     strategy_class = STRATEGY_MAP.get(strategy_id)
     if not strategy_class:
         return {"error": "Strategi tidak ditemukan"}
 
-    # --- LANGKAH 1: Hitung semua indikator SEKALI di awal ---
+    # --- LANGKAH 1: Pra-perhitungan Indikator & ATR ---
     class MockBot:
         def __init__(self):
             self.market_for_mt5 = "BACKTEST"
@@ -19,12 +20,16 @@ def run_backtest(strategy_id, params, historical_data_df):
             self.tf_map = {}
 
     strategy_instance = strategy_class(bot_instance=MockBot(), params=params)
+    df_with_signals = strategy_instance.analyze_df(historical_data_df.copy())
 
-    # Panggil metode baru 'analyze_df' untuk pra-perhitungan indikator
-    df_with_indicators = strategy_instance.analyze_df(historical_data_df.copy())
+    # Hitung ATR untuk SL/TP dinamis
+    df_with_signals.ta.atr(length=14, append=True)
+    # Hapus baris dengan nilai NaN setelah perhitungan indikator
+    df_with_signals.dropna(inplace=True)
+    df_with_signals.reset_index(inplace=True) # Pastikan kita bisa iterasi dengan iloc
 
-    if df_with_indicators.empty:
-        return {"error": "Gagal menghasilkan data indikator. Periksa panjang data input."}
+    if df_with_signals.empty:
+        return {"error": "Gagal menghasilkan data indikator/ATR. Periksa panjang data input."}
 
     strategy_name = strategy_instance.name
 
@@ -36,85 +41,96 @@ def run_backtest(strategy_id, params, historical_data_df):
     equity_curve = [initial_capital]
     peak_equity = initial_capital
     max_drawdown = 0.0
+    
     position_type = None
     entry_price = 0.0
-    sl_pips = params.get('sl_pips', 100)
-    tp_pips = params.get('tp_pips', 200)
+    entry_time = None
+    sl_price = 0.0
+    tp_price = 0.0
 
-    symbol_name = historical_data_df.columns[0].upper()
-    pip_size = 0.0001 # Default untuk Forex standar
-    if 'JPY' in symbol_name:
-        pip_size = 0.01
-    elif 'XAU' in symbol_name or 'XAG' in symbol_name: # Emas atau Perak
-        pip_size = 0.01
+    # Ambil multiplier dari params. Nama kunci masih 'sl_pips' & 'tp_pips' untuk konsistensi dengan DB.
+    # Konversi ke float untuk memastikan kalkulasi berjalan baik
+    sl_atr_multiplier = float(params.get('sl_pips', 2.0))
+    tp_atr_multiplier = float(params.get('tp_pips', 4.0))
 
-    # Tentukan nilai per pip berdasarkan simbol (untuk lot 0.01)
-    if 'XAU' in symbol_name or 'XAG' in symbol_name: # Emas atau Perak
-        # Untuk 0.01 lot (1 oz), pergerakan harga $0.01 = profit/loss $0.01
-        value_per_pip = 0.01
-    else:
-        # Untuk Forex (misal EURUSD), 0.01 lot, pergerakan 1 pip = profit/loss $0.1
-        # Ini adalah asumsi umum, untuk JPY pairs nilainya bisa sedikit berbeda
-        value_per_pip = 0.1
-
-    # --- LANGKAH 3: Loop melalui data yang sudah ada indikatornya ---
-    for i in range(1, len(df_with_indicators)):
-        current_bar = df_with_indicators.iloc[i]
-        signal = current_bar.get("signal", "HOLD")
-        current_price = current_bar['close']
-
+    # --- LANGKAH 3: Loop melalui data ---
+    for i in range(1, len(df_with_signals)):
+        current_bar = df_with_signals.iloc[i]
+        
         # Cek SL/TP jika sedang dalam posisi
         if in_position:
+            exit_price = None
+            reason = ''
+            
             if position_type == 'BUY':
-                profit_pips = (current_price - entry_price) / pip_size
-                if current_price <= entry_price - (sl_pips * pip_size):
-                    trades.append({'entry': entry_price, 'exit': current_price, 'profit_pips': -sl_pips, 'reason': 'SL'})
-                    capital -= sl_pips * value_per_pip
-                    in_position = False
-                elif current_price >= entry_price + (tp_pips * pip_size):
-                    trades.append({'entry': entry_price, 'exit': current_price, 'profit_pips': tp_pips, 'reason': 'TP'})
-                    capital += tp_pips * value_per_pip
-                    in_position = False
+                # Cek SL
+                if current_bar['low'] <= sl_price:
+                    exit_price = sl_price
+                    reason = 'SL'
+                # Cek TP
+                elif current_bar['high'] >= tp_price:
+                    exit_price = tp_price
+                    reason = 'TP'
+            
             elif position_type == 'SELL':
-                profit_pips = (entry_price - current_price) / pip_size
-                if current_price >= entry_price + (sl_pips * pip_size):
-                    trades.append({'entry': entry_price, 'exit': current_price, 'profit_pips': -sl_pips, 'reason': 'SL'})
-                    capital -= sl_pips * value_per_pip
-                    in_position = False
-                elif current_price <= entry_price - (tp_pips * pip_size):
-                    trades.append({'entry': entry_price, 'exit': current_price, 'profit_pips': tp_pips, 'reason': 'TP'})
-                    capital += tp_pips * value_per_pip
-                    in_position = False
+                # Cek SL
+                if current_bar['high'] >= sl_price:
+                    exit_price = sl_price
+                    reason = 'SL'
+                # Cek TP
+                elif current_bar['low'] <= tp_price:
+                    exit_price = tp_price
+                    reason = 'TP'
 
-            if not in_position: # Jika posisi baru saja ditutup
+            # Proses penutupan posisi jika SL/TP tercapai
+            if exit_price is not None:
+                # Asumsi 1 lot standar untuk kalkulasi profit/loss
+                profit = (exit_price - entry_price) if position_type == 'BUY' else (entry_price - exit_price)
+                trades.append({
+                    'entry_time': str(entry_time), # Lebih aman dari strftime
+                    'exit_time': str(current_bar['time']), # Lebih aman dari strftime
+                    'entry': entry_price, 
+                    'exit': exit_price, 
+                    'profit_pips': profit, 
+                    'reason': reason, 
+                    'position_type': position_type
+                })
+                capital += profit
                 equity_curve.append(capital)
                 peak_equity = max(peak_equity, capital)
                 drawdown = (peak_equity - capital) / peak_equity if peak_equity > 0 else 0
                 max_drawdown = max(max_drawdown, drawdown)
+                in_position = False
+                position_type = None
 
-        # Cek sinyal baru
-        if signal == 'BUY' and not in_position:
-            in_position = True
-            position_type = 'BUY'
-            entry_price = current_price
-        elif signal == 'SELL' and not in_position:
-            in_position = True
-            position_type = 'SELL'
-            entry_price = current_price
-        elif (signal == 'SELL' and in_position and position_type == 'BUY') or \
-             (signal == 'BUY' and in_position and position_type == 'SELL'):
-            # Sinyal berlawanan, tutup posisi lama
-            profit_pips = ((current_price - entry_price) if position_type == 'BUY' else (entry_price - current_price)) / pip_size # Calculate pips
-            trades.append({'entry': entry_price, 'exit': current_price, 'profit_pips': profit_pips, 'reason': 'Signal Flip'}) # Log trade
-            capital += profit_pips * value_per_pip
-            equity_curve.append(capital)
-            peak_equity = max(peak_equity, capital)
-            drawdown = (peak_equity - capital) / peak_equity if peak_equity > 0 else 0
-            max_drawdown = max(max_drawdown, drawdown)
-            in_position = False
+        # Cek sinyal baru (hanya jika tidak ada posisi)
+        if not in_position:
+            signal = current_bar.get("signal", "HOLD")
+            if signal == 'BUY' or signal == 'SELL':
+                in_position = True
+                position_type = signal
+                entry_price = current_bar['close']
+                entry_time = current_bar['time']
+                
+                # Ambil ATR pada bar sinyal untuk menentukan SL/TP
+                atr_value = current_bar['ATRr_14']
+                if atr_value > 0:
+                    sl_distance = atr_value * sl_atr_multiplier
+                    tp_distance = atr_value * tp_atr_multiplier
+                    
+                    if signal == 'BUY':
+                        sl_price = entry_price - sl_distance
+                        tp_price = entry_price + tp_distance
+                    else: # SELL
+                        sl_price = entry_price + sl_distance
+                        tp_price = entry_price - tp_distance
+                else:
+                    # Jika ATR 0, batalkan trade untuk menghindari SL/TP di harga entry
+                    in_position = False
+                    position_type = None
 
-    # Hitung hasil akhir
-    total_profit_pips = sum(trade['profit_pips'] for trade in trades)
+    # --- LANGKAH 4: Hitung hasil akhir ---
+    total_profit = capital - initial_capital
     wins = len([trade for trade in trades if trade['profit_pips'] > 0])
     losses = len(trades) - wins
     win_rate = (wins / len(trades) * 100) if trades else 0
@@ -122,11 +138,12 @@ def run_backtest(strategy_id, params, historical_data_df):
     return {
         "strategy_name": strategy_name,
         "total_trades": len(trades),
-        "total_profit_pips": total_profit_pips,
-        "win_rate_percent": win_rate,
+        "final_capital": round(capital, 2),
+        "total_profit_pips": round(total_profit, 2),
+        "win_rate_percent": round(win_rate, 2),
         "wins": wins,
         "losses": losses,
-        "max_drawdown_percent": max_drawdown * 100,
+        "max_drawdown_percent": round(max_drawdown * 100, 2),
         "equity_curve": equity_curve,
-        "trades": trades[-20:]
+        "trades": trades[-20:] # Hanya tampilkan 20 trade terakhir
     }

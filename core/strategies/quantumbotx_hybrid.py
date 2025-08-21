@@ -60,17 +60,17 @@ class QuantumBotXHybridStrategy(BaseStrategy):
         if adx_value > adx_threshold: # Mode Trending
             if is_uptrend and prev[f'SMA_{ma_fast_period}'] <= prev[f'SMA_{ma_slow_period}'] and last[f'SMA_{ma_fast_period}'] > last[f'SMA_{ma_slow_period}']:
                 signal = "BUY"
-                explanation = f"Uptrend & Trending: Golden Cross."
+                explanation = "Uptrend & Trending: Golden Cross."
             elif is_downtrend and prev[f'SMA_{ma_fast_period}'] >= prev[f'SMA_{ma_slow_period}'] and last[f'SMA_{ma_fast_period}'] < last[f'SMA_{ma_slow_period}']:
                 signal = "SELL"
-                explanation = f"Downtrend & Trending: Death Cross."
+                explanation = "Downtrend & Trending: Death Cross."
         else: # Mode Ranging
             if is_uptrend and last['low'] <= last[bbl_col]:
                 signal = "BUY"
-                explanation = f"Uptrend & Ranging: Oversold."
+                explanation = "Uptrend & Ranging: Oversold."
             elif is_downtrend and last['high'] >= last[bbu_col]:
                 signal = "SELL"
-                explanation = f"Downtrend & Ranging: Overbought."
+                explanation = "Downtrend & Ranging: Overbought."
 
         return {"signal": signal, "price": price, "explanation": explanation}
 

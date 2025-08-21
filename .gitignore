@@ -16,6 +16,7 @@ ENV/
 # ==============================================================================
 *.env
 .env.*
+!.env.example
 *.key
 *.pem
 instance/  # Folder konfigurasi rahasia Flask

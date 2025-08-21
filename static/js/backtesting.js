@@ -73,10 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Kumpulkan parameter kustom
         const params = {};
-        // Tambahkan parameter SL/TP yang mungkin tidak ada di form kustom
-        params['sl_pips'] = 100; // Nilai default, bisa dibuat dinamis nanti
-        params['tp_pips'] = 200; // Nilai default
+        // Ambil parameter dari form utama (SL/TP)
+        params['sl_pips'] = parseFloat(document.getElementById('sl_atr_multiplier').value);
+        params['tp_pips'] = parseFloat(document.getElementById('tp_atr_multiplier').value);
 
+        // Kumpulkan parameter strategi kustom
         paramsContainer.querySelectorAll('input').forEach(input => {
             const value = parseFloat(input.value);
             // Pastikan hanya angka valid yang di-parse, selain itu ambil string
