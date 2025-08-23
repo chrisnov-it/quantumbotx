@@ -45,7 +45,7 @@ def mulai_bot(bot_id: int):
     try:
         bot_thread = TradingBot(
             id=bot_data['id'], name=bot_data['name'], market=bot_data['market'],
-            lot_size=bot_data['lot_size'], sl_pips=bot_data['sl_pips'],
+            risk_percent=bot_data['lot_size'], sl_pips=bot_data['sl_pips'],
             tp_pips=bot_data['tp_pips'], timeframe=bot_data['timeframe'],
             check_interval=bot_data['check_interval_seconds'], strategy=bot_data['strategy'],
             strategy_params=params_dict
@@ -125,6 +125,9 @@ def perbarui_bot(bot_id: int, data: dict):
         data['sl_pips'] = data.pop('sl_atr_multiplier')
     if 'tp_atr_multiplier' in data:
         data['tp_pips'] = data.pop('tp_atr_multiplier')
+
+    if 'risk_percent' in data:
+        data['lot_size'] = data.pop('risk_percent')
 
     # Ambil parameter kustom, ubah jadi string JSON, dan simpan
     custom_params = data.pop('params', {})

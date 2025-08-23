@@ -72,7 +72,7 @@ def add_bot_route():
     params_json = json.dumps(data.get('params', {}))
 
     new_bot_id = queries.add_bot(
-        name=data.get('name'), market=data.get('market'), lot_size=data.get('lot_size'),
+        name=data.get('name'), market=data.get('market'), lot_size=data.get('risk_percent'),
         sl_pips=data.get('sl_atr_multiplier'), tp_pips=data.get('tp_atr_multiplier'), timeframe=data.get('timeframe'),
         interval=data.get('check_interval_seconds'), strategy=data.get('strategy'),
         strategy_params=params_json

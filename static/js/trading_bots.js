@@ -77,8 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="text-sm text-gray-500">${bot.market}</div>
                         </td>
                         <td class="px-4 py-4 text-sm text-gray-500">
-                            <div>Lot: ${bot.lot_size}</div>
-                            <div>SL: ${bot.sl_pips} pips | TP: ${bot.tp_pips} pips</div>
+                            <div>Risk: ${bot.lot_size}%</div>
+                            <div>SL: ${bot.sl_pips}x ATR | TP: ${bot.tp_pips}x ATR</div>
                         </td>
                         <td class="px-4 py-4 text-sm text-gray-500">
                             <div>Strategi: ${bot.strategy_name}</div>
@@ -115,10 +115,10 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.textContent = 'Buat Bot'; // <-- 2. Set teks untuk mode 'Create'
         modalTitle.textContent = '🚀 Buat Bot Baru';
         // Set nilai default
-        form.elements.lot_size.value = 0.01;
+        form.elements.risk_percent.value = 1.0;
         form.elements.timeframe.value = 'H1';
-        form.elements.sl_pips.value = 100;
-        form.elements.tp_pips.value = 200;
+        form.elements.sl_atr_multiplier.value = 2.0;
+        form.elements.tp_atr_multiplier.value = 4.0;
         form.elements.check_interval_seconds.value = 60;
         modal.classList.remove('hidden');
     });
@@ -190,7 +190,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(form);
         const data = {};
         formData.forEach((value, key) => {
-            if (['lot_size', 'sl_pips', 'tp_pips', 'check_interval_seconds'].includes(key)) {
+            // Ganti 'lot_size' dengan 'risk_percent'
+            if (['risk_percent', 'sl_atr_multiplier', 'tp_atr_multiplier', 'check_interval_seconds'].includes(key)) {
                 data[key] = parseFloat(value);
             } else {
                 data[key] = value;

@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Render Parameter Standar
             let paramsHTML = `
                 <div class="grid grid-cols-2 gap-4">
-                    <div><p class="text-gray-500">Lot Size</p><p class="font-semibold text-gray-800">${botData.lot_size}</p></div>
-                    <div><p class="text-gray-500">Stop Loss</p><p class="font-semibold text-gray-800">${botData.sl_pips} pips</p></div>
-                    <div><p class="text-gray-500">Take Profit</p><p class="font-semibold text-gray-800">${botData.tp_pips} pips</p></div>
+                    <div><p class="text-gray-500">Risk per Trade</p><p class="font-semibold text-gray-800">${botData.lot_size}%</p></div>
+                    <div><p class="text-gray-500">SL (ATR Multiplier)</p><p class="font-semibold text-gray-800">${botData.sl_pips}x ATR</p></div>
+                    <div><p class="text-gray-500">TP (ATR Multiplier)</p><p class="font-semibold text-gray-800">${botData.tp_pips}x ATR</p></div>
                     <div><p class="text-gray-500">Interval</p><p class="font-semibold text-gray-800">${botData.check_interval_seconds}s</p></div>
                 </div>
             `;

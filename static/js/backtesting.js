@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.classList.remove('hidden');
         // PERBAIKAN: Tampilkan 6 metrik utama
         resultsSummary.innerHTML = `
-            <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Total Profit</p><p class="text-2xl font-bold text-green-600">${data.total_profit_pips.toFixed(2)} pips</p></div>
+                        <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Total Profit</p><p class="text-2xl font-bold text-green-600">${data.total_profit_usd.toFixed(2)} $</p></div>
             <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Max Drawdown</p><p class="text-2xl font-bold text-red-600">${data.max_drawdown_percent.toFixed(2)}%</p></div>
             <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Win Rate</p><p class="text-2xl font-bold text-blue-600">${data.win_rate_percent.toFixed(2)}%</p></div>
             <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Total Trades</p><p class="text-2xl font-bold">${data.total_trades}</p></div>
@@ -126,8 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.trades && data.trades.length > 0) {
             let logHtml = '<h4 class="text-lg font-semibold mt-6 mb-2">20 Trade Terakhir</h4><div class="text-xs font-mono border rounded p-2 bg-gray-50 max-h-64 overflow-y-auto">';
             data.trades.forEach(trade => {
-                const profitClass = trade.profit_pips > 0 ? 'text-green-600' : 'text-red-600';
-                logHtml += `<p>Entry: ${trade.entry.toFixed(4)} | Exit: ${trade.exit.toFixed(4)} | Profit: <span class="${profitClass}">${trade.profit_pips.toFixed(2)} pips</span> | Reason: ${trade.reason}</p>`;
+                const profitClass = trade.profit > 0 ? 'text-green-600' : 'text-red-600';
+                logHtml += `<p>Entry: ${trade.entry.toFixed(4)} | Exit: ${trade.exit.toFixed(4)} | Profit: <span class="${profitClass}">${trade.profit.toFixed(2)}</span> | Reason: ${trade.reason}</p>`;
             });
             logHtml += '</div>';
             resultsLog.innerHTML = logHtml;

@@ -18,6 +18,11 @@ def save_backtest_result(strategy_name, filename, params, results):
         if isinstance(value, (np.floating, float)) and (np.isinf(value) or np.isnan(value)):
             results[key] = None # Ganti inf/nan dengan None (NULL di DB)
 
+    # Ambil nilai profit, utamakan kunci baru 'total_profit'
+    profit_to_save = results.get('total_profit')
+    if profit_to_save is None:
+        profit_to_save = results.get('total_profit_pips', 0) # Fallback ke kunci lama
+
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -29,7 +34,7 @@ def save_backtest_result(strategy_name, filename, params, results):
             """, (
                 strategy_name,
                 filename,
-                results.get('total_profit_pips', 0),
+                profit_to_save,
                 results.get('total_trades', 0),
                 results.get('win_rate_percent', 0),
                 results.get('max_drawdown_percent', 0),
@@ -73,6 +78,34 @@ def run_backtest_route():
 def get_history_route():
     try:
         history = get_all_backtest_history()
-        return jsonify(history)
+        processed_history = []
+        for record in history:
+            # Create a mutable copy (dictionary) from the database record
+            new_record = dict(record)
+            
+            # Standardize the total profit key
+            if 'total_profit_pips' in new_record:
+                new_record['total_profit'] = new_record.pop('total_profit_pips')
+
+            # Standardize the profit key within the trade log
+            if 'trade_log' in new_record and new_record['trade_log']:
+                try:
+                    trades = json.loads(new_record['trade_log'])
+                    processed_trades = []
+                    if isinstance(trades, list):
+                        for trade in trades:
+                            if isinstance(trade, dict) and 'profit_pips' in trade:
+                                trade['profit'] = trade.pop('profit_pips')
+                            processed_trades.append(trade)
+                        # Return trade_log as a list of objects instead of a JSON string
+                        new_record['trade_log'] = processed_trades
+                except (json.JSONDecodeError, TypeError):
+                    # If trade_log is not a valid JSON or not a string, leave it as is or handle error
+                    pass
+            
+            processed_history.append(new_record)
+            
+        return jsonify(processed_history)
     except Exception as e:
+        logger.error(f"Error processing history: {str(e)}", exc_info=True)
         return jsonify({"error": f"Terjadi kesalahan saat mengambil riwayat: {str(e)}"}), 500

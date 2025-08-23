@@ -1,11 +1,12 @@
 import sqlite3
 import os
+from werkzeug.security import generate_password_hash
 
 # Nama file database
 DB_FILE = "bots.db"
 
 def create_connection(db_file):
-    """ Membuat koneksi ke database SQLite """
+    """ Membuat koneksi ke database SQLite """ 
     conn = None
     try:
         conn = sqlite3.connect(db_file)
@@ -29,6 +30,17 @@ def main():
     if os.path.exists(DB_FILE):
         os.remove(DB_FILE)
         print(f"File database lama '{DB_FILE}' telah dihapus.")
+
+    # SQL statement untuk membuat tabel 'users'
+    sql_create_users_table = """
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        join_date DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    """
 
     # SQL statement untuk membuat tabel 'bots'
     sql_create_bots_table = """
@@ -59,40 +71,56 @@ def main():
         is_read INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (bot_id) REFERENCES bots (id) ON DELETE CASCADE
     );
-    """    
+    """
+
+    # SQL statement untuk membuat tabel 'backtest_results'
+    sql_create_backtest_results_table = """
+    CREATE TABLE IF NOT EXISTS backtest_results (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        strategy_name TEXT NOT NULL,
+        data_filename TEXT NOT NULL,
+        total_profit_pips REAL NOT NULL,
+        total_trades INTEGER NOT NULL,
+        win_rate_percent REAL NOT NULL,
+        max_drawdown_percent REAL NOT NULL,
+        wins INTEGER NOT NULL,
+        losses INTEGER NOT NULL,
+        equity_curve TEXT, -- Disimpan sebagai JSON
+        trade_log TEXT,    -- Disimpan sebagai JSON
+        parameters TEXT    -- Disimpan sebagai JSON
+    );
+    """
 
     # Buat koneksi database
     conn = create_connection(DB_FILE)
 
     # Buat tabel-tabel
     if conn is not None:
+        print("\nMembuat tabel 'users'...")
+        create_table(conn, sql_create_users_table)
+
         print("\nMembuat tabel 'bots'...")
         create_table(conn, sql_create_bots_table)
 
         print("\nMembuat tabel 'trade_history'...")
-        create_table(conn, sql_create_history_table)     
-        
-        # --- TAMBAHKAN INI ---
+        create_table(conn, sql_create_history_table)
+
         print("\nMembuat tabel 'backtest_results'...")
-        sql_create_backtest_results_table = """
-        CREATE TABLE IF NOT EXISTS backtest_results (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            strategy_name TEXT NOT NULL,
-            data_filename TEXT NOT NULL,
-            total_profit_pips REAL NOT NULL,
-            total_trades INTEGER NOT NULL,
-            win_rate_percent REAL NOT NULL,
-            max_drawdown_percent REAL NOT NULL,
-            wins INTEGER NOT NULL,
-            losses INTEGER NOT NULL,
-            equity_curve TEXT, -- Disimpan sebagai JSON
-            trade_log TEXT,    -- Disimpan sebagai JSON
-            parameters TEXT    -- Disimpan sebagai JSON
-        );
-        """
         create_table(conn, sql_create_backtest_results_table)
-        # --- SELESAI PENAMBAHAN ---
+
+        # Masukkan pengguna default
+        try:
+            print("\nMemasukkan pengguna default...")
+            cursor = conn.cursor()
+            # Gunakan password default 'admin' untuk pengguna pertama
+            default_password_hash = generate_password_hash('admin')
+            cursor.execute("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)", 
+                           ('Admin User', 'admin@quantumbotx.com', default_password_hash))
+            conn.commit()
+            print("Pengguna default berhasil dimasukkan.")
+        except sqlite3.Error as e:
+            print(f"Gagal memasukkan pengguna default: {e}")
 
         conn.close()
         print(f"\nDatabase '{DB_FILE}' berhasil dibuat dengan semua tabel yang diperlukan.")

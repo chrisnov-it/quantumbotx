@@ -12,12 +12,12 @@ logger = logging.getLogger(__name__)
 
 
 class TradingBot(threading.Thread):
-    def __init__(self, id, name, market, lot_size, sl_pips, tp_pips, timeframe, check_interval, strategy, strategy_params={}, status='Dijeda'):
+    def __init__(self, id, name, market, risk_percent, sl_pips, tp_pips, timeframe, check_interval, strategy, strategy_params={}, status='Dijeda'):
         super().__init__()
         self.id = id
         self.name = name
         self.market = market
-        self.lot_size = lot_size
+        self.risk_percent = risk_percent
         self.sl_pips = sl_pips
         self.tp_pips = tp_pips
         self.timeframe = timeframe
@@ -153,7 +153,7 @@ class TradingBot(threading.Thread):
             # Jika tidak ada posisi, buka posisi BUY baru
             if not position:
                 self.log_activity('OPEN BUY', "Membuka posisi BELI berdasarkan sinyal.", is_notification=True)
-                place_trade(self.market_for_mt5, mt5.ORDER_TYPE_BUY, self.lot_size, self.sl_pips, self.tp_pips, self.id)
+                place_trade(self.market_for_mt5, mt5.ORDER_TYPE_BUY, self.risk_percent, self.sl_pips, self.tp_pips, self.id)
 
         # Logika untuk sinyal SELL
         elif signal == 'SELL':
@@ -166,4 +166,4 @@ class TradingBot(threading.Thread):
             # Jika tidak ada posisi, buka posisi SELL baru
             if not position:
                 self.log_activity('OPEN SELL', "Membuka posisi JUAL berdasarkan sinyal.", is_notification=True)
-                place_trade(self.market_for_mt5, mt5.ORDER_TYPE_SELL, self.lot_size, self.sl_pips, self.tp_pips, self.id, self.timeframe)
+                place_trade(self.market_for_mt5, mt5.ORDER_TYPE_SELL, self.risk_percent, self.sl_pips, self.tp_pips, self.id, self.timeframe)
