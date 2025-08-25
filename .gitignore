@@ -1,4 +1,13 @@
 # ==============================================================================
+# Testing & Development Scripts
+# ==============================================================================
+testing/          # Test scripts and development utilities
+*.test.py        # Individual test files
+*_test.py        # Test files with underscore naming
+*_debug.py       # Debug scripts
+*_demo.py        # Demo scripts
+
+# ==============================================================================
 # Python & Lingkungan Virtual
 # ==============================================================================
 __pycache__/
