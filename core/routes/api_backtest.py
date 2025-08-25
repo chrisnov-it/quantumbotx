@@ -21,14 +21,14 @@ def save_backtest_result(strategy_name, filename, params, results):
     # Ambil nilai profit, utamakan kunci baru 'total_profit'
     profit_to_save = results.get('total_profit')
     if profit_to_save is None:
-        profit_to_save = results.get('total_profit_pips', 0) # Fallback ke kunci lama
+        profit_to_save = results.get('total_profit_usd', 0) # Fallback ke kunci lama
 
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO backtest_results (
-                    strategy_name, data_filename, total_profit_pips, total_trades, 
+                    strategy_name, data_filename, total_profit_usd, total_trades, 
                     win_rate_percent, max_drawdown_percent, wins, losses, equity_curve, trade_log, parameters
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
@@ -62,8 +62,17 @@ def run_backtest_route():
         strategy_id = request.form.get('strategy')
         params = json.loads(request.form.get('params', '{}'))
         
-        # Jalankan backtest
-        results = run_backtest(strategy_id, params, df)
+        # Extract symbol name from filename for accurate XAUUSD detection
+        symbol_name = None
+        if file.filename:
+            # Try to extract symbol from filename (e.g., "XAUUSD_H1_data.csv" -> "XAUUSD")
+            filename_parts = file.filename.replace('.csv', '').split('_')
+            if filename_parts:
+                symbol_name = filename_parts[0].upper()
+                logger.info(f"Detected symbol from filename: {symbol_name}")
+        
+        # Jalankan backtest dengan symbol name untuk deteksi XAUUSD yang akurat
+        results = run_backtest(strategy_id, params, df, symbol_name=symbol_name)
 
         # Simpan hasil jika berhasil
         if results and not results.get('error'):
@@ -83,25 +92,36 @@ def get_history_route():
             # Create a mutable copy (dictionary) from the database record
             new_record = dict(record)
             
-            # Standardize the total profit key
-            if 'total_profit_pips' in new_record:
-                new_record['total_profit'] = new_record.pop('total_profit_pips')
-
-            # Standardize the profit key within the trade log
+            # Parse JSON fields safely
             if 'trade_log' in new_record and new_record['trade_log']:
                 try:
                     trades = json.loads(new_record['trade_log'])
-                    processed_trades = []
                     if isinstance(trades, list):
-                        for trade in trades:
-                            if isinstance(trade, dict) and 'profit_pips' in trade:
-                                trade['profit'] = trade.pop('profit_pips')
-                            processed_trades.append(trade)
-                        # Return trade_log as a list of objects instead of a JSON string
-                        new_record['trade_log'] = processed_trades
+                        new_record['trade_log'] = trades
                 except (json.JSONDecodeError, TypeError):
-                    # If trade_log is not a valid JSON or not a string, leave it as is or handle error
-                    pass
+                    new_record['trade_log'] = []
+            else:
+                new_record['trade_log'] = []
+            
+            if 'equity_curve' in new_record and new_record['equity_curve']:
+                try:
+                    equity = json.loads(new_record['equity_curve'])
+                    if isinstance(equity, list):
+                        new_record['equity_curve'] = equity
+                except (json.JSONDecodeError, TypeError):
+                    new_record['equity_curve'] = []
+            else:
+                new_record['equity_curve'] = []
+                
+            if 'parameters' in new_record and new_record['parameters']:
+                try:
+                    params = json.loads(new_record['parameters'])
+                    if isinstance(params, dict):
+                        new_record['parameters'] = params
+                except (json.JSONDecodeError, TypeError):
+                    new_record['parameters'] = {}
+            else:
+                new_record['parameters'] = {}
             
             processed_history.append(new_record)
             

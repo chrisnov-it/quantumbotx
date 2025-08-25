@@ -7,13 +7,56 @@ from flask import Flask, render_template, send_from_directory
 from dotenv import load_dotenv
 
 class RequestLogFilter(logging.Filter):
+    """Filter untuk menghilangkan noise dari terminal log."""
     def filter(self, record):
         msg = record.getMessage()
-        paths_to_ignore = [
-            "GET /api/notifications/unread-count",
-            "GET /api/bots/analysis"
+        
+        # Selalu tampilkan log non-HTTP (trading bot activities, errors, dll)
+        if not any(x in msg for x in ["GET ", "POST ", "PUT ", "DELETE ", "PATCH "]):
+            return True
+        
+        # Selalu tampilkan HTTP errors (4xx, 5xx)
+        if any(status in msg for status in [" 4", " 5"]):
+            return True
+            
+        # Selalu tampilkan POST, PUT, DELETE (important actions)
+        if any(method in msg for method in ["POST ", "PUT ", "DELETE ", "PATCH "]):
+            return True
+        
+        # Filter GET requests yang berisik
+        noisy_get_paths = [
+            # Notification requests (sangat berisik!)
+            "GET /api/notifications/unread",
+            
+            # Bot polling requests
+            "GET /api/bots/analysis",
+            "GET /api/bots/status",
+            
+            # Dashboard polling (hanya jika 200 OK)
+            "GET /api/dashboard/stats",
+            "GET /api/dashboard/chart-data", 
+            "GET /api/portfolio/performance",
+            
+            # Market data polling
+            "GET /api/forex",
+            "GET /api/stocks",
+            "GET /api/chart",
+            
+            # Health checks dan favicon
+            "GET /api/health",
+            "GET /favicon.ico",
+            
+            # Static files
+            "GET /static/"
         ]
-        return not any(path in msg for path in paths_to_ignore)
+        
+        # Filter out GET requests yang berisik HANYA jika status 200/304
+        if any(path in msg for path in noisy_get_paths):
+            if " 200 -" in msg or " 304 -" in msg:
+                return False
+        
+        # Tampilkan semua request lainnya (termasuk GET yang error)
+        return True
 
 # ============================
 # APPLICATION FACTORY FUNCTION
@@ -32,7 +75,7 @@ def create_app():
     )    
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
     
-    # Hanya konfigurasi logging ke file jika TIDAK dalam mode debug
+    # Konfigurasi logging yang lebih bersih
     if os.getenv('FLASK_DEBUG', 'false').lower() != 'true':
         log_dir = os.path.join(app.root_path, '..', 'logs')
         os.makedirs(log_dir, exist_ok=True)
@@ -43,11 +86,20 @@ def create_app():
         
         app.logger.addHandler(file_handler)
         app.logger.setLevel(logging.INFO)
+        
+        # Filter werkzeug noise secara menyeluruh
         werkzeug_logger = logging.getLogger('werkzeug')
+        werkzeug_logger.setLevel(logging.WARNING)  # Hanya tampilkan warning dan error
         werkzeug_logger.addFilter(RequestLogFilter())
-        app.logger.info("Aplikasi QuantumBotX dimulai dalam mode PRODUKSI.")
+        
+        app.logger.info("QuantumBotX dimulai dalam mode PRODUKSI - Log terminal dibersihkan!")
     else:
-        app.logger.info("Aplikasi QuantumBotX dimulai dalam mode DEBUG.")
+        # Bahkan dalam debug mode, tetap filter werkzeug noise
+        werkzeug_logger = logging.getLogger('werkzeug')
+        werkzeug_logger.setLevel(logging.WARNING)
+        werkzeug_logger.addFilter(RequestLogFilter())
+        
+        app.logger.info("QuantumBotX dimulai dalam mode DEBUG - Log minimal.")
 
     from .routes.api_dashboard import api_dashboard
     from .routes.api_chart import api_chart

@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.classList.remove('hidden');
         // PERBAIKAN: Tampilkan 6 metrik utama
         resultsSummary.innerHTML = `
-                        <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Total Profit</p><p class="text-2xl font-bold text-green-600">${data.total_profit_usd.toFixed(2)} $</p></div>
+            <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Total Profit</p><p class="text-2xl font-bold text-green-600">${data.total_profit_usd.toFixed(2)} $</p></div>
             <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Max Drawdown</p><p class="text-2xl font-bold text-red-600">${data.max_drawdown_percent.toFixed(2)}%</p></div>
             <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Win Rate</p><p class="text-2xl font-bold text-blue-600">${data.win_rate_percent.toFixed(2)}%</p></div>
             <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Total Trades</p><p class="text-2xl font-bold">${data.total_trades}</p></div>

@@ -101,8 +101,8 @@ def get_todays_profit_mt5():
 def find_mt5_symbol(base_symbol: str) -> str | None:
     """
     Mencari nama simbol yang benar di MT5 berdasarkan nama dasar.
-    Fungsi ini mencoba mencocokkan variasi umum (suffix, prefix, nama alternatif)
-    dan memastikan simbol tersebut terlihat di Market Watch.
+    Fungsi ini menggunakan mapping broker-specific dan regex untuk mencocokkan
+    variasi simbol di berbagai broker, memastikan kompatibilitas lintas broker.
 
     Args:
         base_symbol (str): Nama simbol dasar (misal, "XAUUSD", "EURUSD").
@@ -112,6 +112,37 @@ def find_mt5_symbol(base_symbol: str) -> str | None:
     """
     import re
     base_symbol_cleaned = re.sub(r'[^A-Z0-9]', '', base_symbol.upper())
+    
+    # Mapping broker-specific symbols
+    BROKER_SYMBOL_MAP = {
+        'XAUUSD': [
+            'XAUUSD',      # MetaTrader Demo, most common
+            'GOLD',        # XM Global, Exness
+            'XAU/USD',     # Some brokers use slash
+            'XAU_USD',     # Some brokers use underscore
+            'XAUUSD.',     # Alpari and others with dot suffix
+            'XAUUSDm',     # Exness micro
+            'GOLDmicro',   # XM micro lots
+            'GOLDSPOT',    # Some CFD brokers
+            'GOLDZ',       # Rare XM variant
+            'XAUUSD.c'     # Alpari CFD
+        ],
+        'EURUSD': [
+            'EURUSD', 'EUR/USD', 'EUR_USD', 'EURUSD.', 'EURUSDm'
+        ],
+        'GBPUSD': [
+            'GBPUSD', 'GBP/USD', 'GBP_USD', 'GBPUSD.', 'GBPUSDm'
+        ],
+        'USDJPY': [
+            'USDJPY', 'USD/JPY', 'USD_JPY', 'USDJPY.', 'USDJPYm'
+        ],
+        'BTCUSD': [
+            'BTCUSD', 'BTC/USD', 'BTC_USD', 'BTCUSD.', 'Bitcoin'
+        ],
+        'ETHUSD': [
+            'ETHUSD', 'ETH/USD', 'ETH_USD', 'ETHUSD.', 'Ethereum'
+        ]
+    }
     
     try:
         all_symbols = mt5.symbols_get()
@@ -123,23 +154,59 @@ def find_mt5_symbol(base_symbol: str) -> str | None:
         return None
 
     visible_symbols = {s.name for s in all_symbols if s.visible}
+    
+    # Get current broker info for smarter symbol selection
+    broker_name = ""
+    try:
+        account_info = mt5.account_info()
+        if account_info:
+            broker_name = account_info.server.upper()
+            logger.info(f"Detected broker: {broker_name}")
+    except:
+        pass
 
-    # 1. Cek kecocokan langsung (paling umum)
+    # 1. Try broker-specific symbol mapping first
+    if base_symbol_cleaned in BROKER_SYMBOL_MAP:
+        symbol_variants = BROKER_SYMBOL_MAP[base_symbol_cleaned]
+        
+        # Prioritize based on broker
+        if 'XM' in broker_name:
+            # XM Global: prioritize GOLD, GOLDmicro
+            symbol_variants = ['GOLD', 'GOLDmicro', 'XAUUSD'] + [s for s in symbol_variants if s not in ['GOLD', 'GOLDmicro', 'XAUUSD']]
+        elif 'DEMO' in broker_name or 'METAQUOTES' in broker_name:
+            # MetaTrader Demo: prioritize XAUUSD
+            symbol_variants = ['XAUUSD', 'GOLD'] + [s for s in symbol_variants if s not in ['XAUUSD', 'GOLD']]
+        elif 'EXNESS' in broker_name:
+            # Exness: prioritize XAUUSDm, GOLD
+            symbol_variants = ['XAUUSDm', 'GOLD', 'XAUUSD'] + [s for s in symbol_variants if s not in ['XAUUSDm', 'GOLD', 'XAUUSD']]
+        elif 'ALPARI' in broker_name:
+            # Alpari: prioritize XAUUSD.c
+            symbol_variants = ['XAUUSD.c', 'XAUUSD'] + [s for s in symbol_variants if s not in ['XAUUSD.c', 'XAUUSD']]
+        
+        # Test each variant in priority order
+        for variant in symbol_variants:
+            if variant in visible_symbols:
+                logger.info(f"Broker-specific symbol '{variant}' found for '{base_symbol_cleaned}' on {broker_name}")
+                if mt5.symbol_select(variant, True):
+                    return variant
+                else:
+                    logger.warning(f"Symbol '{variant}' found but failed to activate.")
+
+    # 2. Fallback: Direct match
     if base_symbol_cleaned in visible_symbols:
-        logger.info(f"Simbol '{base_symbol_cleaned}' ditemukan secara langsung.")
+        logger.info(f"Direct symbol match '{base_symbol_cleaned}' found.")
         return base_symbol_cleaned
 
-    # 2. Buat pola regex untuk mencari variasi
+    # 3. Fallback: Regex pattern matching
     pattern = re.compile(f"^[a-zA-Z]*{base_symbol_cleaned}[a-zA-Z0-9._-]*$", re.IGNORECASE)
     
-    # Cari di antara simbol yang terlihat
     for symbol_name in visible_symbols:
         if pattern.match(symbol_name):
-            logger.info(f"Variasi simbol '{symbol_name}' ditemukan untuk basis '{base_symbol_cleaned}'.")
+            logger.info(f"Pattern match '{symbol_name}' found for '{base_symbol_cleaned}'.")
             if mt5.symbol_select(symbol_name, True):
                 return symbol_name
             else:
-                logger.warning(f"Simbol '{symbol_name}' ditemukan tapi gagal diaktifkan.")
+                logger.warning(f"Symbol '{symbol_name}' found but failed to activate.")
 
-    logger.warning(f"Tidak ada variasi simbol yang valid dan terlihat untuk '{base_symbol}' ditemukan di Market Watch.")
+    logger.warning(f"No valid symbol variant found for '{base_symbol}' on broker {broker_name}.")
     return None

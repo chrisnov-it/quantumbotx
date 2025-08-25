@@ -11,12 +11,94 @@ logger = logging.getLogger(__name__)
 # Key: bot_id (int), Value: TradingBot instance
 active_bots = {}
 
+def auto_migrate_broker_symbols():
+    """Automatically migrate bot symbols when broker changes are detected"""
+    try:
+        import MetaTrader5 as mt5
+        from pathlib import Path
+        import json
+        from core.utils.mt5 import find_mt5_symbol
+        
+        # Get current broker info
+        account_info = mt5.account_info()
+        if not account_info:
+            return
+        
+        current_broker = account_info.server
+        broker_file = Path('last_broker.json')
+        
+        # Check if broker changed
+        broker_changed = False
+        if broker_file.exists():
+            with open(broker_file, 'r') as f:
+                last_config = json.load(f)
+                last_broker = last_config.get('broker', '')
+                
+                if last_broker != current_broker:
+                    logger.info(f"Broker changed detected: '{last_broker}' → '{current_broker}'")
+                    broker_changed = True
+        else:
+            broker_changed = True  # First time setup
+        
+        if broker_changed:
+            logger.info("Running automatic symbol migration...")
+            
+            # Get all bots and check symbols
+            all_bots = queries.get_all_bots()
+            migrated_count = 0
+            
+            for bot in all_bots:
+                bot_id = bot['id']
+                current_symbol = bot['market']
+                
+                # Test current symbol
+                resolved_symbol = find_mt5_symbol(current_symbol)
+                
+                if resolved_symbol and resolved_symbol != current_symbol:
+                    # Symbol needs updating
+                    logger.info(f"Auto-migrating Bot {bot_id} ({bot['name']}): {current_symbol} -> {resolved_symbol}")
+                    
+                    # Preserve all existing bot settings, only change symbol
+                    success = queries.update_bot(
+                        bot_id=bot_id,
+                        name=bot['name'],
+                        market=resolved_symbol,  # Only change this
+                        lot_size=bot['lot_size'],
+                        sl_pips=bot['sl_pips'], 
+                        tp_pips=bot['tp_pips'],
+                        timeframe=bot['timeframe'],
+                        interval=bot['check_interval_seconds'],
+                        strategy=bot['strategy'],
+                        strategy_params=bot['strategy_params'] or '{}'
+                    )
+                    
+                    if success:
+                        migrated_count += 1
+                elif not resolved_symbol:
+                    logger.warning(f"Bot {bot_id} ({bot['name']}) symbol '{current_symbol}' not available on {current_broker}")
+            
+            logger.info(f"Auto-migration complete: {migrated_count} bots updated for {current_broker}")
+        
+        # Save current broker info
+        with open(broker_file, 'w') as f:
+            json.dump({
+                'broker': current_broker,
+                'company': account_info.company,
+                'last_check': __import__('datetime').datetime.now().isoformat()
+            }, f, indent=2)
+            
+    except Exception as e:
+        logger.error(f"Error in auto symbol migration: {e}")
+
 def ambil_semua_bot():
     """
     Mengambil semua bot dari database saat aplikasi pertama kali dimulai.
-    Tidak memulai thread, hanya memuat konfigurasi.
+    Automatically handles broker symbol migration before loading bots.
     """
     try:
+        # First, auto-migrate symbols if broker changed
+        auto_migrate_broker_symbols()
+        
         all_bots_data = queries.get_all_bots()
         if not all_bots_data:
             logger.info("Database tidak memiliki bot untuk dimuat.")

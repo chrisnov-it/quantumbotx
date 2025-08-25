@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import sys
 from werkzeug.security import generate_password_hash
 
 # Nama file database
@@ -17,7 +18,7 @@ def create_connection(db_file):
     return conn
 
 def create_table(conn, create_table_sql):
-    """ Membuat tabel dari statement SQL """
+    """ Membuat tabel dari statement SQL """ 
     try:
         c = conn.cursor()
         c.execute(create_table_sql)
@@ -26,10 +27,14 @@ def create_table(conn, create_table_sql):
         print(e)
 
 def main():
-    # Hapus database lama jika ada, untuk memastikan mulai dari awal
-    if os.path.exists(DB_FILE):
-        os.remove(DB_FILE)
-        print(f"File database lama '{DB_FILE}' telah dihapus.")
+    # Only remove database if explicitly requested
+    if '--force' in sys.argv:
+        if os.path.exists(DB_FILE):
+            try:
+                os.remove(DB_FILE)
+                print(f"File database lama '{DB_FILE}' telah dihapus.")
+            except PermissionError:
+                print(f"WARNING: Database '{DB_FILE}' sedang digunakan. Melanjutkan tanpa menghapus...")
 
     # SQL statement untuk membuat tabel 'users'
     sql_create_users_table = """
@@ -80,7 +85,7 @@ def main():
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
         strategy_name TEXT NOT NULL,
         data_filename TEXT NOT NULL,
-        total_profit_pips REAL NOT NULL,
+        total_profit_usd REAL NOT NULL,
         total_trades INTEGER NOT NULL,
         win_rate_percent REAL NOT NULL,
         max_drawdown_percent REAL NOT NULL,

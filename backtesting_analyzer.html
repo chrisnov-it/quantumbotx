@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backtesting Analyzer - Trading Bot Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            padding: 30px;
+        }
+
+        .issues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .issue-card {
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+        }
+
+        .issue-critical {
+            background: #fff5f5;
+            border-color: #e53e3e;
+            color: #c53030;
+        }
+
+        .issue-error {
+            background: #fffaf0;
+            border-color: #dd6b20;
+            color: #c05621;
+        }
+
+        .issue-warning {
+            background: #fffff0;
+            border-color: #d69e2e;
+            color: #b7791f;
+        }
+
+        .issue-info {
+            background: #f0f9ff;
+            border-color: #3182ce;
+            color: #2c5282;
+        }
+
+        .issue-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .issue-category {
+            background: rgba(0,0,0,0.1);
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .issue-description {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .issue-impact {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .issue-solution {
+            background: rgba(255,255,255,0.8);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .atr-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .atr-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .atr-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Backtesting Analyzer</h1>
+            <p>Analisis sistem ATR-based trading bot untuk XAUUSD</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="runAnalysis()" id="analyzeBtn">
+                🔍 Mulai Analisis Sistem
+            </button>
+        </div>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        let atrChart = null;
+
+        async function runAnalysis() {
+            const btn = document.getElementById('analyzeBtn');
+            const results = document.getElementById('results');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Menganalisis...';
+            
+            results.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Sedang menganalisis sistem QuantumBotX...</p>
+                </div>
+            `;
+
+            try {
+                // Test file system access first
+                console.log('Testing file system access...');
+                
+                // Check if window.fs is available
+                if (typeof window.fs === 'undefined') {
+                    throw new Error('window.fs API tidak tersedia. File harus dibuka melalui Claude interface.');
+                }
+                
+                // Test basic path access
+                console.log('Testing basic file access...');
+                
+                // Real file analysis
+                const issues = await analyzeRealFiles();
+                const atrData = simulateATRCalculation();
+
+                displayResults(issues, atrData);
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                
+                // Show fallback analysis with error info
+                results.innerHTML = `
+                    <div style="background: #fee; border: 2px solid #faa; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                        <h3 style="color: #c53030; margin-bottom: 15px;">⚠️ File Access Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Reason:</strong> File HTML perlu dibuka melalui Claude interface untuk akses file system.</p>
+                        
+                        <h4 style="margin: 20px 0 10px 0;">🔧 Solusi:</h4>
+                        <ol style="margin-left: 20px; line-height: 1.6;">
+                            <li>Upload file HTML ini ke chat Claude</li>
+                            <li>Claude akan bisa akses file system</li>
+                            <li>Atau gunakan manual analysis mode di bawah</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <button class="btn" onclick="showManualAnalysis()" style="background: #38a169;">
+                            📋 Manual Analysis Mode
+                        </button>
+                    </div>
+                `;
+            }
+
+            btn.disabled = false;
+            btn.textContent = '🔍 Analisis Ulang';
+        }
+
+        function showManualAnalysis() {
+            const results = document.getElementById('results');
+            
+            results.innerHTML = `
+                <div style="background: #f0f9ff; border-radius: 15px; padding: 25px; margin: 20px 0;">
+                    <h3 style="color: #2c5282; margin-bottom: 20px;">📋 Manual Analysis Checklist</h3>
+                    
+                    <p style="margin-bottom: 20px;">Cek manual file-file berikut di project <code>D:\\dev\\quantumbotx\\</code>:</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #e53e3e;">
+                            <h4 style="color: #c53030; margin-bottom: 10px;">🔴 Critical Files</h4>
+                            <ul style="margin-left: 20px; line-height: 1.6;">
+                                <li><code>backtesting/engine.py</code></li>
+                                <li><code>core/utils/risk_management.py</code></li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #dd6b20;">
+                            <h4 style="color: #c05621; margin-bottom: 10px;">🟠 Important Files</h4>
+                            <ul style="margin-left: 20px; line-height: 1.6;">
+                                <li><code>core/utils/atr_calculator.py</code></li>
+                                <li><code>core/routes/api_history.py</code></li>
+                                <li><code>core/mt5/trade.py</code></li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #3182ce;">
+                            <h4 style="color: #2c5282; margin-bottom: 10px;">🔵 Frontend Files</h4>
+                            <ul style="margin-left: 20px; line-height: 1.6;">
+                                <li><code>static/js/backtesting.js</code></li>
+                                <li><code>static/js/history.js</code></li>
+                                <li><code>templates/history.html</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fffbeb; border-radius: 10px; padding: 20px; margin-top: 20px;">
+                        <h4 style="color: #92400e; margin-bottom: 15px;">🔍 Yang Perlu Dicek:</h4>
+                        <ol style="margin-left: 20px; line-height: 1.8;">
+                            <li>File mana yang <strong>tidak ada</strong>?</li>
+                            <li>Di <code>backtesting/engine.py</code> - apakah ada keyword <strong>"atr"</strong> atau <strong>"ATR"</strong>?</li>
+                            <li>Di <code>backtesting/engine.py</code> - apakah ada handling untuk <strong>"XAUUSD"</strong>?</li>
+                            <li>Di <code>core/routes/api_history.py</code> - apakah ada calculation <strong>"profit"</strong>?</li>
+                            <li>Di frontend JS files - apakah ada chart atau ATR display?</li>
+                        </ol>
+                    </div>
+                </div>
+            `;
+            
+            // Show simulated ATR data
+            const atrData = simulateATRCalculation();
+            displayATRSimulation(atrData);
+        }
+        
+        function displayATRSimulation(atrData) {
+            const results = document.getElementById('results');
+            
+            const avgATR = atrData.reduce((sum, item) => sum + item.atr, 0) / atrData.length;
+            const avgSL = atrData.reduce((sum, item) => sum + item.suggestedSL, 0) / atrData.length;
+            const avgTP = atrData.reduce((sum, item) => sum + item.suggestedTP, 0) / atrData.length;
+
+            results.innerHTML += `
+                <div class="atr-section">
+                    <h3 class="atr-title">📈 Simulasi ATR Calculator (XAUUSD)</h3>
+                    <div class="chart-container">
+                        <canvas id="atrChart"></canvas>
+                    </div>
+                    
+                    <div class="atr-stats">
+                        <div class="stat-card">
+                            <div class="stat-value">${avgATR.toFixed(2)}</div>
+                            <div class="stat-label">Avg ATR (14)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${avgSL.toFixed(2)}</div>
+                            <div class="stat-label">Avg Stop Loss</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${avgTP.toFixed(2)}</div>
+                            <div class="stat-label">Avg Take Profit</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">1:1.5</div>
+                            <div class="stat-label">Risk:Reward</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Create ATR chart
+            createATRChart(atrData);
+        }
+
+        async function analyzeRealFiles() {
+            const issues = [];
+            const targetFiles = [
+                'backtesting/engine.py',
+                'core/utils/risk_management.py', 
+                'core/utils/atr_calculator.py',
+                'core/mt5/trade.py',
+                'core/routes/api_history.py',
+                'static/js/backtesting.js',
+                'static/js/backtest.js',
+                'static/js/history.js',
+                'static/js/portfolio.js',
+                'templates/history.html',
+                'core/db/queries.py',
+                'core/db/models.py'
+            ];
+
+            const fileContents = {};
+            let filesFound = 0;
+
+            // Try to read each target file
+            for (const filepath of targetFiles) {
+                try {
+                    const fullPath = `D:/dev/quantumbotx/${filepath}`;
+                    const content = await window.fs.readFile(fullPath, { encoding: 'utf8' });
+                    fileContents[filepath] = content;
+                    filesFound++;
+                } catch (error) {
+                    console.warn(`File not found: ${filepath}`);
+                }
+            }
+
+            // Analyze findings
+            if (filesFound === 0) {
+                issues.push({
+                    type: 'critical',
+                    category: 'Setup',
+                    title: 'Tidak Bisa Akses File Project',
+                    description: `Path D:/dev/quantumbotx/ tidak bisa diakses atau file tidak ditemukan`,
+                    impact: 'Tidak bisa menganalisis project',
+                    solution: 'Pastikan file HTML ada di D:/dev/quantumbotx/ dan project structure benar'
+                });
+                return issues;
+            }
+
+            // Check backtesting engine
+            if (!fileContents['backtesting/engine.py']) {
+                issues.push({
+                    type: 'critical',
+                    category: 'Backtesting',
+                    title: 'Missing Backtesting Engine',
+                    description: 'File backtesting/engine.py tidak ditemukan',
+                    impact: 'Backtesting tidak bisa berjalan',
+                    solution: 'Buat backtesting engine yang compatible dengan ATR-based system'
+                });
+            } else {
+                const engine = fileContents['backtesting/engine.py'];
+                
+                // Check ATR integration
+                if (!engine.toLowerCase().includes('atr')) {
+                    issues.push({
+                        type: 'error',
+                        category: 'Risk Management',
+                        title: 'ATR Not Integrated in Backtesting',
+                        description: 'Backtesting engine belum menggunakan ATR calculations',
+                        impact: 'Hasil backtest tidak accurate dengan risk management baru',
+                        solution: 'Integrasikan ATR calculator dalam backtesting logic'
+                    });
+                }
+
+                // Check XAUUSD handling
+                if (!engine.toLowerCase().includes('xauusd') && !engine.toLowerCase().includes('gold')) {
+                    issues.push({
+                        type: 'warning',
+                        category: 'Symbol Handling', 
+                        title: 'No XAUUSD Specific Logic',
+                        description: 'Tidak ada handling khusus untuk XAUUSD dalam backtesting',
+                        impact: 'XAUUSD backtesting mungkin tidak accurate',
+                        solution: 'Tambahkan XAUUSD specific pip calculation dan spread handling'
+                    });
+                }
+            }
+
+            // Check ATR calculator
+            if (!fileContents['core/utils/atr_calculator.py']) {
+                issues.push({
+                    type: 'error',
+                    category: 'Technical Analysis',
+                    title: 'Missing ATR Calculator',
+                    description: 'ATR calculator module tidak ditemukan',
+                    impact: 'Tidak bisa calculate dynamic SL/TP',
+                    solution: 'Implement ATR calculation dengan pandas_ta atau custom logic'
+                });
+            }
+
+            // Check risk management
+            if (!fileContents['core/utils/risk_management.py']) {
+                issues.push({
+                    type: 'critical',
+                    category: 'Risk Management',
+                    title: 'Missing Risk Management Module',
+                    description: 'File risk_management.py tidak ditemukan',
+                    impact: 'ATR-based risk tidak bisa dihitung',
+                    solution: 'Buat risk management module dengan ATR integration'
+                });
+            }
+
+            // Check history API
+            if (!fileContents['core/routes/api_history.py']) {
+                issues.push({
+                    type: 'error',
+                    category: 'API',
+                    title: 'Missing History API',
+                    description: 'api_history.py tidak ditemukan',
+                    impact: 'History page tidak bisa load data',
+                    solution: 'Create history API endpoint dengan profit calculations'
+                });
+            } else {
+                const historyAPI = fileContents['core/routes/api_history.py'];
+                
+                if (!historyAPI.includes('profit') || !historyAPI.includes('SUM')) {
+                    issues.push({
+                        type: 'error',
+                        category: 'API',
+                        title: 'No Profit Calculation in History API',
+                        description: 'api_history.py tidak menghitung total profit',
+                        impact: 'History page tidak show profit data',
+                        solution: 'Tambahkan profit aggregation queries'
+                    });
+                }
+            }
+
+            // Check frontend files
+            const frontendFiles = ['static/js/history.js', 'static/js/backtesting.js', 'static/js/backtest.js'];
+            const foundFrontend = frontendFiles.some(file => fileContents[file]);
+            
+            if (!foundFrontend) {
+                issues.push({
+                    type: 'error',
+                    category: 'Frontend',
+                    title: 'Missing Frontend JavaScript',
+                    description: 'File history.js, backtesting.js, atau backtest.js tidak ditemukan',
+                    impact: 'UI tidak interactive',
+                    solution: 'Create frontend JavaScript untuk handle backtesting dan history'
+                });
+            }
+
+            // Success message if no critical issues
+            if (issues.length === 0 || !issues.some(i => i.type === 'critical')) {
+                issues.push({
+                    type: 'info',
+                    category: 'Status',
+                    title: 'Project Structure OK',
+                    description: `Berhasil menganalisis ${filesFound} dari ${targetFiles.length} file target`,
+                    impact: 'Project structure dasar sudah ada',
+                    solution: 'Lanjutkan dengan implementasi ATR integration'
+                });
+            }
+
+            return issues;
+        }
+
+        function simulateATRCalculation() {
+            const data = [];
+            let basePrice = 1950;
+            
+            for (let i = 0; i < 30; i++) {
+                const high = basePrice + (Math.random() * 20);
+                const low = basePrice - (Math.random() * 20);
+                const close = low + (Math.random() * (high - low));
+                
+                data.push({
+                    date: new Date(Date.now() - (30-i) * 24 * 3600000).toISOString().split('T')[0],
+                    price: parseFloat(close.toFixed(2)),
+                    high: parseFloat(high.toFixed(2)),
+                    low: parseFloat(low.toFixed(2))
+                });
+                
+                basePrice = close + (Math.random() * 10 - 5);
+            }
+            
+            // Calculate ATR
+            const atrData = [];
+            for (let i = 1; i < data.length; i++) {
+                const current = data[i];
+                const previous = data[i-1];
+                
+                const tr1 = current.high - current.low;
+                const tr2 = Math.abs(current.high - previous.price);
+                const tr3 = Math.abs(current.low - previous.price);
+                const trueRange = Math.max(tr1, tr2, tr3);
+                
+                atrData.push({
+                    date: current.date,
+                    price: current.price,
+                    trueRange: parseFloat(trueRange.toFixed(2)),
+                    atr: null
+                });
+            }
+            
+            // Calculate ATR (14 period average)
+            const atrPeriod = 14;
+            for (let i = atrPeriod - 1; i < atrData.length; i++) {
+                const slice = atrData.slice(i - atrPeriod + 1, i + 1);
+                const avgTR = slice.reduce((sum, item) => sum + item.trueRange, 0) / atrPeriod;
+                atrData[i].atr = parseFloat(avgTR.toFixed(2));
+                
+                const atrMultiplier = 2.0;
+                const stopLoss = atrData[i].atr * atrMultiplier;
+                const takeProfit = stopLoss * 1.5;
+                
+                atrData[i].suggestedSL = parseFloat(stopLoss.toFixed(2));
+                atrData[i].suggestedTP = parseFloat(takeProfit.toFixed(2));
+            }
+            
+            return atrData.filter(item => item.atr !== null);
+        }
+
+        function displayResults(issues, atrData) {
+            const results = document.getElementById('results');
+            
+            const issuesHTML = issues.map(issue => `
+                <div class="issue-card issue-${issue.type}">
+                    <div class="issue-category">${issue.category}</div>
+                    <div class="issue-title">${issue.title}</div>
+                    <div class="issue-description">${issue.description}</div>
+                    <div class="issue-impact"><strong>Impact:</strong> ${issue.impact}</div>
+                    <div class="issue-solution"><strong>Solution:</strong> ${issue.solution}</div>
+                </div>
+            `).join('');
+
+            const avgATR = atrData.reduce((sum, item) => sum + item.atr, 0) / atrData.length;
+            const avgSL = atrData.reduce((sum, item) => sum + item.suggestedSL, 0) / atrData.length;
+            const avgTP = atrData.reduce((sum, item) => sum + item.suggestedTP, 0) / atrData.length;
+
+            results.innerHTML = `
+                <h2 style="margin-bottom: 20px; color: #2d3748;">📊 Analisis Sistem Trading Bot</h2>
+                
+                <div class="issues-grid">
+                    ${issuesHTML}
+                </div>
+
+                <div class="atr-section">
+                    <h3 class="atr-title">📈 Simulasi ATR Calculator (XAUUSD)</h3>
+                    <div class="chart-container">
+                        <canvas id="atrChart"></canvas>
+                    </div>
+                    
+                    <div class="atr-stats">
+                        <div class="stat-card">
+                            <div class="stat-value">$${avgATR.toFixed(2)}</div>
+                            <div class="stat-label">Avg ATR (14)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">$${avgSL.toFixed(2)}</div>
+                            <div class="stat-label">Avg Stop Loss</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">$${avgTP.toFixed(2)}</div>
+                            <div class="stat-label">Avg Take Profit</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">1:1.5</div>
+                            <div class="stat-label">Risk:Reward</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Create ATR chart
+            createATRChart(atrData);
+        }
+
+        function createATRChart(atrData) {
+            const ctx = document.getElementById('atrChart').getContext('2d');
+            
+            if (atrChart) {
+                atrChart.destroy();
+            }
+
+            atrChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: atrData.map(item => item.date),
+                    datasets: [
+                        {
+                            label: 'XAUUSD Price',
+                            data: atrData.map(item => item.price),
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'ATR',
+                            data: atrData.map(item => item.atr),
+                            borderColor: '#f56565',
+                            backgroundColor: 'rgba(245, 101, 101, 0.1)',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Price (USD)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'ATR'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Auto-run analysis on page load
+        window.addEventListener('load', () => {
+            setTimeout(runAnalysis, 1000);
+        });
+    </script>
+</body>
+</html>

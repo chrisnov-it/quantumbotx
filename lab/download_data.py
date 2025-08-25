@@ -4,9 +4,9 @@ import pandas as pd
 from datetime import datetime
 
 # --- Kredensial Anda ---
-ACCOUNT = 94464091
-PASSWORD = "3rX@GcMm"
-SERVER = "MetaQuotes-Demo"
+ACCOUNT = 315116295
+PASSWORD = "5X2xz!83UE"
+SERVER = "XMGlobal-MT5 7"
 
 # --- Inisialisasi MT5 ---
 if not mt5.initialize(login=ACCOUNT, password=PASSWORD, server=SERVER):
@@ -16,7 +16,7 @@ else:
     print("Berhasil terhubung ke MT5")
 
     # --- Parameter Download ---
-    symbol = "EURGBP"  # Ganti dengan simbol yang Anda inginkan
+    symbol = "ETHUSD"  # Ganti dengan simbol yang diinginkan
     timeframe = mt5.TIMEFRAME_H1 # Timeframe 1 Jam
     start_date = datetime(2020, 1, 1) # Mulai dari 1 Januari 2020
     end_date = datetime.now() # Sampai sekarang
