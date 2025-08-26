@@ -1,0 +1,317 @@
+<!-- templates/ai_mentor/daily_report.html -->
+{% extends \"base.html\" %}
+
+{% block title %}📊 Laporan AI Mentor - {{ session_data.session_date if session_data else 'Hari Ini' }} - QuantumBotX{% endblock %}
+
+{% block head %}
+<style>
+.ai-report-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.analysis-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.recommendation-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.risk-score {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.risk-excellent { background: #10b981; color: white; }
+.risk-good { background: #3b82f6; color: white; }
+.risk-warning { background: #f59e0b; color: white; }
+.risk-danger { background: #ef4444; color: white; }
+
+.emotion-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.emotion-tenang { background-color: #10b981; color: white; }
+.emotion-serakah { background-color: #f59e0b; color: white; }
+.emotion-takut { background-color: #8b5cf6; color: white; }
+.emotion-frustasi { background-color: #ef4444; color: white; }
+.emotion-netral { background-color: #6b7280; color: white; }
+
+.trade-item {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.profit-positive { color: #10b981; font-weight: bold; }
+.profit-negative { color: #ef4444; font-weight: bold; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class=\"container mx-auto px-4 py-8\">
+    <!-- Header -->
+    <div class=\"ai-report-card\">
+        <div class=\"flex justify-between items-start\">
+            <div>
+                <h1 class=\"text-3xl font-bold mb-2\">📊 Laporan AI Mentor</h1>
+                <p class=\"text-blue-100 text-lg\">Analisis personal untuk {{ session_data.session_date if session_data else 'Hari Ini' }}</p>
+                <div class=\"mt-4 flex items-center space-x-4\">
+                    <span class=\"text-blue-200\">🤖 Dibuat oleh AI</span>
+                    <span class=\"text-blue-200\">• 🇮🇩 Bahasa Indonesia</span>
+                    <span class=\"text-blue-200\">• 📈 Data Real</span>
+                </div>
+            </div>
+            <div class=\"text-right\">
+                {% if session_data %}
+                    <div class=\"text-3xl font-bold {{ 'text-green-300' if session_data.total_profit_loss > 0 else 'text-red-300' if session_data.total_profit_loss < 0 else 'text-gray-300' }}\">
+                        ${{ \"%.2f\"|format(session_data.total_profit_loss) }}
+                    </div>
+                    <div class=\"text-blue-200\">{{ session_data.total_trades }} trades</div>
+                {% else %}
+                    <div class=\"text-gray-300\">No data</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class=\"mb-6\">
+        <nav class=\"flex space-x-4\">
+            <a href=\"{{ url_for('ai_mentor.dashboard') }}\" class=\"text-blue-600 hover:text-blue-800\">← Kembali ke Dashboard</a>
+            <a href=\"{{ url_for('ai_mentor.history') }}\" class=\"text-gray-600 hover:text-gray-800\">📚 Riwayat Laporan</a>
+        </nav>
+    </div>
+
+    {% if session_data and analysis %}
+        <!-- Trading Summary -->
+        <div class=\"analysis-section\">
+            <h2 class=\"text-xl font-bold mb-4 flex items-center text-gray-800\">
+                <span class=\"mr-2\">📊</span>
+                Ringkasan Trading
+            </h2>
+            <div class=\"grid grid-cols-1 md:grid-cols-4 gap-4\">
+                <div class=\"text-center\">
+                    <div class=\"text-2xl font-bold text-blue-600\">{{ session_data.total_trades }}</div>
+                    <div class=\"text-sm text-gray-600\">Total Trades</div>
+                </div>
+                <div class=\"text-center\">
+                    <div class=\"text-2xl font-bold {{ 'profit-positive' if session_data.total_profit_loss > 0 else 'profit-negative' if session_data.total_profit_loss < 0 else 'text-gray-600' }}\">
+                        ${{ \"%.2f\"|format(session_data.total_profit_loss) }}
+                    </div>
+                    <div class=\"text-sm text-gray-600\">Profit/Loss</div>
+                </div>
+                <div class=\"text-center\">
+                    <span class=\"emotion-badge emotion-{{ session_data.emotions }}\">{{ session_data.emotions.title() }}</span>
+                    <div class=\"text-sm text-gray-600 mt-1\">Kondisi Emosi</div>
+                </div>
+                <div class=\"text-center\">
+                    <div class=\"text-lg font-semibold text-gray-700\">{{ session_data.market_conditions.title() }}</div>
+                    <div class=\"text-sm text-gray-600\">Kondisi Market</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Analysis Sections -->
+        <div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6\">
+            <!-- Trading Patterns -->
+            <div class=\"analysis-section\">
+                <h3 class=\"text-lg font-bold mb-3 text-gray-800\">🔍 Analisis Pola Trading</h3>
+                <div class=\"space-y-3\">
+                    <div>
+                        <span class=\"font-semibold text-gray-700\">Pola Utama:</span>
+                        <span class=\"text-blue-600\">{{ analysis.pola_trading.pola_utama }}</span>
+                    </div>
+                    <div>
+                        <p class=\"text-gray-700\">{{ analysis.pola_trading.analisis }}</p>
+                    </div>
+                    <div class=\"bg-green-50 p-3 rounded-lg\">
+                        <strong class=\"text-green-700\">💪 Kekuatan:</strong>
+                        <p class=\"text-green-600\">{{ analysis.pola_trading.kekuatan }}</p>
+                    </div>
+                    <div class=\"bg-blue-50 p-3 rounded-lg\">
+                        <strong class=\"text-blue-700\">🎯 Area Perbaikan:</strong>
+                        <p class=\"text-blue-600\">{{ analysis.pola_trading.area_perbaikan }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emotional Analysis -->
+            <div class=\"analysis-section\">
+                <h3 class=\"text-lg font-bold mb-3 text-gray-800\">🧠 Analisis Emosi vs Performa</h3>
+                <div class=\"space-y-3\">
+                    <div class=\"bg-purple-50 p-3 rounded-lg\">
+                        <strong class=\"text-purple-700\">💭 Feedback Emosi:</strong>
+                        <p class=\"text-purple-600\">{{ analysis.emosi_vs_performa.feedback }}</p>
+                    </div>
+                    <div class=\"bg-yellow-50 p-3 rounded-lg\">
+                        <strong class=\"text-yellow-700\">💡 Tip:</strong>
+                        <p class=\"text-yellow-600\">{{ analysis.emosi_vs_performa.tip }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Management -->
+        <div class=\"analysis-section\">
+            <h3 class=\"text-lg font-bold mb-3 text-gray-800\">🛡️ Evaluasi Manajemen Risiko</h3>
+            <div class=\"flex items-center space-x-4 mb-4\">
+                <span class=\"risk-score risk-{{ 'excellent' if '10' in analysis.manajemen_risiko.nilai else 'good' if any(x in analysis.manajemen_risiko.nilai for x in ['8', '9']) else 'warning' if any(x in analysis.manajemen_risiko.nilai for x in ['6', '7']) else 'danger' }}\">
+                    {{ analysis.manajemen_risiko.nilai }}
+                </span>
+                <span class=\"text-gray-700\">{{ analysis.manajemen_risiko.feedback }}</span>
+            </div>
+            
+            {% if analysis.manajemen_risiko.detail %}
+                <div class=\"bg-gray-50 p-3 rounded-lg mb-3\">
+                    <p class=\"text-gray-700\">{{ analysis.manajemen_risiko.detail }}</p>
+                </div>
+            {% endif %}
+            
+            {% if analysis.manajemen_risiko.apresiasi %}
+                <div class=\"bg-green-50 p-3 rounded-lg\">
+                    <p class=\"text-green-700\">{{ analysis.manajemen_risiko.apresiasi }}</p>
+                </div>
+            {% elif analysis.manajemen_risiko.saran %}
+                <div class=\"bg-orange-50 p-3 rounded-lg\">
+                    <p class=\"text-orange-700\">{{ analysis.manajemen_risiko.saran }}</p>
+                </div>
+            {% elif analysis.manajemen_risiko.peringatan %}
+                <div class=\"bg-red-50 p-3 rounded-lg\">
+                    <p class=\"text-red-700\">{{ analysis.manajemen_risiko.peringatan }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Recommendations -->
+        <div class=\"analysis-section\">
+            <h3 class=\"text-lg font-bold mb-3 text-gray-800\">💡 Rekomendasi AI Mentor</h3>
+            <div class=\"space-y-2\">
+                {% for rekomendasi in analysis.rekomendasi %}
+                    <div class=\"recommendation-item\">
+                        <p class=\"text-gray-700\">{{ rekomendasi }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Motivation Message -->
+        <div class=\"bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg p-6\">
+            <h3 class=\"text-xl font-bold mb-3\">💪 Pesan Motivasi</h3>
+            <p class=\"text-lg leading-relaxed\">{{ analysis.motivasi }}</p>
+        </div>
+
+        <!-- Trade Details -->
+        {% if session_data.trades %}
+            <div class=\"analysis-section\">
+                <h3 class=\"text-lg font-bold mb-3 text-gray-800\">📈 Detail Trades Hari Ini</h3>
+                <div class=\"space-y-2\">
+                    {% for trade in session_data.trades %}
+                        <div class=\"trade-item\">
+                            <div class=\"flex-1\">
+                                <span class=\"font-semibold\">{{ trade.symbol }}</span>
+                                <span class=\"text-sm text-gray-500 ml-2\">Lot: {{ trade.lot_size }}</span>
+                                {% if trade.strategy %}
+                                    <span class=\"text-xs bg-gray-200 px-2 py-1 rounded ml-2\">{{ trade.strategy }}</span>
+                                {% endif %}
+                            </div>
+                            <div class=\"text-right\">
+                                <div class=\"{{ 'profit-positive' if trade.profit > 0 else 'profit-negative' if trade.profit < 0 else 'text-gray-600' }}\">
+                                    ${{ \"%.2f\"|format(trade.profit) }}
+                                </div>
+                                <div class=\"text-xs text-gray-500\">
+                                    SL: {{ '✅' if trade.stop_loss_used else '❌' }} | 
+                                    TP: {{ '✅' if trade.take_profit_used else '❌' }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Personal Notes -->
+        {% if session_data.personal_notes %}
+            <div class=\"analysis-section\">
+                <h3 class=\"text-lg font-bold mb-3 text-gray-800\">📝 Catatan Pribadi Anda</h3>
+                <div class=\"bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500\">
+                    <p class=\"text-gray-700 italic\">\"{{ session_data.personal_notes }}\"</p>
+                </div>
+            </div>
+        {% endif %}
+
+    {% else %}
+        <!-- No Data State -->
+        <div class=\"text-center py-12\">
+            <div class=\"text-6xl mb-4\">📊</div>
+            <h2 class=\"text-2xl font-bold text-gray-600 mb-4\">Belum Ada Data Trading</h2>
+            <p class=\"text-gray-500 mb-6\">Mulai trading untuk mendapatkan analisis personal dari AI mentor Anda!</p>
+            <a href=\"{{ url_for('ai_mentor.dashboard') }}\" class=\"bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors\">
+                Kembali ke Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% if ai_report %}
+    <!-- Full AI Report Modal (Optional) -->
+    <div id=\"fullReportModal\" class=\"fixed inset-0 bg-black bg-opacity-50 hidden z-50\">
+        <div class=\"flex items-center justify-center min-h-screen p-4\">
+            <div class=\"bg-white rounded-lg max-w-4xl w-full max-h-96 overflow-y-auto p-6\">
+                <div class=\"flex justify-between items-center mb-4\">
+                    <h3 class=\"text-lg font-bold\">📝 Laporan AI Lengkap</h3>
+                    <button onclick=\"closeFullReport()\" class=\"text-gray-500 hover:text-gray-700\">
+                        ✕
+                    </button>
+                </div>
+                <pre class=\"whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-lg\">{{ ai_report }}</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class=\"fixed bottom-4 right-4\">
+        <button onclick=\"showFullReport()\" class=\"bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors\">
+            📝 Lihat Laporan Lengkap
+        </button>
+    </div>
+
+    <script>
+    function showFullReport() {
+        document.getElementById('fullReportModal').classList.remove('hidden');
+    }
+
+    function closeFullReport() {
+        document.getElementById('fullReportModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('fullReportModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeFullReport();
+        }
+    });
+    </script>
+{% endif %}
+{% endblock %}

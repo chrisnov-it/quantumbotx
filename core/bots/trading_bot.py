@@ -7,6 +7,8 @@ import MetaTrader5 as mt5
 from core.strategies.strategy_map import STRATEGY_MAP
 from core.mt5.trade import place_trade, close_trade
 from core.utils.mt5 import TIMEFRAME_MAP  # <-- Impor dari lokasi terpusat
+# AI Mentor Integration
+from core.db.models import log_trade_for_ai_analysis
 
 logger = logging.getLogger(__name__)
 
@@ -147,19 +149,29 @@ class TradingBot(threading.Thread):
             # Jika ada posisi SELL, tutup dulu
             if position and position.type == mt5.ORDER_TYPE_SELL:
                 self.log_activity('CLOSE SELL', "Menutup posisi JUAL untuk membuka posisi BELI.", is_notification=True)
+                
+                # Log untuk AI mentor analysis
+                profit_loss = position.profit if hasattr(position, 'profit') else 0
+                self._log_trade_for_ai_mentor(position, profit_loss, 'CLOSE_SELL')
+                
                 close_trade(position)
                 position = None  # Reset posisi setelah ditutup
 
             # Jika tidak ada posisi, buka posisi BUY baru
             if not position:
                 self.log_activity('OPEN BUY', "Membuka posisi BELI berdasarkan sinyal.", is_notification=True)
-                place_trade(self.market_for_mt5, mt5.ORDER_TYPE_BUY, self.risk_percent, self.sl_pips, self.tp_pips, self.id)
+                place_trade(self.market_for_mt5, mt5.ORDER_TYPE_BUY, self.risk_percent, self.sl_pips, self.tp_pips, self.id, self.timeframe)
 
         # Logika untuk sinyal SELL
         elif signal == 'SELL':
             # Jika ada posisi BUY, tutup dulu
             if position and position.type == mt5.ORDER_TYPE_BUY:
                 self.log_activity('CLOSE BUY', "Menutup posisi BELI untuk membuka posisi JUAL.", is_notification=True)
+                
+                # Log untuk AI mentor analysis
+                profit_loss = position.profit if hasattr(position, 'profit') else 0
+                self._log_trade_for_ai_mentor(position, profit_loss, 'CLOSE_BUY')
+                
                 close_trade(position)
                 position = None  # Reset posisi setelah ditutup
 
@@ -167,3 +179,27 @@ class TradingBot(threading.Thread):
             if not position:
                 self.log_activity('OPEN SELL', "Membuka posisi JUAL berdasarkan sinyal.", is_notification=True)
                 place_trade(self.market_for_mt5, mt5.ORDER_TYPE_SELL, self.risk_percent, self.sl_pips, self.tp_pips, self.id, self.timeframe)
+    
+    def _log_trade_for_ai_mentor(self, position, profit_loss, action_type):
+        """Log trade data untuk analisis AI mentor"""
+        try:
+            # Hitung apakah stop loss dan take profit digunakan
+            stop_loss_used = hasattr(position, 'sl') and position.sl > 0
+            take_profit_used = hasattr(position, 'tp') and position.tp > 0
+            
+            # Log ke database untuk AI analysis
+            log_trade_for_ai_analysis(
+                bot_id=self.id,
+                symbol=self.market_for_mt5,
+                profit_loss=profit_loss,
+                lot_size=position.volume if hasattr(position, 'volume') else self.risk_percent,
+                stop_loss_used=stop_loss_used,
+                take_profit_used=take_profit_used,
+                risk_percent=self.risk_percent,
+                strategy_used=self.strategy_name
+            )
+            
+            logger.info(f"[AI MENTOR] Trade logged for bot {self.id}: {action_type} {self.market_for_mt5} P/L: ${profit_loss:.2f}")
+            
+        except Exception as e:
+            logger.error(f"[AI MENTOR] Failed to log trade for AI analysis: {e}")

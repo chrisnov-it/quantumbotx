@@ -112,6 +112,7 @@ def create_app():
     from .routes.api_forex import api_forex
     from .routes.api_fundamentals import api_fundamentals
     from .routes.api_backtest import api_backtest
+    from .routes.ai_mentor import ai_mentor_bp
 
     app.register_blueprint(api_dashboard)
     app.register_blueprint(api_chart)
@@ -124,6 +125,7 @@ def create_app():
     app.register_blueprint(api_forex)
     app.register_blueprint(api_fundamentals)
     app.register_blueprint(api_backtest)
+    app.register_blueprint(ai_mentor_bp)
 
     @app.route('/')
     def dashboard():
@@ -172,6 +174,10 @@ def create_app():
     @app.route('/forex')
     def forex_page():
         return render_template('forex.html', active_page='forex')
+
+    @app.route('/ai-mentor')
+    def ai_mentor_page():
+        return render_template('ai_mentor/dashboard.html', active_page='ai_mentor')
 
     @app.errorhandler(404)
     def not_found_error(error):

@@ -1,0 +1,291 @@
+<!-- templates/ai_mentor/dashboard.html -->
+{% extends \"base.html\" %}
+
+{% block title %}🧠 AI Mentor Trading - QuantumBotX{% endblock %}
+
+{% block head %}
+<style>
+.mentor-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.emotion-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.emotion-tenang { background-color: #10b981; color: white; }
+.emotion-serakah { background-color: #f59e0b; color: white; }
+.emotion-takut { background-color: #8b5cf6; color: white; }
+.emotion-frustasi { background-color: #ef4444; color: white; }
+.emotion-netral { background-color: #6b7280; color: white; }
+
+.profit-positive { color: #10b981; font-weight: bold; }
+.profit-negative { color: #ef4444; font-weight: bold; }
+
+.ai-insight {
+    background: #f8fafc;
+    border-left: 4px solid #3b82f6;
+    padding: 1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+}
+
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.floating-chat-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.floating-chat-btn:hover {
+    transform: scale(1.1);
+    background: #2563eb;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class=\"container mx-auto px-4 py-8\">
+    <!-- Header -->
+    <div class=\"mentor-card\">
+        <h1 class=\"text-3xl font-bold mb-2\">🧠 AI Mentor Trading Indonesia</h1>
+        <p class=\"text-blue-100 text-lg\">Mentor digital Anda untuk sukses trading jangka panjang</p>
+        <div class=\"mt-4 flex items-center space-x-4\">
+            <span class=\"text-blue-200\">🇮🇩 Bahasa Indonesia</span>
+            <span class=\"text-blue-200\">• 📊 Analisis Real-time</span>
+            <span class=\"text-blue-200\">• 🎯 Personal</span>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class=\"quick-stats\">
+        <div class=\"stat-card\">
+            <h3 class=\"text-lg font-semibold text-gray-600 mb-2\">Total Sesi</h3>
+            <div class=\"text-3xl font-bold text-blue-600\">{{ total_sessions }}</div>
+            <p class=\"text-sm text-gray-500 mt-1\">sesi trading</p>
+        </div>
+        
+        <div class=\"stat-card\">
+            <h3 class=\"text-lg font-semibold text-gray-600 mb-2\">Win Rate</h3>
+            <div class=\"text-3xl font-bold {{ 'text-green-600' if win_rate >= 60 else 'text-red-600' if win_rate < 40 else 'text-yellow-600' }}\">{{ \"%.1f\"|format(win_rate) }}%</div>
+            <p class=\"text-sm text-gray-500 mt-1\">sesi profit</p>
+        </div>
+        
+        <div class=\"stat-card\">
+            <h3 class=\"text-lg font-semibold text-gray-600 mb-2\">Hari Ini</h3>
+            {% if today_session %}
+                <div class=\"text-2xl font-bold {{ 'profit-positive' if today_session.total_profit_loss > 0 else 'profit-negative' if today_session.total_profit_loss < 0 else 'text-gray-600' }}\">
+                    ${{ \"%.2f\"|format(today_session.total_profit_loss) }}
+                </div>
+                <span class=\"emotion-badge emotion-{{ today_session.emotions }}\">{{ today_session.emotions.title() }}</span>
+            {% else %}
+                <div class=\"text-2xl font-bold text-gray-400\">-</div>
+                <p class=\"text-sm text-gray-500 mt-1\">belum trading</p>
+            {% endif %}
+        </div>
+        
+        <div class=\"stat-card\">
+            <h3 class=\"text-lg font-semibold text-gray-600 mb-2\">Status AI</h3>
+            <div class=\"text-2xl font-bold text-green-600\">🤖 Aktif</div>
+            <p class=\"text-sm text-gray-500 mt-1\">siap menganalisis</p>
+        </div>
+    </div>
+
+    <!-- Today's Section -->
+    <div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8\">
+        <!-- Today's Trading -->
+        <div class=\"bg-white rounded-lg shadow-md p-6\">
+            <h2 class=\"text-xl font-bold mb-4 flex items-center\">
+                <span class=\"mr-2\">📊</span>
+                Trading Hari Ini
+            </h2>
+            
+            {% if today_session %}
+                <div class=\"space-y-3\">
+                    <div class=\"flex justify-between items-center\">
+                        <span class=\"text-gray-600\">Total Trades:</span>
+                        <span class=\"font-semibold\">{{ today_session.total_trades }}</span>
+                    </div>
+                    <div class=\"flex justify-between items-center\">
+                        <span class=\"text-gray-600\">P&L:</span>
+                        <span class=\"font-semibold {{ 'profit-positive' if today_session.total_profit_loss > 0 else 'profit-negative' if today_session.total_profit_loss < 0 else 'text-gray-600' }}\">
+                            ${{ \"%.2f\"|format(today_session.total_profit_loss) }}
+                        </span>
+                    </div>
+                    <div class=\"flex justify-between items-center\">
+                        <span class=\"text-gray-600\">Emosi:</span>
+                        <span class=\"emotion-badge emotion-{{ today_session.emotions }}\">{{ today_session.emotions.title() }}</span>
+                    </div>
+                    
+                    {% if today_session.personal_notes %}
+                        <div class=\"ai-insight\">
+                            <p class=\"text-sm\"><strong>Catatan Anda:</strong></p>
+                            <p class=\"text-gray-700 italic\">\"{{ today_session.personal_notes }}\"</p>
+                        </div>
+                    {% endif %}
+                    
+                    <div class=\"mt-4 space-y-2\">
+                        <a href=\"{{ url_for('ai_mentor.today_report') }}\" class=\"block w-full bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition-colors\">
+                            🧠 Lihat Analisis AI Lengkap
+                        </a>
+                        <button onclick=\"openQuickFeedback()\" class=\"block w-full bg-green-600 text-white text-center py-2 rounded-lg hover:bg-green-700 transition-colors\">
+                            ✏️ Update Emosi & Catatan
+                        </button>
+                    </div>
+                </div>
+            {% else %}
+                <div class=\"text-center py-8\">
+                    <div class=\"text-6xl mb-4\">📈</div>
+                    <h3 class=\"text-lg font-semibold text-gray-600 mb-2\">Belum Ada Trading Hari Ini</h3>
+                    <p class=\"text-gray-500 mb-4\">Mulai trading untuk mendapatkan analisis AI yang personal!</p>
+                    <button onclick=\"openQuickFeedback()\" class=\"bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors\">
+                        📝 Catat Emosi Trading
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- AI Insights -->
+        <div class=\"bg-white rounded-lg shadow-md p-6\">
+            <h2 class=\"text-xl font-bold mb-4 flex items-center\">
+                <span class=\"mr-2\">🤖</span>
+                AI Insights Terbaru
+            </h2>
+            
+            {% if recent_reports %}
+                <div class=\"space-y-4\">
+                    {% for report in recent_reports[:3] %}
+                        <div class=\"border-l-4 border-blue-500 pl-4 py-2\">
+                            <div class=\"flex justify-between items-center mb-1\">
+                                <span class=\"text-sm font-semibold\">{{ report.session_date }}</span>
+                                <span class=\"text-sm {{ 'profit-positive' if report.profit_loss > 0 else 'profit-negative' if report.profit_loss < 0 else 'text-gray-600' }}\">
+                                    ${{ \"%.2f\"|format(report.profit_loss) }}
+                                </span>
+                            </div>
+                            <p class=\"text-sm text-gray-600\">{{ report.motivation[:100] }}{% if report.motivation|length > 100 %}...{% endif %}</p>
+                            <span class=\"emotion-badge emotion-{{ report.emotions }} text-xs mt-1 inline-block\">{{ report.emotions.title() }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class=\"mt-4\">
+                    <a href=\"{{ url_for('ai_mentor.history') }}\" class=\"block w-full bg-gray-600 text-white text-center py-2 rounded-lg hover:bg-gray-700 transition-colors\">
+                        📚 Lihat Semua Riwayat
+                    </a>
+                </div>
+            {% else %}
+                <div class=\"text-center py-8\">
+                    <div class=\"text-6xl mb-4\">🤖</div>
+                    <h3 class=\"text-lg font-semibold text-gray-600 mb-2\">AI Siap Membantu!</h3>
+                    <p class=\"text-gray-500\">Mulai trading untuk mendapatkan insight personal dari AI mentor Anda.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Quick Tips Section -->
+    <div class=\"bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-md p-6 text-white\">
+        <h2 class=\"text-xl font-bold mb-4 flex items-center\">
+            <span class=\"mr-2\">💡</span>
+            Tips Harian dari AI Mentor
+        </h2>
+        <div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">
+            <div class=\"bg-white bg-opacity-20 rounded-lg p-4\">
+                <h4 class=\"font-semibold mb-2\">🎯 Konsistensi</h4>
+                <p class=\"text-sm\">\"Profit kecil tapi konsisten lebih baik daripada profit besar sekali terus loss.\"</p>
+            </div>
+            <div class=\"bg-white bg-opacity-20 rounded-lg p-4\">
+                <h4 class=\"font-semibold mb-2\">🛡️ Risk Management</h4>
+                <p class=\"text-sm\">\"Jangan pernah risiko lebih dari 2% modal per trade. Modal adalah nyawa trader!\"</p>
+            </div>
+            <div class=\"bg-white bg-opacity-20 rounded-lg p-4\">
+                <h4 class=\"font-semibold mb-2\">🧠 Emosi</h4>
+                <p class=\"text-sm\">\"Trading dengan emosi tenang adalah kunci trader profesional. Istirahat jika frustasi.\"</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Chat Button -->
+<button class=\"floating-chat-btn\" onclick=\"openQuickFeedback()\" title=\"Chat dengan AI Mentor\">
+    💬
+</button>
+
+<!-- Quick Feedback Modal (akan dimuat dengan AJAX) -->
+<div id=\"quickFeedbackModal\" class=\"fixed inset-0 bg-black bg-opacity-50 hidden z-50\">
+    <div class=\"flex items-center justify-center min-h-screen p-4\">
+        <div class=\"bg-white rounded-lg max-w-md w-full p-6\">
+            <div class=\"flex justify-between items-center mb-4\">
+                <h3 class=\"text-lg font-bold\">💬 Chat dengan AI Mentor</h3>
+                <button onclick=\"closeQuickFeedback()\" class=\"text-gray-500 hover:text-gray-700\">
+                    ✕
+                </button>
+            </div>
+            <div id=\"quickFeedbackContent\">
+                <!-- Content akan dimuat dengan AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openQuickFeedback() {
+    document.getElementById('quickFeedbackModal').classList.remove('hidden');
+    // Load content via AJAX
+    fetch('{{ url_for(\"ai_mentor.quick_feedback\") }}')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('quickFeedbackContent').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading quick feedback:', error);
+            document.getElementById('quickFeedbackContent').innerHTML = `
+                <p class=\"text-red-600\">Gagal memuat form feedback. Silakan refresh halaman.</p>
+            `;
+        });
+}
+
+function closeQuickFeedback() {
+    document.getElementById('quickFeedbackModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('quickFeedbackModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeQuickFeedback();
+    }
+});
+</script>
+{% endblock %}

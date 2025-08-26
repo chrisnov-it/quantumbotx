@@ -97,6 +97,60 @@ def main():
     );
     """
 
+    # SQL statement untuk membuat tabel 'trading_sessions' (AI Mentor)
+    sql_create_trading_sessions_table = """
+    CREATE TABLE IF NOT EXISTS trading_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_date DATE NOT NULL,
+        user_id INTEGER DEFAULT 1,
+        total_trades INTEGER NOT NULL DEFAULT 0,
+        total_profit_loss REAL NOT NULL DEFAULT 0.0,
+        emotions TEXT NOT NULL DEFAULT 'netral',
+        market_conditions TEXT NOT NULL DEFAULT 'normal',
+        personal_notes TEXT,
+        risk_score INTEGER DEFAULT 5,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    );
+    """
+
+    # SQL statement untuk membuat tabel 'ai_mentor_reports' 
+    sql_create_mentor_reports_table = """
+    CREATE TABLE IF NOT EXISTS ai_mentor_reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id INTEGER NOT NULL,
+        trading_patterns_analysis TEXT,
+        emotional_analysis TEXT,
+        risk_management_score INTEGER,
+        recommendations TEXT,
+        motivation_message TEXT,
+        language TEXT DEFAULT 'bahasa_indonesia',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (session_id) REFERENCES trading_sessions (id) ON DELETE CASCADE
+    );
+    """
+
+    # SQL statement untuk membuat tabel 'daily_trading_data' (untuk analisis AI)
+    sql_create_daily_trading_data_table = """
+    CREATE TABLE IF NOT EXISTS daily_trading_data (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id INTEGER NOT NULL,
+        bot_id INTEGER NOT NULL,
+        symbol TEXT NOT NULL,
+        entry_time DATETIME,
+        exit_time DATETIME,
+        profit_loss REAL NOT NULL,
+        lot_size REAL NOT NULL,
+        stop_loss_used BOOLEAN DEFAULT 0,
+        take_profit_used BOOLEAN DEFAULT 0,
+        risk_percent REAL,
+        strategy_used TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (session_id) REFERENCES trading_sessions (id) ON DELETE CASCADE,
+        FOREIGN KEY (bot_id) REFERENCES bots (id) ON DELETE CASCADE
+    );
+    """
+
     # Buat koneksi database
     conn = create_connection(DB_FILE)
 
@@ -113,6 +167,15 @@ def main():
 
         print("\nMembuat tabel 'backtest_results'...")
         create_table(conn, sql_create_backtest_results_table)
+
+        print("\nMembuat tabel 'trading_sessions' (AI Mentor)...")
+        create_table(conn, sql_create_trading_sessions_table)
+
+        print("\nMembuat tabel 'ai_mentor_reports'...")
+        create_table(conn, sql_create_mentor_reports_table)
+
+        print("\nMembuat tabel 'daily_trading_data' (AI Analysis)...")
+        create_table(conn, sql_create_daily_trading_data_table)
 
         # Masukkan pengguna default
         try:
