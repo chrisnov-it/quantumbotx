@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Ramadan Trading Mode{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">🌙 Ramadan Trading Mode</h1>
+        <p class="text-gray-600">Bulan suci dengan fitur trading yang menghormati ibadah puasa</p>
+        <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p class="text-blue-800">
+                <i class="fas fa-info-circle"></i> Mode ini aktif secara otomatis selama bulan Ramadan dan akan 
+                menyesuaikan pengaturan trading Anda untuk menghormati waktu ibadah. Anda tidak perlu mengaktifkannya secara manual.
+            </p>
+        </div>
+    </div>
+
+    <!-- Current Status Card -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">Status Ramadan</h2>
+            <span id="ramadan-status" class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                Loading...
+            </span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border rounded-lg p-4">
+                <div class="text-sm text-gray-500 mb-1">Periode Ramadan</div>
+                <div id="ramadan-period" class="text-lg font-semibold text-blue-600">
+                    Loading...
+                </div>
+            </div>
+            
+            <div class="border rounded-lg p-4">
+                <div class="text-sm text-gray-500 mb-1">Salam Ramadan</div>
+                <div id="ramadan-greeting" class="text-lg font-semibold text-green-600">
+                    Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Iftar Countdown -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">⏱️ Hitung Mundur Iftar</h2>
+        
+        <div class="flex justify-center items-center">
+            <div class="text-center mx-4">
+                <div id="iftar-hours" class="text-4xl font-bold text-gray-800">00</div>
+                <div class="text-sm text-gray-500">Jam</div>
+            </div>
+            <div class="text-4xl font-bold text-gray-300">:</div>
+            <div class="text-center mx-4">
+                <div id="iftar-minutes" class="text-4xl font-bold text-gray-800">00</div>
+                <div class="text-sm text-gray-500">Menit</div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4 text-gray-600">
+            Sampai <span id="next-prayer">Iftar</span>
+        </div>
+    </div>
+
+    <!-- Trading Adjustments -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">⚙️ Penyesuaian Trading</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Waktu Istirahat Puasa</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-yellow-500 mr-3"></div>
+                        <div>
+                            <div class="font-medium">Sahur</div>
+                            <div class="text-sm text-gray-500">03:30 - 05:00 WIB</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-orange-500 mr-3"></div>
+                        <div>
+                            <div class="font-medium">Iftar</div>
+                            <div class="text-sm text-gray-500">18:00 - 19:30 WIB</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-purple-500 mr-3"></div>
+                        <div>
+                            <div class="font-medium">Tarawih</div>
+                            <div class="text-sm text-gray-500">20:00 - 21:30 WIB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Penyesuaian Risiko</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-red-500 mr-3"></div>
+                        <div>
+                            <div class="font-medium">Reduced Risk Mode</div>
+                            <div class="text-sm text-gray-500">20% pengurangan risiko selama puasa</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-blue-500 mr-3"></div>
+                        <div>
+                            <div class="font-medium">Patience Mode</div>
+                            <div class="text-sm text-gray-500">Fokus pada kualitas bukan kuantitas</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                        <div>
+                            <div class="font-medium">Optimal Hours</div>
+                            <div class="text-sm text-gray-500">22:00 - 03:00 WIB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zakat Calculator -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">💰 Kalkulator Zakat Trading</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Informasi Zakat</h3>
+                <div class="space-y-3">
+                    <div class="border rounded-lg p-3">
+                        <div class="text-sm text-gray-500">Nisab Emas</div>
+                        <div class="text-lg font-semibold">85 gram</div>
+                    </div>
+                    <div class="border rounded-lg p-3">
+                        <div class="text-sm text-gray-500">Nisab Perak</div>
+                        <div class="text-lg font-semibold">595 gram</div>
+                    </div>
+                    <div class="border rounded-lg p-3">
+                        <div class="text-sm text-gray-500">Persentase Zakat</div>
+                        <div class="text-lg font-semibold">2.5%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Pengingat Zakat</h3>
+                <div class="border rounded-lg p-4 bg-blue-50">
+                    <p class="text-gray-700">
+                        Zakat perdagangan: 2.5% dari profit trading selama 1 tahun hijriah. 
+                        Jangan lupa menghitung zakat dari profit trading Anda selama Ramadan.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patience Reminder -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">🧘‍♂️ Pengingat Kesabaran</h2>
+        
+        <div class="border rounded-lg p-6 bg-green-50 text-center">
+            <div id="patience-reminder" class="text-lg text-gray-700 italic">
+                Loading...
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Function to update Ramadan status
+function updateRamadanStatus(status) {
+    const statusElement = document.getElementById('ramadan-status');
+    const periodElement = document.getElementById('ramadan-period');
+    const greetingElement = document.getElementById('ramadan-greeting');
+    
+    if (status.is_ramadan) {
+        statusElement.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800';
+        statusElement.textContent = 'Aktif';
+        periodElement.textContent = `${status.start_date} sampai ${status.end_date}`;
+        greetingElement.textContent = status.greeting;
+    } else {
+        statusElement.className = 'px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800';
+        statusElement.textContent = 'Tidak Aktif';
+        periodElement.textContent = 'Bukan periode Ramadan';
+        greetingElement.textContent = 'Saatnya berpuasa, saatnya trading dengan berkah';
+    }
+}
+
+// Function to update Iftar countdown
+function updateIftarCountdown(features) {
+    if (features.is_ramadan && features.features.iftar_countdown) {
+        const countdown = features.features.iftar_countdown;
+        document.getElementById('iftar-hours').textContent = countdown.hours.toString().padStart(2, '0');
+        document.getElementById('iftar-minutes').textContent = countdown.minutes.toString().padStart(2, '0');
+        document.getElementById('next-prayer').textContent = countdown.next_prayer;
+    }
+}
+
+// Function to update patience reminder
+function updatePatienceReminder(features) {
+    if (features.is_ramadan && features.features.patience_reminder) {
+        document.getElementById('patience-reminder').textContent = features.features.patience_reminder;
+    }
+}
+
+// Function to fetch and update all Ramadan data
+async function fetchRamadanData() {
+    try {
+        // Fetch status
+        const statusResponse = await fetch('/api/ramadan/status');
+        const statusData = await statusResponse.json();
+        if (statusData.success) {
+            updateRamadanStatus(statusData);
+        }
+        
+        // Fetch features
+        const featuresResponse = await fetch('/api/ramadan/features');
+        const featuresData = await featuresResponse.json();
+        if (featuresData.success) {
+            updateIftarCountdown(featuresData);
+            updatePatienceReminder(featuresData);
+        }
+    } catch (error) {
+        console.error('Error fetching Ramadan data:', error);
+    }
+}
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial data load
+    fetchRamadanData();
+    
+    // Auto-refresh every minute
+    setInterval(fetchRamadanData, 60000);
+});
+</script>
+{% endblock %}

@@ -12,6 +12,8 @@ from .pulse_sync import PulseSyncStrategy
 from .turtle_breakout import TurtleBreakoutStrategy
 from .ichimoku_cloud import IchimokuCloudStrategy
 from .dynamic_breakout import DynamicBreakoutStrategy
+from .index_momentum import IndexMomentumStrategy
+from .index_breakout_pro import IndexBreakoutProStrategy
 from .beginner_defaults import BEGINNER_DEFAULTS
 from .strategy_selector import StrategySelector
 
@@ -28,6 +30,8 @@ STRATEGY_MAP = {
     'TURTLE_BREAKOUT': TurtleBreakoutStrategy,
     'ICHIMOKU_CLOUD': IchimokuCloudStrategy,
     'DYNAMIC_BREAKOUT': DynamicBreakoutStrategy,
+    'INDEX_MOMENTUM': IndexMomentumStrategy,
+    'INDEX_BREAKOUT_PRO': IndexBreakoutProStrategy,
 }
 
 # Beginner-friendly strategy metadata
@@ -134,6 +138,24 @@ STRATEGY_METADATA = {
         'description': 'Crypto-specialized advanced system',
         'market_types': ['CRYPTO'],
         'learning_priority': 12
+    },
+    
+    # 📈 INDEX SPECIALISTS
+    'INDEX_MOMENTUM': {
+        'difficulty': 'INTERMEDIATE',
+        'complexity_score': 4,
+        'recommended_for_beginners': False,
+        'description': 'Stock index momentum with gap detection',
+        'market_types': ['INDICES'],
+        'learning_priority': 8
+    },
+    'INDEX_BREAKOUT_PRO': {
+        'difficulty': 'ADVANCED',
+        'complexity_score': 7,
+        'recommended_for_beginners': False,
+        'description': 'Professional index breakout with institutional analysis',
+        'market_types': ['INDICES'],
+        'learning_priority': 10
     }
 }
 
@@ -149,8 +171,14 @@ def get_strategies_by_difficulty(difficulty):
 
 def get_strategies_for_market(market_type):
     """Get strategies suitable for specific market type"""
+    market_upper = market_type.upper()
+    
+    # Handle index symbols by converting to INDICES market type
+    if market_upper in ['US30', 'US100', 'US500', 'DE30', 'UK100', 'JP225']:
+        market_upper = 'INDICES'
+    
     return [name for name, info in STRATEGY_METADATA.items() 
-            if market_type.upper() in info['market_types']]
+            if market_upper in info['market_types']]
 
 def get_strategy_info(strategy_name):
     """Get complete strategy information"""

@@ -20,7 +20,7 @@ def auto_migrate_broker_symbols():
         from core.utils.mt5 import find_mt5_symbol
         
         # Get current broker info
-        account_info = mt5.account_info()
+        account_info = mt5.account_info()  # pyright: ignore[reportAttributeAccessIssue]
         if not account_info:
             return
         
@@ -35,7 +35,7 @@ def auto_migrate_broker_symbols():
                 last_broker = last_config.get('broker', '')
                 
                 if last_broker != current_broker:
-                    logger.info(f"Broker changed detected: '{last_broker}' → '{current_broker}'")
+                    logger.info(f"Broker changed detected: '{last_broker}' -> '{current_broker}'")
                     broker_changed = True
         else:
             broker_changed = True  # First time setup

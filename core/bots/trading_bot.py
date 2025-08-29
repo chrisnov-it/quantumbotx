@@ -69,7 +69,7 @@ class TradingBot(threading.Thread):
                 # Simbol sudah diverifikasi, jadi pemeriksaan ini menjadi redundan
                 # if not mt5.symbol_select(self.market_for_mt5, True): ...
 
-                symbol_info = mt5.symbol_info(self.market_for_mt5)
+                symbol_info = mt5.symbol_info(self.market_for_mt5)  # type: ignore
                 if not symbol_info:
                     msg = f"Tidak dapat mengambil info untuk simbol {self.market_for_mt5}."
                     self.log_activity('WARNING', msg)
@@ -132,7 +132,7 @@ class TradingBot(threading.Thread):
     def _get_open_position(self):
         """Mendapatkan posisi terbuka untuk bot ini berdasarkan magic number (ID bot)."""
         try:
-            positions = mt5.positions_get(symbol=self.market_for_mt5)
+            positions = mt5.positions_get(symbol=self.market_for_mt5)  # type: ignore
             if positions:
                 for pos in positions:
                     if pos.magic == self.id:
@@ -190,7 +190,7 @@ class TradingBot(threading.Thread):
             # Log ke database untuk AI analysis
             log_trade_for_ai_analysis(
                 bot_id=self.id,
-                symbol=self.market_for_mt5,
+                symbol=self.market_for_mt5 or self.market,
                 profit_loss=profit_loss,
                 lot_size=position.volume if hasattr(position, 'volume') else self.risk_percent,
                 stop_loss_used=stop_loss_used,

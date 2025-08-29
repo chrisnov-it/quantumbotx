@@ -5,7 +5,7 @@ import pandas as pd
 import json
 import logging
 from flask import Blueprint, request, jsonify
-from core.backtesting.engine import run_backtest
+from core.backtesting.enhanced_engine import run_enhanced_backtest as run_backtest
 from core.db.queries import get_all_backtest_history
 from core.db.connection import get_db_connection
 
@@ -18,10 +18,28 @@ def save_backtest_result(strategy_name, filename, params, results):
         if isinstance(value, (np.floating, float)) and (np.isinf(value) or np.isnan(value)):
             results[key] = None # Ganti inf/nan dengan None (NULL di DB)
 
-    # Ambil nilai profit, utamakan kunci baru 'total_profit'
-    profit_to_save = results.get('total_profit')
-    if profit_to_save is None:
-        profit_to_save = results.get('total_profit_usd', 0) # Fallback ke kunci lama
+    # Enhanced engine provides more detailed results
+    profit_to_save = results.get('total_profit_usd', 0)
+    spread_costs = results.get('total_spread_costs', 0)
+    instrument = results.get('instrument', 'UNKNOWN')
+    
+    # Add enhanced engine info to parameters for tracking
+    enhanced_params = params.copy()
+    enhanced_params['engine_type'] = 'enhanced'
+    enhanced_params['spread_costs'] = spread_costs
+    enhanced_params['instrument'] = instrument
+    
+    if 'engine_config' in results:
+        engine_config = results['engine_config']
+        enhanced_params['realistic_execution'] = engine_config.get('realistic_execution', True)
+        enhanced_params['spread_costs_enabled'] = engine_config.get('spread_costs_enabled', True)
+        
+        # Include instrument-specific config for analysis
+        if 'instrument_config' in engine_config:
+            inst_config = engine_config['instrument_config']
+            enhanced_params['max_risk_percent'] = inst_config.get('max_risk_percent', 2.0)
+            enhanced_params['typical_spread_pips'] = inst_config.get('typical_spread_pips', 2.0)
+            enhanced_params['max_lot_size'] = inst_config.get('max_lot_size', 10.0)
 
     try:
         with get_db_connection() as conn:
@@ -42,7 +60,7 @@ def save_backtest_result(strategy_name, filename, params, results):
                 results.get('losses', 0),
                 json.dumps(results.get('equity_curve', [])),
                 json.dumps(results.get('trades', [])),
-                json.dumps(params)
+                json.dumps(enhanced_params)
             ))
             conn.commit()
     except Exception as e:
@@ -58,9 +76,24 @@ def run_backtest_route():
         return jsonify({"error": "Nama file kosong"}), 400
 
     try:
-        df = pd.read_csv(file, parse_dates=['time'])
+        df = pd.read_csv(file.stream, parse_dates=['time'])
         strategy_id = request.form.get('strategy')
         params = json.loads(request.form.get('params', '{}'))
+        
+        # Map web interface parameter names to enhanced engine parameter names
+        enhanced_params = params.copy()
+        
+        # Map old parameter names to new enhanced engine names
+        if 'lot_size' in params and 'risk_percent' not in params:
+            enhanced_params['risk_percent'] = float(params['lot_size'])
+            
+        if 'sl_pips' in params and 'sl_atr_multiplier' not in params:
+            enhanced_params['sl_atr_multiplier'] = float(params['sl_pips'])
+            
+        if 'tp_pips' in params and 'tp_atr_multiplier' not in params:
+            enhanced_params['tp_atr_multiplier'] = float(params['tp_pips'])
+        
+        logger.info(f"Parameter mapping: {params} -> {enhanced_params}")
         
         # Extract symbol name from filename for accurate XAUUSD detection
         symbol_name = None
@@ -71,8 +104,15 @@ def run_backtest_route():
                 symbol_name = filename_parts[0].upper()
                 logger.info(f"Detected symbol from filename: {symbol_name}")
         
-        # Jalankan backtest dengan symbol name untuk deteksi XAUUSD yang akurat
-        results = run_backtest(strategy_id, params, df, symbol_name=symbol_name)
+        # Enhanced backtesting with realistic cost modeling and risk management
+        # Use enhanced engine for more accurate results
+        engine_config = {
+            'enable_spread_costs': True,    # Model realistic spread costs
+            'enable_slippage': True,        # Include slippage simulation
+            'enable_realistic_execution': True  # Realistic bid/ask execution
+        }
+        
+        results = run_backtest(strategy_id, enhanced_params, df, symbol_name=symbol_name, engine_config=engine_config)
 
         # Simpan hasil jika berhasil
         if results and not results.get('error'):

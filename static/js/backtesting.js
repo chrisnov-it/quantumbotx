@@ -109,27 +109,101 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayResults(data) {
         resultsContainer.classList.remove('hidden');
-        // PERBAIKAN: Tampilkan 6 metrik utama
+        
+        // Enhanced display with spread costs and protection info
+        const spreadCosts = data.total_spread_costs || 0;
+        const netProfit = data.net_profit_after_costs || data.total_profit_usd;
+        const instrument = data.instrument || 'UNKNOWN';
+        
+        // Check if protection was applied
+        const engineConfig = data.engine_config || {};
+        const instrumentConfig = engineConfig.instrument_config || {};
+        const maxRisk = instrumentConfig.max_risk_percent || 2.0;
+        const maxLot = instrumentConfig.max_lot_size || 10.0;
+        const spreadPips = instrumentConfig.typical_spread_pips || 2.0;
+        
         resultsSummary.innerHTML = `
-            <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Total Profit</p><p class="text-2xl font-bold text-green-600">${data.total_profit_usd.toFixed(2)} $</p></div>
-            <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Max Drawdown</p><p class="text-2xl font-bold text-red-600">${data.max_drawdown_percent.toFixed(2)}%</p></div>
-            <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Win Rate</p><p class="text-2xl font-bold text-blue-600">${data.win_rate_percent.toFixed(2)}%</p></div>
-            <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Total Trades</p><p class="text-2xl font-bold">${data.total_trades}</p></div>
-            <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Wins</p><p class="text-2xl font-bold">${data.wins}</p></div>
-            <div class="p-4 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Losses</p><p class="text-2xl font-bold">${data.losses}</p></div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Instrument</p>
+                <p class="text-lg font-bold text-blue-600">${instrument}</p>
+                <p class="text-xs text-gray-400">Max Risk: ${maxRisk}%</p>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Gross Profit</p>
+                <p class="text-2xl font-bold text-green-600">${data.total_profit_usd.toFixed(2)} $</p>
+                <p class="text-xs text-gray-400">Before costs</p>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Spread Costs</p>
+                <p class="text-2xl font-bold text-red-600">-${spreadCosts.toFixed(2)} $</p>
+                <p class="text-xs text-gray-400">${spreadPips} pips spread</p>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Net Profit</p>
+                <p class="text-2xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}">${netProfit.toFixed(2)} $</p>
+                <p class="text-xs text-gray-400">After all costs</p>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Max Drawdown</p>
+                <p class="text-2xl font-bold text-red-600">${data.max_drawdown_percent.toFixed(2)}%</p>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Win Rate</p>
+                <p class="text-2xl font-bold text-blue-600">${data.win_rate_percent.toFixed(2)}%</p>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Total Trades</p>
+                <p class="text-2xl font-bold">${data.total_trades}</p>
+                <p class="text-xs text-gray-400">Max Lot: ${maxLot}</p>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Wins</p>
+                <p class="text-2xl font-bold">${data.wins}</p>
+            </div>
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500">Losses</p>
+                <p class="text-2xl font-bold">${data.losses}</p>
+            </div>
         `;
 
         // Tampilkan grafik kurva ekuitas
         displayEquityChart(data.equity_curve);
 
-        // Tampilkan log trade (opsional)
+        // Enhanced trade log with spread costs
         if (data.trades && data.trades.length > 0) {
-            let logHtml = '<h4 class="text-lg font-semibold mt-6 mb-2">20 Trade Terakhir</h4><div class="text-xs font-mono border rounded p-2 bg-gray-50 max-h-64 overflow-y-auto">';
+            let logHtml = '<h4 class="text-lg font-semibold mt-6 mb-2">20 Trade Terakhir (Enhanced Engine)</h4>';
+            logHtml += '<div class="text-xs font-mono border rounded p-2 bg-gray-50 max-h-64 overflow-y-auto">';
+            
             data.trades.forEach(trade => {
                 const profitClass = trade.profit > 0 ? 'text-green-600' : 'text-red-600';
-                logHtml += `<p>Entry: ${trade.entry.toFixed(4)} | Exit: ${trade.exit.toFixed(4)} | Profit: <span class="${profitClass}">${trade.profit.toFixed(2)}</span> | Reason: ${trade.reason}</p>`;
+                const spreadCost = trade.spread_cost || 0;
+                const lotSize = trade.lot_size || 0;
+                const reason = trade.reason || 'N/A';
+                
+                logHtml += `<p class="mb-1">`;
+                logHtml += `<span class="font-bold">${trade.position_type}</span> | `;
+                logHtml += `Entry: ${trade.entry.toFixed(4)} | `;
+                logHtml += `Exit: ${trade.exit.toFixed(4)} | `;
+                logHtml += `Lot: ${lotSize.toFixed(2)} | `;
+                logHtml += `Profit: <span class="${profitClass}">${trade.profit.toFixed(2)}</span> | `;
+                logHtml += `Spread: $${spreadCost.toFixed(2)} | `;
+                logHtml += `Reason: ${reason}`;
+                logHtml += `</p>`;
             });
+            
             logHtml += '</div>';
+            
+            // Add enhanced engine info
+            logHtml += '<div class="mt-4 p-3 bg-blue-50 rounded border border-blue-200">';
+            logHtml += '<h5 class="text-sm font-semibold text-blue-800 mb-2">🚀 Enhanced Engine Features Applied:</h5>';
+            logHtml += '<div class="text-xs text-blue-700 space-y-1">';
+            logHtml += `<p>✅ Realistic spread costs: ${spreadPips} pips per trade</p>`;
+            logHtml += `<p>✅ ATR-based position sizing with ${maxRisk}% max risk</p>`;
+            logHtml += `<p>✅ Instrument protection: ${maxLot} max lot size</p>`;
+            logHtml += `<p>✅ Slippage simulation included</p>`;
+            logHtml += `<p>💰 Total spread costs deducted: $${spreadCosts.toFixed(2)}</p>`;
+            logHtml += '</div></div>';
+            
             resultsLog.innerHTML = logHtml;
         } else {
             resultsLog.innerHTML = '';

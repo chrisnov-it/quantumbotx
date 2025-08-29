@@ -44,6 +44,8 @@ def detect_current_broker():
             return "Exness"
         elif 'ALPARI' in server or 'ALPARI' in company:
             return "Alpari"
+        elif 'FBS' in server or 'FBS' in company:
+            return "FBS"
         elif 'BINANCE' in server or 'BINANCE' in company:
             return "Binance"
         else:
@@ -78,6 +80,17 @@ def get_broker_preferred_symbols():
             "BTCUSD": "BTCUSD",
             "ETHUSD": "ETHUSD",
             "EURUSD": "EURUSD"
+        },
+        "FBS": {
+            "XAUUSD": "XAUUSD",
+            "BTCUSD": "BTCUSD",
+            "ETHUSD": "ETHUSD",
+            "EURUSD": "EURUSD",
+            "GBPUSD": "GBPUSD",
+            "US30": "US30",
+            "US100": "US100", 
+            "US500": "US500",
+            "DE30": "DE30"
         }
     }
 

@@ -11,8 +11,17 @@
     <!-- Toastify CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     {% block head_extra %}{% endblock %}
+    <style id="holiday-styles"></style>
 </head>
 <body class="bg-gray-100 font-sans">
+    <!-- Holiday Banner -->
+    <div id="holiday-banner" class="hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 text-center relative">
+        <div class="container mx-auto flex justify-between items-center">
+            <div id="holiday-greeting" class="font-medium"></div>
+            <div id="holiday-countdown" class="text-sm opacity-90"></div>
+        </div>
+    </div>
+
     <div class="flex h-screen overflow-hidden">
         <!-- SIDEBAR -->
         <div id="sidebar" class="sidebar bg-white w-64 shadow-lg flex flex-col">
@@ -30,6 +39,10 @@
                     <a href="/trading_bots" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 {% if active_page == 'trading_bots' %}active{% endif %}"><i class="fas fa-robot"></i><span class="ml-3 sidebar-text">Trading Bots</span></a>
                     <a href="/portfolio" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 {% if active_page == 'portfolio' %}active{% endif %}"><i class="fas fa-wallet"></i><span class="ml-3 sidebar-text">Portfolio</span></a>
                     <a href="/backtesting" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 {% if active_page == 'backtesting' %}active{% endif %}"><i class="fas fa-vial"></i><span class="ml-3 sidebar-text">Backtester</span></a>
+                    <a href="/ai-mentor" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 {% if active_page == 'ai_mentor' %}active{% endif %}"><i class="fas fa-brain"></i><span class="ml-3 sidebar-text">AI Mentor</span></a>
+                    <a href="/strategy-switcher" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 {% if active_page == 'strategy_switcher' %}active{% endif %}"><i class="fas fa-sync-alt"></i><span class="ml-3 sidebar-text">Strategy Switcher</span></a>
+                    <!-- Ramadan link will only be visible when Ramadan mode is active -->
+                    <a href="/ramadan" id="ramadan-nav-link" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 {% if active_page == 'ramadan' %}active{% endif %} hidden"><i class="fas fa-moon"></i><span class="ml-3 sidebar-text">Ramadan Mode</span></a>
                     <a href="/history" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 {% if active_page == 'history' %}active{% endif %}"><i class="fas fa-history"></i><span class="ml-3 sidebar-text">History</span></a>
                     <a href="/settings" class="nav-item flex items-center px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 {% if active_page == 'settings' %}active{% endif %}"><i class="fas fa-cog"></i><span class="ml-3 sidebar-text">Settings</span></a>
                     <div class="px-4 mt-8 mb-4"><p class="text-xs font-semibold text-gray-500 uppercase tracking-wider sidebar-text">Market Data</p></div>
@@ -74,6 +87,96 @@
     <!-- Toastify JS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Holiday Detection Script -->
+    <script>
+        // Function to apply holiday theme
+        function applyHolidayTheme(theme) {
+            const styleElement = document.getElementById('holiday-styles');
+            if (!styleElement) return;
+            
+            let css = '';
+            if (theme.background_gradient) {
+                css += `body { background: ${theme.background_gradient}; }`;
+            }
+            if (theme.primary_color) {
+                css += `:root { --holiday-primary: ${theme.primary_color}; }`;
+            }
+            if (theme.secondary_color) {
+                css += `:root { --holiday-secondary: ${theme.secondary_color}; }`;
+            }
+            if (theme.accent_color) {
+                css += `:root { --holiday-accent: ${theme.accent_color}; }`;
+            }
+            
+            styleElement.textContent = css;
+        }
+        
+        // Function to check for active holidays
+        async function checkHolidayStatus() {
+            try {
+                const response = await fetch('/api/holiday/status');
+                const data = await response.json();
+                
+                if (data.success && data.is_holiday) {
+                    // Show holiday banner
+                    const banner = document.getElementById('holiday-banner');
+                    const greeting = document.getElementById('holiday-greeting');
+                    const countdown = document.getElementById('holiday-countdown');
+                    
+                    if (banner && greeting) {
+                        greeting.textContent = data.greeting;
+                        banner.classList.remove('hidden');
+                        
+                        // Apply holiday theme
+                        if (data.ui_theme) {
+                            applyHolidayTheme(data.ui_theme);
+                        }
+                        
+                        // Special handling for Ramadan features
+                        if (data.holiday_name === "Ramadan Trading Mode" && data.ramadan_features) {
+                            // Show the Ramadan navigation link since mode is active
+                            const ramadanLink = document.getElementById('ramadan-nav-link');
+                            if (ramadanLink) {
+                                ramadanLink.classList.remove('hidden');
+                            }
+                            
+                            // Show Iftar countdown if available
+                            if (data.ramadan_features.iftar_countdown) {
+                                const countdownData = data.ramadan_features.iftar_countdown;
+                                countdown.textContent = `${countdownData.hours}h ${countdownData.minutes}m until ${countdownData.next_prayer}`;
+                            }
+                        }
+                        
+                        // Special handling for Christmas features
+                        if (data.holiday_name === "Christmas Trading Mode") {
+                            // Show countdown if it's close to Christmas
+                            const today = new Date();
+                            const christmasDate = new Date(today.getFullYear(), 11, 25); // December 25
+                            const timeDiff = christmasDate - today;
+                            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                            
+                            if (daysDiff >= 0 && daysDiff <= 10) {
+                                countdown.textContent = `${daysDiff} days until Christmas`;
+                            }
+                        }
+                    }
+                } else {
+                    // Hide Ramadan navigation link when no holiday is active
+                    const ramadanLink = document.getElementById('ramadan-nav-link');
+                    if (ramadanLink) {
+                        ramadanLink.classList.add('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking holiday status:', error);
+            }
+        }
+        
+        // Check for holidays on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkHolidayStatus();
+        });
+    </script>
     <!-- Blok untuk skrip spesifik halaman -->
     {% block scripts %}{% endblock %}
 </body>

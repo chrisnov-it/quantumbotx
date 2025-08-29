@@ -49,7 +49,7 @@ def get_bots_route():
     # Perkaya data bot dengan nama strategi yang mudah dibaca
     for bot in bots:
         strategy_key = bot.get('strategy')
-        strategy_class = STRATEGY_MAP.get(strategy_key)
+        strategy_class = STRATEGY_MAP.get(strategy_key)  # pyright: ignore[reportArgumentType]
         if strategy_class:
             bot['strategy_name'] = getattr(strategy_class, 'name', strategy_key)
         else:

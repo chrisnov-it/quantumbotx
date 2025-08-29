@@ -175,10 +175,6 @@ def create_app():
     def forex_page():
         return render_template('forex.html', active_page='forex')
 
-    @app.route('/ai-mentor')
-    def ai_mentor_page():
-        return render_template('ai_mentor/dashboard.html', active_page='ai_mentor')
-
     @app.errorhandler(404)
     def not_found_error(error):
         return render_template('404.html'), 404

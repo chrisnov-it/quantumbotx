@@ -1,0 +1,518 @@
+{% extends "base.html" %}
+
+{% block title %}⚙️ Pengaturan AI Mentor - QuantumBotX{% endblock %}
+
+{% block head_extra %}
+<style>
+.mentor-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.settings-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.setting-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #3b82f6;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.language-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.language-option {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.language-option.active {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+    color: #3b82f6;
+}
+
+.notification-time {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.time-input {
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    width: 100px;
+}
+
+.save-btn {
+    background: #10b981;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.save-btn:hover {
+    background: #059669;
+}
+
+.reset-btn {
+    background: #f59e0b;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 1rem;
+}
+
+.reset-btn:hover {
+    background: #d97706;
+}
+
+.danger-btn {
+    background: #ef4444;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 1rem;
+}
+
+.danger-btn:hover {
+    background: #dc2626;
+}
+
+.timezone-display {
+    background: #f3f4f6;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: #374151;
+    font-family: monospace;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mentor-card">
+        <h1 class="text-3xl font-bold mb-2">⚙️ Pengaturan AI Mentor</h1>
+        <p class="text-blue-100 text-lg">Kustomisasi pengalaman AI Trading Mentor sesuai preferensi Anda</p>
+        <div class="mt-4 flex items-center space-x-4">
+            <span class="text-blue-200">🇮🇩 Indonesia Setup</span>
+            <span class="text-blue-200">• ⚡ Real-time Config</span>
+            <span class="text-blue-200">• 🎯 Personal</span>
+        </div>
+    </div>
+
+    <!-- Language & Regional Settings -->
+    <div class="settings-section">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">🌏 Bahasa & Regional</h3>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Bahasa Interface</h4>
+                <p class="text-sm text-gray-500">Pilih bahasa untuk AI Mentor</p>
+            </div>
+            <div class="language-selector">
+                <div class="language-option active" data-lang="id">🇮🇩 Indonesia</div>
+                <div class="language-option" data-lang="en">🇺🇸 English</div>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Zona Waktu</h4>
+                <p class="text-sm text-gray-500">Zona waktu untuk analisis trading</p>
+            </div>
+            <div class="timezone-display">
+                WIB (UTC+7) - Jakarta Time
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Format Mata Uang</h4>
+                <p class="text-sm text-gray-500">Format tampilan profit/loss</p>
+            </div>
+            <select class="time-input" style="width: 150px;">
+                <option value="USD">USD ($)</option>
+                <option value="IDR">IDR (Rp)</option>
+                <option value="EUR">EUR (€)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- AI Behavior Settings -->
+    <div class="settings-section">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">🧠 Perilaku AI Mentor</h3>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Analisis Otomatis</h4>
+                <p class="text-sm text-gray-500">AI menganalisis setiap sesi trading secara otomatis</p>
+            </div>
+            <label class="setting-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Feedback Emosional</h4>
+                <p class="text-sm text-gray-500">AI memberikan feedback berdasarkan kondisi emosi</p>
+            </div>
+            <label class="setting-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Motivasi Harian</h4>
+                <p class="text-sm text-gray-500">Terima pesan motivasi setiap hari</p>
+            </div>
+            <label class="setting-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Level Detail Analisis</h4>
+                <p class="text-sm text-gray-500">Tingkat detail feedback AI</p>
+            </div>
+            <select class="time-input" style="width: 150px;">
+                <option value="basic">Basic</option>
+                <option value="detailed" selected>Detailed</option>
+                <option value="expert">Expert</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Notification Settings -->
+    <div class="settings-section">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">🔔 Notifikasi</h3>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Laporan Harian</h4>
+                <p class="text-sm text-gray-500">Waktu pengiriman laporan AI harian</p>
+            </div>
+            <div class="notification-time">
+                <input type="time" class="time-input" value="20:00">
+                <span class="text-sm text-gray-500">WIB</span>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Reminder Trading</h4>
+                <p class="text-sm text-gray-500">Pengingat untuk input emosi dan catatan</p>
+            </div>
+            <label class="setting-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Alert Overtrading</h4>
+                <p class="text-sm text-gray-500">Peringatan jika terlalu banyak trading</p>
+            </div>
+            <label class="setting-toggle">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Cultural Preferences -->
+    <div class="settings-section">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">🎭 Preferensi Budaya</h3>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Mode Liburan Otomatis</h4>
+                <p class="text-sm text-gray-500">Aktifkan mode Ramadan dan Natal secara otomatis</p>
+            </div>
+            <label class="setting-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Penyesuaian Risk Ramadan</h4>
+                <p class="text-sm text-gray-500">Kurangi risk otomatis selama bulan Ramadan</p>
+            </div>
+            <label class="setting-toggle">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Pause Trading Sahur/Iftar</h4>
+                <p class="text-sm text-gray-500">Hentikan trading otomatis saat waktu sahur dan iftar</p>
+            </div>
+            <label class="setting-toggle">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Data & Privacy -->
+    <div class="settings-section">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">🔒 Data & Privacy</h3>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Simpan Riwayat AI</h4>
+                <p class="text-sm text-gray-500">Berapa lama menyimpan analisis AI</p>
+            </div>
+            <select class="time-input" style="width: 150px;">
+                <option value="30">30 Hari</option>
+                <option value="90" selected>90 Hari</option>
+                <option value="365">1 Tahun</option>
+                <option value="unlimited">Unlimited</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Export Data</h4>
+                <p class="text-sm text-gray-500">Download semua data AI Mentor Anda</p>
+            </div>
+            <button class="save-btn" onclick="exportData()">📥 Export</button>
+        </div>
+        
+        <div class="setting-item">
+            <div>
+                <h4 class="font-medium text-gray-700">Reset Semua Data</h4>
+                <p class="text-sm text-gray-500">⚠️ Hapus semua riwayat dan analisis AI</p>
+            </div>
+            <button class="danger-btn" onclick="resetAllData()">🗑️ Reset</button>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center space-x-4 mt-8">
+        <button class="save-btn" onclick="saveSettings()">
+            💾 Simpan Pengaturan
+        </button>
+        <button class="reset-btn" onclick="resetToDefaults()">
+            🔄 Reset ke Default
+        </button>
+        <a href="/ai-mentor" class="save-btn" style="text-decoration: none; display: inline-block;">
+            ← Kembali ke Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Language selection
+document.querySelectorAll('.language-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.language-option').forEach(opt => opt.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+function saveSettings() {
+    // Collect all settings
+    const settings = {
+        language: document.querySelector('.language-option.active').dataset.lang,
+        currency_format: document.querySelector('select').value,
+        auto_analysis: document.querySelector('input[type="checkbox"]').checked,
+        // ... collect other settings
+    };
+    
+    fetch('/ai-mentor/api/save-settings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settings)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Pengaturan berhasil disimpan!', 'success');
+        } else {
+            showToast('Gagal menyimpan pengaturan: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Terjadi kesalahan saat menyimpan', 'error');
+    });
+}
+
+function resetToDefaults() {
+    if (confirm('Yakin ingin reset semua pengaturan ke default?')) {
+        fetch('/ai-mentor/api/reset-settings', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Pengaturan berhasil direset!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            }
+        });
+    }
+}
+
+function exportData() {
+    showToast('Memulai export data...', 'info');
+    
+    fetch('/ai-mentor/api/export-data')
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const today = new Date().toISOString().split('T')[0];
+        a.href = url;
+        a.download = `ai_mentor_data_${today}.json`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showToast('Data berhasil diexport!', 'success');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Gagal export data', 'error');
+    });
+}
+
+function resetAllData() {
+    const confirmation = prompt('Ketik "HAPUS SEMUA" untuk konfirmasi reset data:');
+    if (confirmation === 'HAPUS SEMUA') {
+        fetch('/ai-mentor/api/reset-all-data', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Semua data AI Mentor telah dihapus!', 'success');
+                setTimeout(() => window.location.href = '/ai-mentor', 2000);
+            }
+        });
+    } else if (confirmation !== null) {
+        showToast('Konfirmasi tidak sesuai, data tidak dihapus', 'warning');
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 
+        type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// Auto-save on toggle changes
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        // Auto-save individual settings
+        const settingName = this.closest('.setting-item').querySelector('h4').textContent;
+        console.log(`${settingName} changed to ${this.checked}`);
+        // You can implement individual auto-save here
+    });
+});
+</script>
+{% endblock %}

@@ -1,46 +1,256 @@
 {% extends "base.html" %}
 
-
-
 {% block head_extra %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+<style>
+.ai-mentor-widget {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+}
+
+.stat-card {
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.activity-item {
+    border-left: 4px solid #3b82f6;
+    transition: background-color 0.2s ease;
+}
+
+.activity-item:hover {
+    background-color: #f8fafc;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.floating-ai-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.floating-ai-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.profit-positive { color: #10b981; }
+.profit-negative { color: #ef4444; }
+
+/* Holiday-specific styles */
+.holiday-widget {
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.holiday-widget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ramadan-widget {
+    background: linear-gradient(135deg, #006600 0%, #ffd700 100%);
+    color: white;
+}
+
+.christmas-widget {
+    background: linear-gradient(135deg, #c41e3a 0%, #228b22 100%);
+    color: white;
+}
+
+.new-year-widget {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    color: white;
+}
+
+.ramadan-countdown {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ramadan-feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+}
+</style>
 {% endblock %}
 
 {% block content %}
+<!-- Holiday Widget Container -->
+<div id="holiday-widgets" class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 hidden">
+    <!-- Holiday widgets will be inserted here dynamically -->
+</div>
+
+<!-- Hero Section with AI Mentor -->
 <div class="mb-6">
-  <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
-  <p class="text-gray-600">Welcome back! Here's your trading overview.</p>
-</div>
-
-<!-- STAT CARDS -->
-<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-sm font-medium text-gray-500">Total Saldo (Equity)</h3>
-    <p id="total-equity" class="mt-1 text-3xl font-semibold text-gray-800"><i class="fas fa-spinner fa-spin text-gray-400"></i></p>
-  </div>
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-sm font-medium text-gray-500">Profit Hari Ini</h3>
-    <p id="todays-profit" class="mt-1 text-3xl font-semibold text-gray-800"><i class="fas fa-spinner fa-spin text-gray-400"></i></p>
-  </div>
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-sm font-medium text-gray-500">Bot Aktif</h3>
-    <p id="active-bots-count" class="mt-1 text-3xl font-semibold text-gray-800"><i class="fas fa-spinner fa-spin text-gray-400"></i></p>
-  </div>
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-sm font-medium text-gray-500">Total Bot</h3>
-    <p id="total-bots-count" class="mt-1 text-3xl font-semibold text-gray-800"><i class="fas fa-spinner fa-spin text-gray-400"></i></p>
+  <div class="flex justify-between items-start">
+    <div>
+      <h2 class="text-3xl font-bold text-gray-800">Dashboard Trading</h2>
+      <p class="text-gray-600">Selamat datang kembali! Berikut ringkasan trading Anda hari ini.</p>
+    </div>
+    <div class="ai-mentor-widget p-4 text-right">
+      <div class="text-sm opacity-90">🤖 AI Mentor</div>
+      <div class="text-xl font-bold" id="ai-mentor-status">Siap Membantu</div>
+      <a href="/ai-mentor" class="text-sm underline opacity-90 hover:opacity-100">Lihat Analisis →</a>
+    </div>
   </div>
 </div>
 
-<!-- GRAFIK -->
-<div class="bg-white rounded-lg shadow p-6 mb-6">
-  <h3 class="text-md font-semibold text-gray-700 mb-2">Grafik Harga EUR/USD</h3>
-  <div class="chart-container"><canvas id="priceChart" height="100"></canvas></div>
+<!-- Enhanced STAT CARDS -->
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-6">
+  <div class="stat-card bg-white rounded-lg shadow p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-medium text-gray-500">Total Saldo (Equity)</h3>
+        <p id="total-equity" class="mt-1 text-2xl font-semibold text-gray-800">
+          <i class="fas fa-spinner fa-spin text-gray-400"></i>
+        </p>
+      </div>
+      <div class="text-green-500 text-2xl">
+        <i class="fas fa-wallet"></i>
+      </div>
+    </div>
+  </div>
+  
+  <div class="stat-card bg-white rounded-lg shadow p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-medium text-gray-500">Profit Hari Ini</h3>
+        <p id="todays-profit" class="mt-1 text-2xl font-semibold text-gray-800">
+          <i class="fas fa-spinner fa-spin text-gray-400"></i>
+        </p>
+      </div>
+      <div class="text-blue-500 text-2xl">
+        <i class="fas fa-chart-line"></i>
+      </div>
+    </div>
+  </div>
+  
+  <div class="stat-card bg-white rounded-lg shadow p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-medium text-gray-500">Bot Aktif</h3>
+        <p id="active-bots-count" class="mt-1 text-2xl font-semibold text-gray-800">
+          <i class="fas fa-spinner fa-spin text-gray-400"></i>
+        </p>
+      </div>
+      <div class="text-purple-500 text-2xl">
+        <i class="fas fa-robot"></i>
+      </div>
+    </div>
+  </div>
+  
+  <div class="stat-card bg-white rounded-lg shadow p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-medium text-gray-500">Total Bot</h3>
+        <p id="total-bots-count" class="mt-1 text-2xl font-semibold text-gray-800">
+          <i class="fas fa-spinner fa-spin text-gray-400"></i>
+        </p>
+      </div>
+      <div class="text-gray-500 text-2xl">
+        <i class="fas fa-cogs"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- New AI Mentor Quick Stats -->
+  <div class="stat-card bg-gradient-to-br from-purple-500 to-blue-600 text-white rounded-lg shadow p-6">
+    <div class="text-center">
+      <h3 class="text-sm font-medium opacity-90">Status Emosi</h3>
+      <p id="emotion-status" class="mt-1 text-xl font-semibold">😌 Tenang</p>
+      <button onclick="quickEmotionCheck()" class="text-xs underline opacity-90 hover:opacity-100 mt-1">
+        Update Status
+      </button>
+    </div>
+  </div>
 </div>
 
-<div class="bg-white rounded-lg shadow p-6 mb-6">
-  <h3 class="text-md font-semibold text-gray-700 mb-2">RSI EUR/USD (H1)</h3>
-  <div class="chart-container"><canvas id="rsiChart" height="100"></canvas></div>
+<!-- Three Column Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+  <!-- Charts Column (2/3 width) -->
+  <div class="lg:col-span-2 space-y-6">
+    <!-- Price Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-700">📈 Grafik Harga EUR/USD</h3>
+        <div class="text-sm text-gray-500" id="last-updated">
+          <i class="fas fa-clock"></i> Memuat...
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </div>
+
+    <!-- RSI Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-700">📊 RSI EUR/USD (H1)</h3>
+        <div class="text-sm text-gray-500">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            Real-time
+          </span>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="rsiChart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sidebar Column (1/3 width) -->
+  <div class="space-y-6">
+    <!-- AI Mentor Today -->
+    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold mb-3">🧠 AI Mentor Hari Ini</h3>
+      <div id="ai-mentor-summary" class="space-y-3">
+        <div class="bg-white bg-opacity-20 rounded-lg p-3">
+          <div class="text-sm opacity-90">Analisis Trading:</div>
+          <div class="font-semibold" id="trading-analysis">Memuat...</div>
+        </div>
+        <div class="bg-white bg-opacity-20 rounded-lg p-3">
+          <div class="text-sm opacity-90">Tips Hari Ini:</div>
+          <div class="text-sm" id="daily-tip">Memuat...</div>
+        </div>
+        <a href="/ai-mentor/today-report" class="block w-full bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-2 text-center text-sm font-medium transition">
+          📊 Lihat Laporan Lengkap
+        </a>
+      </div>
+    </div>
+    
+    <!-- Recent Activities -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="p-4 border-b">
+        <h3 class="text-lg font-semibold text-gray-800">⚡ Aktivitas Terbaru</h3>
+      </div>
+      <div id="recent-activities" class="max-h-80 overflow-y-auto">
+        <div class="p-4 text-gray-500 text-center">Memuat aktivitas...</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- BOT AKTIF -->
@@ -55,8 +265,700 @@
     <a href="/trading_bots" class="block w-full text-center text-blue-600 font-medium hover:text-blue-800 transition">View All Bots</a>
   </div>
 </div>
+
+<!-- Floating AI Button -->
+<button class="floating-ai-btn" onclick="window.location.href='/ai-mentor'" title="Chat dengan AI Mentor">
+    🤖
+</button>
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+// Enhanced Dashboard JavaScript with AI Mentor Integration
+let priceChart, rsiChart;
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    loadDashboardData();
+    loadAIMentorSummary();
+    loadRecentActivities();
+    checkHolidayStatus(); // Check for active holidays
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        refreshDashboardData();
+        checkHolidayStatus(); // Refresh holiday status
+    }, 30000);
+});
+
+// Initialize Charts
+function initializeCharts() {
+    // Price Chart
+    const priceCtx = document.getElementById('priceChart').getContext('2d');
+    priceChart = new Chart(priceCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'EUR/USD',
+                data: [],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    grid: {
+                        color: '#f3f4f6'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: '#f3f4f6'
+                    }
+                }
+            }
+        }
+    });
+
+    // RSI Chart
+    const rsiCtx = document.getElementById('rsiChart').getContext('2d');
+    rsiChart = new Chart(rsiCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'RSI',
+                data: [],
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderWidth: 2,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100,
+                    grid: {
+                        color: '#f3f4f6'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            if (value === 70) return '70 (Overbought)';
+                            if (value === 30) return '30 (Oversold)';
+                            return value;
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        color: '#f3f4f6'
+                    }
+                }
+            },
+            // Add horizontal lines for overbought/oversold
+            plugins: {
+                annotation: {
+                    annotations: {
+                        line1: {
+                            type: 'line',
+                            yMin: 70,
+                            yMax: 70,
+                            borderColor: '#ef4444',
+                            borderWidth: 1,
+                            borderDash: [5, 5]
+                        },
+                        line2: {
+                            type: 'line',
+                            yMin: 30,
+                            yMax: 30,
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            borderDash: [5, 5]
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Load Dashboard Data
+function loadDashboardData() {
+    // Load account info
+    fetch('/api/account-info')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('total-equity').textContent = `$${data.equity.toFixed(2)}`;
+                
+                const profitElement = document.getElementById('todays-profit');
+                const profit = data.todays_profit;
+                profitElement.textContent = `$${profit.toFixed(2)}`;
+                profitElement.className = profit >= 0 ? 'mt-1 text-2xl font-semibold profit-positive' : 'mt-1 text-2xl font-semibold profit-negative';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading account info:', error);
+            document.getElementById('total-equity').textContent = 'Error';
+            document.getElementById('todays-profit').textContent = 'Error';
+        });
+    
+    // Load bot info
+    fetch('/api/bots/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('active-bots-count').textContent = data.active_count;
+                document.getElementById('total-bots-count').textContent = data.total_count;
+                
+                // Update active bots list
+                const botsList = document.getElementById('active-bots-list');
+                if (data.active_bots.length > 0) {
+                    botsList.innerHTML = data.active_bots.map(bot => `
+                        <div class="p-4 flex justify-between items-center">
+                            <div>
+                                <h4 class="font-medium text-gray-800">${bot.name}</h4>
+                                <p class="text-sm text-gray-600">${bot.symbol} • ${bot.strategy}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium ${bot.profit >= 0 ? 'profit-positive' : 'profit-negative'}">
+                                    $${bot.profit.toFixed(2)}
+                                </div>
+                                <div class="text-xs text-gray-500">${bot.trades} trades</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    botsList.innerHTML = '<p class="p-4 text-gray-500">Tidak ada bot yang aktif</p>';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading bot info:', error);
+            document.getElementById('active-bots-count').textContent = 'Error';
+            document.getElementById('total-bots-count').textContent = 'Error';
+        });
+    
+    // Load chart data
+    loadChartData();
+}
+
+// Load Chart Data
+function loadChartData() {
+    fetch('/api/market-data/EURUSD')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update price chart
+                priceChart.data.labels = data.timestamps;
+                priceChart.data.datasets[0].data = data.prices;
+                priceChart.update();
+                
+                // Update RSI chart
+                rsiChart.data.labels = data.timestamps;
+                rsiChart.data.datasets[0].data = data.rsi;
+                rsiChart.update();
+                
+                // Update timestamp
+                document.getElementById('last-updated').innerHTML = 
+                    `<i class="fas fa-clock"></i> ${new Date().toLocaleTimeString('id-ID')}`;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading chart data:', error);
+            document.getElementById('last-updated').innerHTML = 
+                `<i class="fas fa-exclamation-triangle"></i> Error loading data`;
+        });
+}
+
+// Load AI Mentor Summary
+function loadAIMentorSummary() {
+    fetch('/ai-mentor/api/dashboard-summary')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update emotion status
+                const emotionMap = {
+                    'tenang': '😌 Tenang',
+                    'serakah': '🤑 Serakah',
+                    'takut': '😰 Takut',
+                    'frustasi': '😤 Frustasi',
+                    'netral': '😐 Netral'
+                };
+                document.getElementById('emotion-status').textContent = 
+                    emotionMap[data.today_emotions] || '😐 Netral';
+                
+                // Update AI analysis
+                document.getElementById('trading-analysis').textContent = 
+                    data.trading_analysis || 'Belum ada data hari ini';
+                
+                // Update daily tip
+                document.getElementById('daily-tip').textContent = 
+                    data.daily_tip || 'Mulai trading untuk mendapat tips personal!';
+                
+                // Update AI mentor status
+                const statusElement = document.getElementById('ai-mentor-status');
+                if (data.today_has_data) {
+                    statusElement.textContent = 'Aktif Menganalisis';
+                    statusElement.className = 'text-xl font-bold text-green-100';
+                } else {
+                    statusElement.textContent = 'Siap Membantu';
+                    statusElement.className = 'text-xl font-bold';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading AI mentor summary:', error);
+            document.getElementById('trading-analysis').textContent = 'Error loading';
+            document.getElementById('daily-tip').textContent = 'Error loading';
+        });
+}
+
+// Load Recent Activities
+function loadRecentActivities() {
+    fetch('/api/recent-activities')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const activitiesHtml = data.activities.map(activity => `
+                    <div class="activity-item p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start space-x-3">
+                            <div class="text-lg">${activity.icon}</div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">${activity.title}</p>
+                                <p class="text-xs text-gray-500">${activity.description}</p>
+                                <p class="text-xs text-gray-400 mt-1">${activity.time}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('recent-activities').innerHTML = 
+                    activitiesHtml || '<div class="p-4 text-gray-500 text-center">Belum ada aktivitas</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading recent activities:', error);
+            document.getElementById('recent-activities').innerHTML = 
+                '<div class="p-4 text-red-500 text-center">Error loading activities</div>';
+        });
+}
+
+// Quick Emotion Check
+function quickEmotionCheck() {
+    const emotions = ['tenang', 'serakah', 'takut', 'frustasi', 'netral'];
+    const emotionNames = ['😌 Tenang', '🤑 Serakah', '😰 Takut', '😤 Frustasi', '😐 Netral'];
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 class="text-lg font-semibold mb-4">🎯 Update Status Emosi</h3>
+            <div class="space-y-2">
+                ${emotions.map((emotion, index) => `
+                    <button onclick="updateEmotion('${emotion}')" 
+                            class="w-full text-left p-3 rounded-lg border hover:bg-gray-50 transition-colors">
+                        ${emotionNames[index]}
+                    </button>
+                `).join('')}
+            </div>
+            <button onclick="closeEmotionModal()" 
+                    class="mt-4 w-full bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                Batal
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    window.currentEmotionModal = modal;
+}
+
+// Update Emotion
+function updateEmotion(emotion) {
+    fetch('/ai-mentor/update-emotions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ emotions: emotion })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI immediately
+            const emotionMap = {
+                'tenang': '😌 Tenang',
+                'serakah': '🤑 Serakah',
+                'takut': '😰 Takut',
+                'frustasi': '😤 Frustasi',
+                'netral': '😐 Netral'
+            };
+            document.getElementById('emotion-status').textContent = emotionMap[emotion];
+            
+            // Show success message
+            showNotification('Status emosi berhasil diupdate!', 'success');
+            
+            // Refresh AI mentor summary
+            loadAIMentorSummary();
+        } else {
+            showNotification('Gagal update status emosi', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating emotion:', error);
+        showNotification('Error: Gagal update status emosi', 'error');
+    })
+    .finally(() => {
+        closeEmotionModal();
+    });
+}
+
+// Close Emotion Modal
+function closeEmotionModal() {
+    if (window.currentEmotionModal) {
+        document.body.removeChild(window.currentEmotionModal);
+        window.currentEmotionModal = null;
+    }
+}
+
+// Show Notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Refresh Dashboard Data (lighter version for auto-refresh)
+function refreshDashboardData() {
+    // Only refresh essential data to avoid overwhelming the system
+    fetch('/api/account-info')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('total-equity').textContent = `$${data.equity.toFixed(2)}`;
+                
+                const profitElement = document.getElementById('todays-profit');
+                const profit = data.todays_profit;
+                profitElement.textContent = `$${profit.toFixed(2)}`;
+                profitElement.className = profit >= 0 ? 'mt-1 text-2xl font-semibold profit-positive' : 'mt-1 text-2xl font-semibold profit-negative';
+            }
+        })
+        .catch(error => console.error('Auto-refresh error:', error));
+}
+
+// Check for active holidays and update UI accordingly
+async function checkHolidayStatus() {
+    try {
+        const response = await fetch('/api/holiday/status');
+        const data = await response.json();
+        
+        const holidayWidgets = document.getElementById('holiday-widgets');
+        
+        if (data.success && data.is_holiday) {
+            // Show holiday widgets container
+            if (holidayWidgets) {
+                holidayWidgets.classList.remove('hidden');
+                
+                // Special handling for Ramadan
+                if (data.holiday_name === "Ramadan Trading Mode") {
+                    updateRamadanWidgets(data);
+                }
+                // Special handling for Christmas
+                else if (data.holiday_name === "Christmas Trading Mode") {
+                    updateChristmasWidgets(data);
+                }
+                // Special handling for New Year
+                else if (data.holiday_name === "New Year Trading Mode") {
+                    updateNewYearWidgets(data);
+                }
+            }
+        } else {
+            // Hide holiday widgets if no active holiday
+            if (holidayWidgets) {
+                holidayWidgets.classList.add('hidden');
+                holidayWidgets.innerHTML = '';
+            }
+        }
+    } catch (error) {
+        console.error('Error checking holiday status:', error);
+    }
+}
+
+// Update Ramadan-specific widgets
+function updateRamadanWidgets(holidayData) {
+    const holidayWidgets = document.getElementById('holiday-widgets');
+    if (!holidayWidgets) return;
+    
+    let ramadanHtml = '';
+    
+    // Iftar Countdown Widget
+    if (holidayData.ramadan_features && holidayData.ramadan_features.iftar_countdown) {
+        const countdown = holidayData.ramadan_features.iftar_countdown;
+        ramadanHtml += `
+            <div class="holiday-widget ramadan-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">⏱️ Hitung Mundur Iftar</h3>
+                    <i class="fas fa-moon"></i>
+                </div>
+                <div class="ramadan-countdown">
+                    ${countdown.hours.toString().padStart(2, '0')}:${countdown.minutes.toString().padStart(2, '0')}
+                </div>
+                <div class="text-center text-sm opacity-90 mt-2">
+                    Sampai ${countdown.next_prayer}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Patience Reminder Widget
+    if (holidayData.ramadan_features && holidayData.ramadan_features.patience_reminder) {
+        ramadanHtml += `
+            <div class="holiday-widget ramadan-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">🧘‍♂️ Pengingat Kesabaran</h3>
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="text-sm italic text-center">
+                    ${holidayData.ramadan_features.patience_reminder}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Risk Adjustment Widget
+    if (holidayData.trading_adjustments && holidayData.trading_adjustments.risk_reduction) {
+        const riskReduction = (1 - holidayData.trading_adjustments.risk_reduction) * 100;
+        ramadanHtml += `
+            <div class="holiday-widget ramadan-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">🛡️ Penyesuaian Risiko</h3>
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">${riskReduction.toFixed(0)}%</div>
+                    <div class="text-sm opacity-90">Pengurangan risiko otomatis</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Optimal Trading Hours Widget
+    if (holidayData.ramadan_features && holidayData.ramadan_features.optimal_trading_hours) {
+        ramadanHtml += `
+            <div class="holiday-widget ramadan-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">⏰ Waktu Trading Optimal</h3>
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="space-y-2">
+                    ${holidayData.ramadan_features.optimal_trading_hours.map(hour => `
+                        <div class="ramadan-feature-card flex justify-between">
+                            <span>${hour[0]}:00 - ${hour[1] || (hour[0] + 1)}:00 WIB</span>
+                            <i class="fas fa-star text-yellow-300"></i>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    holidayWidgets.innerHTML = ramadanHtml;
+}
+
+// Update Christmas-specific widgets
+function updateChristmasWidgets(holidayData) {
+    const holidayWidgets = document.getElementById('holiday-widgets');
+    if (!holidayWidgets) return;
+    
+    let christmasHtml = '';
+    
+    // Christmas Countdown Widget
+    const today = new Date();
+    const christmasDate = new Date(today.getFullYear(), 11, 25); // December 25
+    const timeDiff = christmasDate - today;
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff >= 0) {
+        christmasHtml += `
+            <div class="holiday-widget christmas-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">🎄 Hitung Mundur Natal</h3>
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div class="ramadan-countdown">
+                    ${daysDiff}
+                </div>
+                <div class="text-center text-sm opacity-90 mt-2">
+                    hari lagi sampai Natal
+                </div>
+            </div>
+        `;
+    }
+    
+    // Risk Adjustment Widget
+    if (holidayData.trading_adjustments && holidayData.trading_adjustments.risk_reduction) {
+        const riskReduction = (1 - holidayData.trading_adjustments.risk_reduction) * 100;
+        christmasHtml += `
+            <div class="holiday-widget christmas-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">🛡️ Penyesuaian Risiko</h3>
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">${riskReduction.toFixed(0)}%</div>
+                    <div class="text-sm opacity-90">Pengurangan risiko otomatis</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Holiday Greeting Widget
+    if (holidayData.greeting) {
+        christmasHtml += `
+            <div class="holiday-widget christmas-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">✨ Salam Natal</h3>
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="text-sm text-center italic">
+                    ${holidayData.greeting}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Lot Size Adjustment Widget
+    if (holidayData.trading_adjustments && holidayData.trading_adjustments.lot_size_multiplier) {
+        const lotSizeReduction = (1 - holidayData.trading_adjustments.lot_size_multiplier) * 100;
+        christmasHtml += `
+            <div class="holiday-widget christmas-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">📏 Penyesuaian Lot</h3>
+                    <i class="fas fa-ruler"></i>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">${lotSizeReduction.toFixed(0)}%</div>
+                    <div class="text-sm opacity-90">Pengurangan ukuran lot</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    holidayWidgets.innerHTML = christmasHtml;
+}
+
+// Update New Year-specific widgets
+function updateNewYearWidgets(holidayData) {
+    const holidayWidgets = document.getElementById('holiday-widgets');
+    if (!holidayWidgets) return;
+    
+    let newYearHtml = '';
+    
+    // New Year Countdown Widget
+    const today = new Date();
+    const newYearDate = new Date(today.getFullYear() + 1, 0, 1); // January 1 next year
+    const timeDiff = newYearDate - today;
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    
+    newYearHtml += `
+        <div class="holiday-widget new-year-widget p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">🎆 Hitung Mundur Tahun Baru</h3>
+                <i class="fas fa-champagne-glasses"></i>
+            </div>
+            <div class="ramadan-countdown">
+                ${daysDiff}
+            </div>
+            <div class="text-center text-sm opacity-90 mt-2">
+                hari lagi sampai Tahun Baru
+            </div>
+        </div>
+    `;
+    
+    // Risk Adjustment Widget
+    if (holidayData.trading_adjustments && holidayData.trading_adjustments.risk_reduction) {
+        const riskReduction = (1 - holidayData.trading_adjustments.risk_reduction) * 100;
+        newYearHtml += `
+            <div class="holiday-widget new-year-widget p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">🛡️ Penyesuaian Risiko</h3>
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">${riskReduction.toFixed(0)}%</div>
+                    <div class="text-sm opacity-90">Pengurangan risiko otomatis</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Goal Setting Widget
+    newYearHtml += `
+        <div class="holiday-widget new-year-widget p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">🎯 Resolusi Trading</h3>
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <div class="text-sm text-center">
+                Waktu yang tepat untuk menetapkan tujuan trading tahun ini
+            </div>
+        </div>
+    `;
+    
+    holidayWidgets.innerHTML = newYearHtml;
+}
+
+// Add floating AI button click handler
+document.addEventListener('DOMContentLoaded', function() {
+    // Create floating AI button if it doesn't exist
+    if (!document.querySelector('.floating-ai-btn')) {
+        const floatingBtn = document.createElement('button');
+        floatingBtn.className = 'floating-ai-btn';
+        floatingBtn.innerHTML = '🤖';
+        floatingBtn.title = 'Chat dengan AI Mentor';
+        floatingBtn.onclick = () => window.location.href = '/ai-mentor';
+        document.body.appendChild(floatingBtn);
+    }
+});
+</script>
 {% endblock %}

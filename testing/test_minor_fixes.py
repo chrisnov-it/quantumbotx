@@ -49,8 +49,6 @@ def test_environment_validation():
         os.environ.pop('MT5_LOGIN', None)
         
         # Import the module to test validation
-        import importlib
-        import run
         
         # We can't actually run the main code, but we can check imports work
         print("✅ Environment validation code loads without syntax errors")

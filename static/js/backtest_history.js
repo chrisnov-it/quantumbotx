@@ -108,16 +108,27 @@ document.addEventListener('DOMContentLoaded', () => {
             detailId.textContent = item.id || 'N/A';
             detailTimestamp.textContent = formatTimestamp(item.timestamp);
 
-            // Isi ringkasan
+            // Isi ringkasan dengan enhanced engine data
+            const spreadCosts = item.parameters?.spread_costs || 0;
+            const engineType = item.parameters?.engine_type || 'legacy';
+            const maxRisk = item.parameters?.max_risk_percent || 'N/A';
+            const maxLot = item.parameters?.max_lot_size || 'N/A';
+            const spreadPips = item.parameters?.typical_spread_pips || 'N/A';
+            
             detailSummary.innerHTML = `
                 <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Strategi</p><p class="font-bold">${item.strategy_name || 'N/A'}</p></div>
                 <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Pasar</p><p class="font-bold">${marketName}</p></div>
-                <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Total Profit</p><p class="font-bold">${totalProfit.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p></div>
+                <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Engine</p><p class="font-bold text-${engineType === 'enhanced' ? 'green' : 'yellow'}-600">${engineType === 'enhanced' ? '🚀 Enhanced' : '⚠️ Legacy'}</p></div>
+                <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Gross Profit</p><p class="font-bold">${totalProfit.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p></div>
+                <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Spread Costs</p><p class="font-bold text-red-600">-${spreadCosts.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p></div>
+                <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Net Profit</p><p class="font-bold ${totalProfit - spreadCosts >= 0 ? 'text-green-600' : 'text-red-600'}">${(totalProfit - spreadCosts).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p></div>
                 <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Max Drawdown</p><p class="font-bold">${maxDrawdown}%</p></div>
                 <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Win Rate</p><p class="font-bold">${winRate}%</p></div>
                 <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Total Trades</p><p class="font-bold">${totalTrades}</p></div>
                 <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Wins</p><p class="font-bold">${wins}</p></div>
                 <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Losses</p><p class="font-bold">${losses}</p></div>
+                <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Max Risk</p><p class="font-bold">${maxRisk}%</p></div>
+                <div class="p-3 bg-gray-50 rounded"><p class="text-xs text-gray-500">Max Lot</p><p class="font-bold">${maxLot}</p></div>
             `;
 
             // Tampilkan equity chart

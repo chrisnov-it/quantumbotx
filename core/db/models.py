@@ -36,7 +36,7 @@ def create_trading_session(session_date: date, emotions: str = 'netral',
             )
             session_id = cursor.lastrowid
             conn.commit()
-            return session_id
+            return session_id if session_id is not None else 0
     except Exception as e:
         print(f"[AI MENTOR DB ERROR] Gagal membuat sesi trading: {e}")
         return 0
@@ -98,13 +98,39 @@ def get_trading_session_data(session_date: date) -> Optional[Dict[str, Any]]:
         with sqlite3.connect('bots.db') as conn:
             cursor = conn.cursor()
             
+            # Check if table and columns exist
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='trading_sessions'")
+            if not cursor.fetchone():
+                print(f"[AI MENTOR DB ERROR] Table trading_sessions tidak ditemukan")
+                return None
+            
+            # Check available columns
+            cursor.execute("PRAGMA table_info(trading_sessions)")
+            columns = [col[1] for col in cursor.fetchall()]
+            
+            # Build query based on available columns
+            select_columns = ['id']
+            if 'total_trades' in columns:
+                select_columns.append('total_trades')
+            else:
+                select_columns.append('0 as total_trades')
+                
+            if 'total_profit_loss' in columns:
+                select_columns.append('total_profit_loss')
+            else:
+                select_columns.append('0.0 as total_profit_loss')
+                
+            select_columns.extend(['emotions', 'market_conditions', 'personal_notes'])
+            
+            if 'risk_score' in columns:
+                select_columns.append('risk_score')
+            else:
+                select_columns.append('5 as risk_score')
+            
+            query = f"SELECT {', '.join(select_columns)} FROM trading_sessions WHERE session_date = ?"
+            
             # Get session info
-            cursor.execute(
-                '''SELECT id, total_trades, total_profit_loss, emotions, 
-                          market_conditions, personal_notes, risk_score
-                   FROM trading_sessions WHERE session_date = ?''',
-                (session_date,)
-            )
+            cursor.execute(query, (session_date,))
             session_result = cursor.fetchone()
             
             if not session_result:
@@ -112,35 +138,37 @@ def get_trading_session_data(session_date: date) -> Optional[Dict[str, Any]]:
                 
             session_id = session_result[0]
             
-            # Get trades for this session
-            cursor.execute(
-                '''SELECT symbol, profit_loss, lot_size, stop_loss_used, 
-                          take_profit_used, risk_percent, strategy_used
-                   FROM daily_trading_data WHERE session_id = ?''',
-                (session_id,)
-            )
-            trades_data = cursor.fetchall()
-            
+            # Get trades for this session (check if daily_trading_data table exists)
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='daily_trading_data'")
             trades = []
-            for trade in trades_data:
-                trades.append({
-                    'symbol': trade[0],
-                    'profit': trade[1],
-                    'lot_size': trade[2],
-                    'stop_loss_used': bool(trade[3]),
-                    'take_profit_used': bool(trade[4]),
-                    'risk_percent': trade[5],
-                    'strategy': trade[6]
-                })
+            if cursor.fetchone():
+                cursor.execute(
+                    '''SELECT symbol, profit_loss, lot_size, stop_loss_used, 
+                              take_profit_used, risk_percent, strategy_used
+                       FROM daily_trading_data WHERE session_id = ?''',
+                    (session_id,)
+                )
+                trades_data = cursor.fetchall()
+                
+                for trade in trades_data:
+                    trades.append({
+                        'symbol': trade[0],
+                        'profit': trade[1],
+                        'lot_size': trade[2],
+                        'stop_loss_used': bool(trade[3]),
+                        'take_profit_used': bool(trade[4]),
+                        'risk_percent': trade[5] if trade[5] is not None else 1.0,
+                        'strategy': trade[6] if trade[6] else 'Unknown'
+                    })
             
             return {
                 'session_id': session_id,
-                'total_trades': session_result[1],
-                'total_profit_loss': session_result[2],
-                'emotions': session_result[3],
-                'market_conditions': session_result[4],
-                'personal_notes': session_result[5] or '',
-                'risk_score': session_result[6] or 5,
+                'total_trades': session_result[1] if session_result[1] is not None else 0,
+                'total_profit_loss': session_result[2] if session_result[2] is not None else 0.0,
+                'emotions': session_result[3] if session_result[3] else 'netral',
+                'market_conditions': session_result[4] if session_result[4] else 'normal',
+                'personal_notes': session_result[5] if session_result[5] else '',
+                'risk_score': session_result[6] if session_result[6] is not None else 5,
                 'trades': trades
             }
             
@@ -193,24 +221,36 @@ def get_recent_mentor_reports(limit: int = 7) -> List[Dict[str, Any]]:
     try:
         with sqlite3.connect('bots.db') as conn:
             cursor = conn.cursor()
-            cursor.execute(
-                '''SELECT ts.session_date, ts.total_profit_loss, ts.total_trades,
-                          ts.emotions, mr.motivation_message, mr.created_at
-                   FROM trading_sessions ts
-                   LEFT JOIN ai_mentor_reports mr ON ts.id = mr.session_id
-                   ORDER BY ts.session_date DESC
-                   LIMIT ?''',
-                (limit,)
-            )
+            
+            # First check if columns exist
+            cursor.execute("PRAGMA table_info(trading_sessions)")
+            columns = [col[1] for col in cursor.fetchall()]
+            
+            # Adjust query based on available columns
+            if 'total_profit_loss' in columns:
+                profit_column = 'ts.total_profit_loss'
+            else:
+                profit_column = '0.0 as total_profit_loss'
+                
+            query = f'''
+                SELECT ts.session_date, {profit_column}, ts.total_trades,
+                       ts.emotions, COALESCE(mr.motivation_message, 'Belum ada analisis AI') as motivation, mr.created_at
+                FROM trading_sessions ts
+                LEFT JOIN ai_mentor_reports mr ON ts.id = mr.session_id
+                ORDER BY ts.session_date DESC
+                LIMIT ?
+            '''
+            
+            cursor.execute(query, (limit,))
             
             reports = []
             for row in cursor.fetchall():
                 reports.append({
                     'session_date': row[0],
-                    'profit_loss': row[1],
-                    'total_trades': row[2],
-                    'emotions': row[3],
-                    'motivation': row[4] or 'Belum ada analisis AI',
+                    'profit_loss': row[1] if row[1] is not None else 0.0,
+                    'total_trades': row[2] if row[2] is not None else 0,
+                    'emotions': row[3] if row[3] else 'netral',
+                    'motivation': row[4],
                     'created_at': row[5]
                 })
             

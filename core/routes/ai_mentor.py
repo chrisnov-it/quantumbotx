@@ -12,6 +12,7 @@ from core.db.models import (
     update_session_emotions_and_notes, get_recent_mentor_reports,
     get_or_create_today_session
 )
+from core.seasonal import get_current_holiday_adjustments, get_holiday_greeting
 import logging
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,10 @@ ai_mentor_bp = Blueprint('ai_mentor', __name__, url_prefix='/ai-mentor')
 def dashboard():
     """Dashboard utama AI Mentor"""
     try:
+        # Get holiday adjustments
+        holiday_config = get_current_holiday_adjustments()
+        holiday_greeting = get_holiday_greeting()
+        
         # Get recent reports
         recent_reports = get_recent_mentor_reports(7)
         
@@ -30,21 +35,42 @@ def dashboard():
         today_session = get_trading_session_data(date.today())
         
         # Statistics
-        total_sessions = len(recent_reports)
-        profitable_sessions = len([r for r in recent_reports if r['profit_loss'] > 0])
+        total_sessions = len(recent_reports) if recent_reports else 0
+        profitable_sessions = len([r for r in recent_reports if r.get('profit_loss', 0) > 0]) if recent_reports else 0
         win_rate = (profitable_sessions / total_sessions * 100) if total_sessions > 0 else 0
         
+        # Create sample data if no real data exists
+        if not today_session and not recent_reports:
+            # Create a sample session for demonstration
+            sample_session = {
+                'session_id': 0,
+                'total_trades': 0,
+                'total_profit_loss': 0.0,
+                'emotions': 'netral',
+                'market_conditions': 'normal',
+                'personal_notes': '',
+                'risk_score': 5,
+                'trades': []
+            }
+            today_session = sample_session
+        
         return render_template('ai_mentor/dashboard.html', 
-                             recent_reports=recent_reports,
+                             recent_reports=recent_reports or [],
                              today_session=today_session,
                              win_rate=win_rate,
-                             total_sessions=total_sessions)
+                             total_sessions=total_sessions,
+                             holiday_config=holiday_config,
+                             holiday_greeting=holiday_greeting)
     except Exception as e:
         logger.error(f"Error in AI mentor dashboard: {e}")
-        flash("Terjadi kesalahan saat memuat dashboard AI Mentor", "error")
+        # Return a basic dashboard with minimal data
         return render_template('ai_mentor/dashboard.html', 
-                             recent_reports=[], today_session=None,
-                             win_rate=0, total_sessions=0)
+                             recent_reports=[], 
+                             today_session=None,
+                             win_rate=0, 
+                             total_sessions=0,
+                             holiday_config={'active_holiday': None},
+                             holiday_greeting="🚀 Selamat trading!")
 
 @ai_mentor_bp.route('/today-report')
 def today_report():
@@ -237,6 +263,56 @@ def generate_instant_feedback():
             'success': False,
             'message': 'Gagal membuat feedback AI'
         }), 500
+
+@ai_mentor_bp.route('/api/dashboard-summary')
+def api_dashboard_summary():
+    """API endpoint untuk mendapatkan ringkasan AI Mentor untuk dashboard utama"""
+    try:
+        summary = get_ai_mentor_summary()
+        
+        # Generate trading analysis and daily tip based on current data
+        trading_analysis = "Belum ada data hari ini"
+        daily_tip = "Mulai trading untuk mendapat tips personal!"
+        
+        if summary['today_has_data']:
+            if summary['today_profit_loss'] > 0:
+                trading_analysis = "Performa positif hari ini! 📈"
+            elif summary['today_profit_loss'] < 0:
+                trading_analysis = "Perlu evaluasi strategi 🔍"
+            else:
+                trading_analysis = "Trading seimbang hari ini ⚖️"
+            
+            # Generate contextual tips based on emotions
+            emotion_tips = {
+                'tenang': "Pertahankan ketenangan dalam mengambil keputusan",
+                'serakah': "Kontrol emosi serakah, fokus pada risk management", 
+                'takut': "Jangan biarkan rasa takut menghalangi peluang yang baik",
+                'frustasi': "Ambil break sejenak, trading dengan kepala dingin",
+                'netral': "Kondisi emosi stabil, lanjutkan dengan strategi yang konsisten"
+            }
+            daily_tip = emotion_tips.get(summary['today_emotions'], daily_tip)
+        
+        return jsonify({
+            'success': True,
+            'today_has_data': summary['today_has_data'],
+            'today_emotions': summary['today_emotions'],
+            'today_profit_loss': summary['today_profit_loss'],
+            'trading_analysis': trading_analysis,
+            'daily_tip': daily_tip,
+            'recent_performance': summary['recent_performance']
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting AI mentor dashboard summary: {e}")
+        return jsonify({
+            'success': False,
+            'today_has_data': False,
+            'today_emotions': 'netral',
+            'today_profit_loss': 0,
+            'trading_analysis': 'Error loading analysis',
+            'daily_tip': 'Error loading tips',
+            'recent_performance': []
+        })
 
 @ai_mentor_bp.route('/settings')
 def settings():
