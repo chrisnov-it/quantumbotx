@@ -20,7 +20,7 @@ def shutdown_app():
     """Fungsi shutdown terpusat."""
     logging.info("Memulai proses shutdown aplikasi...")
     shutdown_all_bots()
-    mt5.shutdown()
+    mt5.shutdown()  # pyright: ignore[reportAttributeAccessIssue]
     logging.info("Koneksi MetaTrader 5 ditutup. Aplikasi berhenti.")
 
 # Panggil pabrik untuk membuat aplikasi kita

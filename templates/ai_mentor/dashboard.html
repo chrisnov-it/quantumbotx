@@ -3,10 +3,10 @@
 
 {% block title %}🧠 AI Mentor Trading - QuantumBotX{% endblock %}
 
-{% block head %}
+{% block head_extra %}
 <style>
 .mentor-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
     color: white;
     border-radius: 12px;
     padding: 2rem;
@@ -124,15 +124,19 @@
 
 /* Holiday Theme Overrides */
 .holiday-christmas .mentor-card {
-    background: linear-gradient(135deg, #c41e3a 0%, #228b22 100%);
+    background: linear-gradient(135deg, #c41e3a 0%, #228b22 100%) !important;
 }
 
 .holiday-ramadan .mentor-card {
-    background: linear-gradient(135deg, #006600 0%, #ffd700 100%);
+    background: linear-gradient(135deg, #006600 0%, #ffd700 100%) !important;
 }
 
 .holiday-new-year .mentor-card {
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%) !important;
+}
+
+.holiday-header {
+    text-align: center;
 }
 </style>
 {% endblock %}
@@ -141,7 +145,7 @@
 <div class="container mx-auto px-4 py-8">
     <!-- Holiday Mode Header -->
     {% if holiday_config.active_holiday %}
-    <div class="mb-4 p-4 rounded-lg text-white" style="background: {{ holiday_config.ui_theme.background_gradient }}; text-align: center;">
+    <div class="mb-4 p-4 rounded-lg text-white holiday-header" style="--holiday-bg: {{ holiday_config.ui_theme.background_gradient|safe }}; background: var(--holiday-bg);">
         <h2 class="text-xl font-bold mb-2">{{ holiday_config.active_holiday }} 🎆</h2>
         <p class="text-lg">{{ holiday_greeting }}</p>
         {% if holiday_config.adjustments.risk_reduction %}
@@ -364,26 +368,43 @@ document.getElementById('quickFeedbackModal').addEventListener('click', function
 
 // Holiday Effects
 document.addEventListener('DOMContentLoaded', function() {
-    {% if holiday_config.active_holiday %}
-        // Apply holiday theme class
-        const holidayName = '{{ holiday_config.active_holiday }}'.toLowerCase().replace(' ', '-');
-        document.body.classList.add('holiday-' + holidayName.split('-')[0]);
+    // Apply holiday theme and effects
+    var holidayConfig = {
+        activeHoliday: "{{ holiday_config.active_holiday if holiday_config and holiday_config.active_holiday else '' }}",
+        christmas: "{{ 'christmas' in holiday_config.active_holiday.lower() if holiday_config and holiday_config.active_holiday else 'false' }}",
+        ramadan: "{{ 'ramadan' in holiday_config.active_holiday.lower() if holiday_config and holiday_config.active_holiday else 'false' }}",
+        newYear: "{{ 'new year' in holiday_config.active_holiday.lower() if holiday_config and holiday_config.active_holiday else 'false' }}"
+    };
+    
+    if (holidayConfig.activeHoliday) {
+        // Apply holiday theme class based on holiday type
+        if (holidayConfig.christmas === 'true') {
+            document.body.classList.add('holiday-christmas');
+        } else if (holidayConfig.ramadan === 'true') {
+            document.body.classList.add('holiday-ramadan');
+        } else if (holidayConfig.newYear === 'true') {
+            document.body.classList.add('holiday-new-year');
+        } else {
+            // Fallback: use the first word of the holiday name
+            var holidayName = holidayConfig.activeHoliday.toLowerCase().replace(' ', '-');
+            document.body.classList.add('holiday-' + holidayName.split('-')[0]);
+        }
         
         // Christmas snow effect
-        {% if 'christmas' in holiday_config.active_holiday.lower() %}
+        if (holidayConfig.christmas === 'true') {
             createSnowEffect();
-        {% endif %}
+        }
         
         // Ramadan star effect
-        {% if 'ramadan' in holiday_config.active_holiday.lower() %}
+        if (holidayConfig.ramadan === 'true') {
             createStarEffect();
-        {% endif %}
+        }
         
         // New Year fireworks effect
-        {% if 'new year' in holiday_config.active_holiday.lower() %}
+        if (holidayConfig.newYear === 'true') {
             // Could add fireworks effect here
-        {% endif %}
-    {% endif %}
+        }
+    }
 });
 
 function createSnowEffect() {

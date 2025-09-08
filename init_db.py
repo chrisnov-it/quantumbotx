@@ -60,7 +60,8 @@ def main():
         timeframe TEXT NOT NULL DEFAULT 'H1',
         check_interval_seconds INTEGER NOT NULL DEFAULT 60,
         strategy TEXT NOT NULL,
-        strategy_params TEXT
+        strategy_params TEXT,
+        enable_strategy_switching INTEGER NOT NULL DEFAULT 0
     );
     """
 

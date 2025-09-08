@@ -18,7 +18,7 @@ def test_fbs_broker_support():
     
     try:
         # Test 1: Import migration functions
-        from testing.broker_symbol_migrator import detect_current_broker, get_broker_preferred_symbols
+        from testing.broker_symbol_migrator import get_broker_preferred_symbols
         print("✅ Successfully imported broker migration functions")
         
         # Test 2: Check FBS in broker preferences

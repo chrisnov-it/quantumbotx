@@ -149,6 +149,31 @@ def history():
         days = request.args.get('days', 30, type=int)
         reports = get_recent_mentor_reports(days)
         
+        # Ensure all reports have the required fields for the template
+        for report in reports:
+            if 'total_profit_loss' not in report:
+                report['total_profit_loss'] = report.get('profit_loss', 0.0)
+            
+            # Date normalization to prevent strftime errors
+            raw_date = report.get('date') or report.get('session_date')
+            if isinstance(raw_date, str):
+                try:
+                    # Handles both 'YYYY-MM-DD' and 'YYYY-MM-DD HH:MM:SS'
+                    report['date'] = datetime.strptime(raw_date.split(' ')[0], '%Y-%m-%d').date()
+                except (ValueError, TypeError):
+                    report['date'] = date.today()  # Fallback for safety
+            elif isinstance(raw_date, datetime):
+                report['date'] = raw_date.date()
+            elif isinstance(raw_date, date):
+                report['date'] = raw_date
+            else:
+                report['date'] = date.today()
+
+            if 'total_trades' not in report:
+                report['total_trades'] = report.get('total_trades', 0)
+            if 'emotions' not in report:
+                report['emotions'] = report.get('emotions', 'netral')
+        
         return render_template('ai_mentor/history.html', 
                              reports=reports, days=days)
                              
@@ -326,10 +351,17 @@ def get_ai_mentor_summary():
         today_session = get_trading_session_data(date.today())
         recent_reports = get_recent_mentor_reports(3)
         
+        # Ensure recent reports have consistent field names
+        for report in recent_reports:
+            if 'total_profit_loss' not in report and 'profit_loss' in report:
+                report['total_profit_loss'] = report['profit_loss']
+            if 'date' not in report and 'session_date' in report:
+                report['date'] = report['session_date']
+        
         return {
             'today_has_data': today_session is not None,
-            'today_profit_loss': today_session['total_profit_loss'] if today_session else 0,
-            'today_emotions': today_session['emotions'] if today_session else 'netral',
+            'today_profit_loss': today_session.get('total_profit_loss', 0) if today_session else 0,
+            'today_emotions': today_session.get('emotions', 'netral') if today_session else 'netral',
             'recent_performance': recent_reports[:3] if recent_reports else []
         }
     except Exception as e:

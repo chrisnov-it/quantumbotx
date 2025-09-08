@@ -107,6 +107,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Event Listeners ---
 
+    // Check for symbol parameter in URL when page loads
+    const urlParams = new URLSearchParams(window.location.search);
+    const symbolFromUrl = urlParams.get('symbol');
+
     // Buka modal untuk membuat bot baru
     createBotBtn.addEventListener("click", () => {
         currentBotId = null;
@@ -120,6 +124,12 @@ document.addEventListener('DOMContentLoaded', function() {
         form.elements.sl_atr_multiplier.value = 2.0;
         form.elements.tp_atr_multiplier.value = 4.0;
         form.elements.check_interval_seconds.value = 60;
+        
+        // If there's a symbol from URL, pre-fill the market field
+        if (symbolFromUrl) {
+            form.elements.market.value = symbolFromUrl;
+        }
+        
         modal.classList.remove('hidden');
     });
 
@@ -205,6 +215,9 @@ document.addEventListener('DOMContentLoaded', function() {
             params[input.name] = parseFloat(input.value) || input.value;
         });
         data.params = params;
+        
+        // Tambahkan pengaturan strategy switching
+        data.enable_strategy_switching = document.getElementById('enable_strategy_switching').checked;
 
         const url = currentBotId ? `/api/bots/${currentBotId}` : '/api/bots';
         const method = currentBotId ? 'PUT' : 'POST';
@@ -261,6 +274,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (form.elements[key]) {
                         form.elements[key].value = bot[key];
                     }
+                }
+                
+                // Set the strategy switching checkbox
+                if (form.elements.enable_strategy_switching) {
+                    form.elements.enable_strategy_switching.checked = bot.enable_strategy_switching == 1;
                 }
                 
                 // 3. Trigger event untuk memuat parameter strategi

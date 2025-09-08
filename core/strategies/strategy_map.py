@@ -15,7 +15,6 @@ from .dynamic_breakout import DynamicBreakoutStrategy
 from .index_momentum import IndexMomentumStrategy
 from .index_breakout_pro import IndexBreakoutProStrategy
 from .beginner_defaults import BEGINNER_DEFAULTS
-from .strategy_selector import StrategySelector
 
 STRATEGY_MAP = {
     'MA_CROSSOVER': MACrossoverStrategy,

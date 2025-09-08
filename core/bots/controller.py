@@ -130,7 +130,8 @@ def mulai_bot(bot_id: int):
             risk_percent=bot_data['lot_size'], sl_pips=bot_data['sl_pips'],
             tp_pips=bot_data['tp_pips'], timeframe=bot_data['timeframe'],
             check_interval=bot_data['check_interval_seconds'], strategy=bot_data['strategy'],
-            strategy_params=params_dict
+            strategy_params=params_dict,
+            enable_strategy_switching=bool(bot_data.get('enable_strategy_switching', 0))
         )
         bot_thread.start()
         active_bots[bot_id] = bot_thread

@@ -14,6 +14,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # Load environment
 load_dotenv()
 
+# Initialize default values for imports
+mt5 = None
+initialize_mt5 = None
+find_mt5_symbol = None
+queries = None
+hentikan_bot = None
+mulai_bot = None
+active_bots = {}
+
 try:
     import MetaTrader5 as mt5
     from core.utils.mt5 import initialize_mt5, find_mt5_symbol
@@ -28,7 +37,7 @@ except ImportError as e:
 def detect_current_broker():
     """Detect current broker and return standardized name"""
     try:
-        account_info = mt5.account_info()
+        account_info = mt5.account_info()  # pyright: ignore
         if not account_info:
             return "Unknown"
         
@@ -96,6 +105,10 @@ def get_broker_preferred_symbols():
 
 def analyze_current_bots():
     """Analyze current bot configurations and symbol availability"""
+    if not MT5_AVAILABLE or queries is None:
+        print("❌ Cannot analyze bots: Required modules not available")
+        return "Unknown", []
+    
     print("🔍 Analyzing Current Bot Configurations")
     print("=" * 45)
     
@@ -119,7 +132,7 @@ def analyze_current_bots():
         print(f"   Current Market: {current_market}")
         
         # Test if current symbol works
-        resolved_symbol = find_mt5_symbol(current_market)
+        resolved_symbol = find_mt5_symbol(current_market) if find_mt5_symbol else None
         if resolved_symbol:
             print(f"   ✅ Symbol resolved to: {resolved_symbol}")
             if resolved_symbol != current_market:
@@ -137,7 +150,7 @@ def analyze_current_bots():
             # Try to find broker-preferred alternative
             if current_market.upper() in preferred_symbols:
                 preferred = preferred_symbols[current_market.upper()]
-                test_symbol = find_mt5_symbol(preferred)
+                test_symbol = find_mt5_symbol(preferred) if find_mt5_symbol else None
                 if test_symbol:
                     print(f"   💡 Broker prefers: {preferred} -> resolves to: {test_symbol}")
                     symbol_issues.append({
@@ -169,6 +182,10 @@ def analyze_current_bots():
 
 def migrate_bot_symbols(symbol_issues):
     """Migrate bot symbols to correct broker-specific symbols"""
+    if not MT5_AVAILABLE or queries is None:
+        print("❌ Cannot migrate symbols: Required modules not available")
+        return
+    
     print("\\n🔄 SYMBOL MIGRATION")
     print("=" * 25)
     
@@ -208,7 +225,7 @@ def migrate_bot_symbols(symbol_issues):
             continue
         
         # Stop bot if running
-        if bot_id in active_bots:
+        if bot_id in active_bots and hentikan_bot:
             print(f"🛑 Stopping bot {bot_id} for migration...")
             hentikan_bot(bot_id)
         
@@ -231,7 +248,7 @@ def migrate_bot_symbols(symbol_issues):
                 migrated += 1
                 
                 # Restart if it was running
-                if bot_id in active_bots:
+                if bot_id in active_bots and mulai_bot:
                     print(f"🚀 Restarting bot {bot_id}...")
                     mulai_bot(bot_id)
             else:
@@ -244,6 +261,10 @@ def migrate_bot_symbols(symbol_issues):
 
 def create_broker_config_backup():
     """Create a backup of current broker configuration"""
+    if not MT5_AVAILABLE or queries is None:
+        print("❌ Cannot create backup: Required modules not available")
+        return None
+    
     current_broker = detect_current_broker()
     
     backup_data = {
@@ -282,11 +303,19 @@ def main():
     
     # Connect to MT5
     try:
-        ACCOUNT = int(os.getenv('MT5_LOGIN'))
-        PASSWORD = os.getenv('MT5_PASSWORD')
-        SERVER = os.getenv('MT5_SERVER')
+        mt5_login = os.getenv('MT5_LOGIN')
+        mt5_password = os.getenv('MT5_PASSWORD')
+        mt5_server = os.getenv('MT5_SERVER')
         
-        if not initialize_mt5(ACCOUNT, PASSWORD, SERVER):
+        if not mt5_login or not mt5_password or not mt5_server:
+            print("❌ MT5 credentials not found in environment")
+            return
+        
+        ACCOUNT = int(mt5_login)
+        PASSWORD = mt5_password
+        SERVER = mt5_server
+        
+        if not initialize_mt5 or not initialize_mt5(ACCOUNT, PASSWORD, SERVER):
             print("❌ Failed to connect to MT5")
             return
     except Exception as e:
@@ -294,7 +323,7 @@ def main():
         return
     
     # Create backup
-    backup_file = create_broker_config_backup()
+    create_broker_config_backup()
     
     # Analyze current configuration
     current_broker, symbol_issues = analyze_current_bots()
@@ -305,13 +334,14 @@ def main():
     else:
         print("\\n✅ All bots are properly configured for current broker!")
     
-    print(f"\\n💡 TIPS FOR FUTURE BROKER SWITCHES:")
+    print("\\n💡 TIPS FOR FUTURE BROKER SWITCHES:")
     print("1. Run this script after connecting to a new broker")
     print("2. Keep backup files for easy rollback")
     print("3. Test bot functionality after migration")
     print("4. The enhanced find_mt5_symbol() will auto-detect most symbols")
     
-    mt5.shutdown()
+    if mt5:
+        mt5.shutdown()  # pyright: ignore
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,6 @@
 import math
 import logging
 import os
-import pandas as pd
 from core.strategies.strategy_map import STRATEGY_MAP
 
 logger = logging.getLogger(__name__)
@@ -58,12 +57,27 @@ class InstrumentConfig:
         'slippage_pips': 0.5  # Reduced from 1.0
     }
     
+    INDICES = {
+        'contract_size': 1,  # 1 point = $1 for index CFDs
+        'pip_size': 0.01,  # 0.01 point = 1 pip
+        'typical_spread_pips': 3.0,  # Index spreads are typically higher
+        'max_risk_percent': 0.5,  # Very conservative for indices
+        'max_lot_size': 0.1,  # Small lot sizes for indices
+        'slippage_pips': 0.5,
+        'atr_volatility_threshold_high': 50.0,  # Index-specific thresholds
+        'atr_volatility_threshold_extreme': 100.0,
+        'emergency_brake_percent': 0.1  # 10% emergency brake
+    }
+    
     @classmethod
     def get_config(cls, symbol_name):
         """Get configuration for a specific instrument"""
         symbol_upper = symbol_name.upper()
         
-        if 'XAU' in symbol_upper or 'GOLD' in symbol_upper:
+        # Index detection (US30, US100, US500, DE30, etc.)
+        if any(index in symbol_upper for index in ['US30', 'US100', 'US500', 'DE30', 'UK100', 'JP225', 'NAS100', 'SPX500']):
+            return cls.INDICES
+        elif 'XAU' in symbol_upper or 'GOLD' in symbol_upper:
             return cls.GOLD
         elif any(jpy in symbol_upper for jpy in ['JPY', 'USDJPY', 'EURJPY', 'GBPJPY']):
             return cls.FOREX_JPY
@@ -112,9 +126,11 @@ class EnhancedBacktestEngine:
         
         amount_to_risk = capital * (risk_percent / 100.0)
         
-        # Special handling for GOLD (XAUUSD)
+        # Special handling for high-risk instruments
         if config == InstrumentConfig.GOLD:
             return self._calculate_gold_position_size(risk_percent, atr_value, amount_to_risk, sl_distance, config)
+        elif config == InstrumentConfig.INDICES:
+            return self._calculate_index_position_size(risk_percent, atr_value, amount_to_risk, sl_distance, config)
         else:
             return self._calculate_standard_position_size(amount_to_risk, sl_distance, config)
     
@@ -151,6 +167,41 @@ class EnhancedBacktestEngine:
         
         return round(lot_size, 2)
     
+    def _calculate_index_position_size(self, risk_percent, atr_value, amount_to_risk, sl_distance, config):
+        """Ultra-conservative position sizing for stock indices (US500, US30, etc.)"""
+        
+        # Base lot size for indices (extremely conservative)
+        if risk_percent <= 0.25:
+            base_lot_size = 0.01
+        elif risk_percent <= 0.5:
+            base_lot_size = 0.01
+        elif risk_percent <= 0.75:
+            base_lot_size = 0.02
+        elif risk_percent <= 1.0:
+            base_lot_size = 0.02
+        else:
+            base_lot_size = 0.03  # Maximum for any index trade
+        
+        # ATR-based volatility adjustments for indices
+        atr_threshold_high = config.get('atr_volatility_threshold_high', 50.0)
+        atr_threshold_extreme = config.get('atr_volatility_threshold_extreme', 100.0)
+        
+        if atr_value > atr_threshold_extreme:
+            lot_size = 0.01  # Extreme volatility - minimum size
+            logger.warning(f"INDEX EXTREME VOLATILITY: ATR={atr_value:.1f}, lot=0.01")
+        elif atr_value > atr_threshold_high:
+            lot_size = max(0.01, base_lot_size * 0.5)  # High volatility - reduce size
+            logger.warning(f"INDEX HIGH VOLATILITY: ATR={atr_value:.1f}, lot={lot_size}")
+        else:
+            lot_size = base_lot_size  # Normal volatility
+        
+        # Final safety cap
+        lot_size = min(lot_size, config['max_lot_size'])
+        
+        logger.debug(f"INDEX POSITION: Risk={risk_percent}%, ATR={atr_value:.1f}, Lot={lot_size}")
+        
+        return round(lot_size, 2)
+    
     def _calculate_standard_position_size(self, amount_to_risk, sl_distance, config):
         """Standard position sizing for forex and other instruments"""
         
@@ -174,18 +225,18 @@ class EnhancedBacktestEngine:
         if not self.enable_spread_costs:
             return 0
         
-        # FIXED: More realistic spread cost calculation
-        # For forex majors: ~$10 per pip per standard lot (1.0)
-        # For gold: ~$10 per pip per standard lot (1.0)
-        
-        # Calculate pip value per lot based on contract size
-        if config['contract_size'] == 100:  # Gold
-            # For gold: $1 per 0.01 pip per 1 oz, so $0.01 per pip per lot
-            pip_value_per_lot = 1.0  # More reasonable for gold
+        # Calculate pip value per lot based on instrument type
+        if config == InstrumentConfig.GOLD:
+            # For gold: $1 per 0.01 pip per 1 oz
+            pip_value_per_lot = 1.0
+        elif config == InstrumentConfig.INDICES:
+            # For indices: $1 per point per lot (very conservative for backtesting)
+            pip_value_per_lot = 0.1  # Much more conservative for indices
+        elif config['contract_size'] == 100:  # Other instruments with 100 contract size
+            pip_value_per_lot = 1.0
         else:  # Forex
-            # For major pairs: $10 per pip per standard lot is too high for backtesting
-            # Use more realistic $1 per pip per standard lot for backtesting
-            pip_value_per_lot = 1.0  # Much more reasonable
+            # For major pairs: Use conservative pip value for backtesting
+            pip_value_per_lot = 1.0
         
         spread_cost = spread_pips * pip_value_per_lot * lot_size
         

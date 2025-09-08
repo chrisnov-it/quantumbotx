@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 # --- KONFIGURASI PENTING ---
 # Cukup gunakan kata kunci umum yang ada di dalam path saham.
 # Logika baru akan mencari kata-kata ini di mana saja dalam path.
-# Contoh path: "Nasdaq\\Stock\\ZDAI" -> akan cocok dengan 'stock'.
-STOCK_KEYWORDS = ['stock', 'share', 'equity', 'saham']
+# Contoh path: "Stocks\\USA2\\#AAPL" -> akan cocok dengan 'stocks'.
+STOCK_KEYWORDS = ['stocks', 'stock', 'share', 'equity', 'saham']
 
 # Prefix untuk Forex, berdasarkan output Anda: "path": "Forex\\AUDCAD"
 FOREX_PREFIX = 'forex\\'
@@ -19,7 +19,7 @@ def get_all_symbols_from_mt5():
     try:
         # Koneksi sudah diinisialisasi saat aplikasi pertama kali berjalan.
         # Kita tidak perlu melakukan initialize() di sini lagi.
-        symbols = mt5.symbols_get()
+        symbols = mt5.symbols_get()  # pyright: ignore
         if symbols:
             return symbols
         logger.warning("mt5.symbols_get() tidak mengembalikan simbol apapun.")
@@ -41,8 +41,13 @@ def get_stock_symbols(limit=20):
 
     for s in all_symbols:
         if any(keyword in s.path.lower() for keyword in STOCK_KEYWORDS):
+            # Pastikan simbol diaktifkan di Market Watch
+            if not mt5.symbol_select(s.name, True):  # pyright: ignore
+                logger.warning(f"Gagal mengaktifkan simbol {s.name} di Market Watch")
+                continue
+                
             # Ambil info detail untuk mendapatkan volume
-            info = mt5.symbol_info(s.name)
+            info = mt5.symbol_info(s.name)  # pyright: ignore
             if info:
                 stock_details.append({
                     "name": s.name,
@@ -71,7 +76,12 @@ def get_forex_symbols():
 
     for s in all_symbols:
         if s.path.lower().startswith(FOREX_PREFIX):
-            tick = mt5.symbol_info_tick(s.name)
+            # Pastikan simbol diaktifkan di Market Watch
+            if not mt5.symbol_select(s.name, True):  # pyright: ignore
+                logger.warning(f"Gagal mengaktifkan simbol {s.name} di Market Watch")
+                continue
+                
+            tick = mt5.symbol_info_tick(s.name)  # pyright: ignore
             if tick:
                 forex_list.append({
                     "name": s.name,

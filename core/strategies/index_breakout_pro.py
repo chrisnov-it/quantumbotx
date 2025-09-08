@@ -1,9 +1,7 @@
 # core/strategies/index_breakout_pro.py
 
 import pandas as pd
-import numpy as np
 import pandas_ta as ta
-from datetime import datetime, time
 from .base_strategy import BaseStrategy
 import logging
 
@@ -27,16 +25,19 @@ class IndexBreakoutProStrategy(BaseStrategy):
     Best for: Experienced traders seeking to capture major index movements
     """
     
+    name = 'INDEX_BREAKOUT_PRO'
+    description = 'Advanced breakout strategy with institutional pattern recognition for stock indices'
+    
     def __init__(self, bot_instance, params=None):
         # Advanced parameters for professional breakout trading
         default_params = {
             'breakout_period': 20,      # Lookback period for breakout levels
-            'volume_surge_multiplier': 2.0,  # Volume surge detection
+            'volume_surge_multiplier': 1.5,  # Volume surge detection (reduced from 2.0 for more signals)
             'confirmation_candles': 2,   # Candles to confirm breakout
             'support_resistance_strength': 3,  # Minimum touches for S/R level
             'atr_multiplier_sl': 2.0,   # ATR multiplier for stop loss
             'atr_multiplier_tp': 4.0,   # ATR multiplier for take profit
-            'min_breakout_size': 0.3,   # Minimum breakout size (% of ATR)
+            'min_breakout_size': 0.2,   # Minimum breakout size (reduced from 0.3 for sensitivity)
             'max_risk_per_trade': 1.0,  # Maximum risk per trade (%)
             'trend_filter_period': 50,  # Long-term trend filter
             'vwap_filter': True,        # Use VWAP as trend filter
@@ -124,41 +125,94 @@ class IndexBreakoutProStrategy(BaseStrategy):
 
     def _calculate_advanced_indicators(self, df):
         """Calculate advanced technical indicators for professional analysis"""
+        # Handle volume column compatibility (CSV files use 'volume', MT5 uses 'tick_volume')
+        if 'volume' in df.columns and 'tick_volume' not in df.columns:
+            df['tick_volume'] = df['volume']
+        elif 'tick_volume' not in df.columns and 'volume' not in df.columns:
+            # Fallback: create dummy volume data
+            df['tick_volume'] = df['close'] * 0 + 1  # Dummy volume
+            logger.warning("No volume data found, using dummy volume for calculations")
+        
         # Basic indicators
         df['atr'] = ta.atr(df['high'], df['low'], df['close'], length=14)
         df['ema_20'] = ta.ema(df['close'], length=20)
         df['ema_50'] = ta.ema(df['close'], length=50)
         
-        # Volume indicators
-        df['volume_avg'] = df['tick_volume'].rolling(20).mean()
-        df['volume_ratio'] = df['tick_volume'] / df['volume_avg']
+        # More practical volume indicators for backtesting
+        # Use a shorter period and ensure we always have valid volume ratios
+        volume_period = min(10, len(df) // 4)  # Adaptive period
+        if volume_period < 5:
+            volume_period = 5
+            
+        df['volume_avg'] = df['tick_volume'].rolling(volume_period, min_periods=1).mean()
+        
+        # Prevent division by zero and ensure realistic volume ratios
+        df['volume_ratio'] = df['tick_volume'] / df['volume_avg'].replace(0, df['tick_volume'].mean())
+        
+        # Fill any NaN values in volume_ratio
+        df['volume_ratio'] = df['volume_ratio'].fillna(1.0)
         
         # VWAP calculation
         df['vwap'] = self._calculate_vwap(df)
         
         # Bollinger Bands for volatility
         bb = ta.bbands(df['close'], length=20)
-        df['bb_upper'] = bb['BBU_20_2.0']
-        df['bb_lower'] = bb['BBL_20_2.0']
-        df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / df['close'] * 100
+        if bb is not None:
+            df['bb_upper'] = bb['BBU_20_2.0']
+            df['bb_lower'] = bb['BBL_20_2.0']
+            df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / df['close'] * 100
+        else:
+            # Fallback calculation when ta.bbands returns None
+            sma_20 = df['close'].rolling(20).mean()
+            std_20 = df['close'].rolling(20).std()
+            df['bb_upper'] = sma_20 + (std_20 * 2)
+            df['bb_lower'] = sma_20 - (std_20 * 2)
+            df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / df['close'] * 100
         
         # Market strength indicators
-        df['rsi'] = ta.rsi(df['close'], length=14)
-        df['adx'] = ta.adx(df['high'], df['low'], df['close'], length=14)['ADX_14']
+        rsi_result = ta.rsi(df['close'], length=14)
+        if rsi_result is not None:
+            df['rsi'] = rsi_result
+        else:
+            # Fallback RSI calculation
+            delta = df['close'].diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            rs = gain / loss
+            df['rsi'] = 100 - (100 / (1 + rs))
+        adx_result = ta.adx(df['high'], df['low'], df['close'], length=14)
+        if adx_result is not None and 'ADX_14' in adx_result.columns:
+            df['adx'] = adx_result['ADX_14']
+        else:
+            # Fallback: use a simple trend strength indicator
+            df['adx'] = abs(df['close'].pct_change(14)) * 100
         
         # Price momentum
         df['momentum'] = df['close'] / df['close'].shift(10) - 1
-        df['rate_of_change'] = ta.roc(df['close'], length=10)
+        roc_result = ta.roc(df['close'], length=10)
+        if roc_result is not None:
+            df['rate_of_change'] = roc_result
+        else:
+            # Fallback ROC calculation
+            df['rate_of_change'] = (df['close'] / df['close'].shift(10) - 1) * 100
         
         return df
 
     def _calculate_vwap(self, df):
         """Calculate Volume Weighted Average Price"""
         try:
+            # Use tick_volume if available, otherwise use volume, otherwise fallback
+            volume_col = 'tick_volume' if 'tick_volume' in df.columns else ('volume' if 'volume' in df.columns else None)
+            
+            if volume_col is None:
+                logger.warning("No volume data available for VWAP calculation, using simple MA")
+                return df['close'].rolling(20).mean()
+            
             typical_price = (df['high'] + df['low'] + df['close']) / 3
-            vwap = (typical_price * df['tick_volume']).cumsum() / df['tick_volume'].cumsum()
+            vwap = (typical_price * df[volume_col]).cumsum() / df[volume_col].cumsum()
             return vwap
-        except Exception:
+        except Exception as e:
+            logger.warning(f"VWAP calculation failed: {e}, using simple MA fallback")
             return df['close'].rolling(20).mean()  # Fallback to simple MA
 
     def _analyze_market_structure(self, df, config):
@@ -301,7 +355,7 @@ class IndexBreakoutProStrategy(BaseStrategy):
     def _generate_professional_signal(self, df, market_structure, sr_levels, vpa_signal, mtf_signal, config):
         """Generate sophisticated trading signal based on all analyses"""
         current_price = df['close'].iloc[-1]
-        current_atr = df['atr'].iloc[-1]
+        df['atr'].iloc[-1]
         
         # Initialize signal components
         signal_components = []
@@ -381,7 +435,7 @@ class IndexBreakoutProStrategy(BaseStrategy):
             min_breakout_distance = current_atr * self.params['min_breakout_size']
             
             for level in sr_levels:
-                distance = abs(current_price - level['level'])
+                abs(current_price - level['level'])
                 
                 if level['type'] == 'resistance' and current_price > level['level'] + min_breakout_distance:
                     # Bullish breakout
@@ -436,6 +490,14 @@ class IndexBreakoutProStrategy(BaseStrategy):
             
             # Process each row for backtesting
             for i in range(60, len(df)):
+                # Skip if we don't have enough data or NaN values
+                if (pd.isna(df['atr'].iloc[i]) or 
+                    pd.isna(df['volume_ratio'].iloc[i]) or 
+                    pd.isna(df['ema_20'].iloc[i]) or
+                    pd.isna(df['ema_50'].iloc[i])):
+                    continue
+                
+                # Get current data slice for analysis
                 current_df = df.iloc[:i+1].copy()
                 
                 # Simplified analysis for backtesting performance
@@ -446,7 +508,11 @@ class IndexBreakoutProStrategy(BaseStrategy):
                 df.loc[df.index[i], 'explanation'] = signal_info['explanation']
                 
                 if signal_info['signal'] in ['BUY', 'SELL']:
-                    df.loc[df.index[i], 'signal_strength'] = 0.8  # High confidence for pro strategy
+                    # Calculate signal strength based on volume and momentum
+                    volume_strength = min(2.0, df['volume_ratio'].iloc[i]) - 1.0
+                    momentum_strength = abs(df['momentum'].iloc[i]) if not pd.isna(df['momentum'].iloc[i]) else 0.0
+                    signal_strength = min(1.0, (volume_strength + momentum_strength) * 0.4 + 0.6)
+                    df.loc[df.index[i], 'signal_strength'] = signal_strength
             
             return df
             
@@ -457,38 +523,154 @@ class IndexBreakoutProStrategy(BaseStrategy):
     def _simplified_analysis(self, df):
         """Simplified analysis for backtesting performance"""
         try:
+            if len(df) < 20:
+                return {
+                    "signal": "HOLD",
+                    "price": df['close'].iloc[-1],
+                    "explanation": "Insufficient data for analysis"
+                }
+            
             current_price = df['close'].iloc[-1]
             
-            # Simple breakout detection for backtesting
-            lookback = 20
+            # Practical breakout detection for backtesting
+            lookback = min(self.params.get('breakout_period', 20), len(df) - 1)
             recent_high = df['high'].iloc[-lookback:].max()
             recent_low = df['low'].iloc[-lookback:].min()
             
-            volume_surge = df['volume_ratio'].iloc[-1] > 1.5
+            # Calculate price position relative to range
+            price_range = recent_high - recent_low
+            price_position = (current_price - recent_low) / price_range if price_range > 0 else 0.5
             
-            if current_price > recent_high and volume_surge:
+            # Volume analysis (more lenient)
+            volume_ratio = df['volume_ratio'].iloc[-1] if not pd.isna(df['volume_ratio'].iloc[-1]) else 1.0
+            volume_threshold = self.params.get('volume_surge_multiplier', 1.5) * 0.8  # Even more lenient
+            volume_confirmed = volume_ratio >= volume_threshold
+            
+            # Trend analysis using EMAs
+            ema_20 = df['ema_20'].iloc[-1]
+            ema_50 = df['ema_50'].iloc[-1]
+            
+            if not pd.isna(ema_20) and not pd.isna(ema_50):
+                bullish_trend = ema_20 > ema_50
+                bearish_trend = ema_20 < ema_50
+                abs(ema_20 - ema_50) / ema_50 if ema_50 > 0 else 0
+            else:
+                # Fallback trend detection using simple price comparison
+                bullish_trend = current_price > df['close'].iloc[-10] if len(df) > 10 else True
+                bearish_trend = current_price < df['close'].iloc[-10] if len(df) > 10 else True
+            
+            # Price momentum analysis
+            if len(df) >= 5:
+                momentum_5 = (current_price - df['close'].iloc[-5]) / df['close'].iloc[-5]
+                momentum_10 = (current_price - df['close'].iloc[-10]) / df['close'].iloc[-10] if len(df) >= 10 else momentum_5
+            else:
+                momentum_5 = momentum_10 = 0
+            
+            # ATR-based breakout threshold (more sensitive)
+            atr = df['atr'].iloc[-1]
+            if not pd.isna(atr) and atr > 0:
+                breakout_threshold = atr * self.params.get('min_breakout_size', 0.2) * 0.5  # Half the normal threshold
+            else:
+                breakout_threshold = price_range * 0.002  # 0.2% of range
+            
+            # Generate signals with multiple criteria (more flexible)
+            
+            # Strong breakout signals (primary)
+            if current_price > recent_high + breakout_threshold:
+                if volume_confirmed and bullish_trend:
+                    return {
+                        "signal": "BUY",
+                        "price": current_price,
+                        "explanation": f"Strong bullish breakout: price {current_price:.2f} > high {recent_high:.2f}, vol {volume_ratio:.2f}x, trend up"
+                    }
+                elif volume_confirmed:
+                    return {
+                        "signal": "BUY",
+                        "price": current_price,
+                        "explanation": f"Volume breakout: price {current_price:.2f} > high {recent_high:.2f}, vol {volume_ratio:.2f}x"
+                    }
+                elif momentum_5 > 0.003:  # 0.3% momentum
+                    return {
+                        "signal": "BUY",
+                        "price": current_price,
+                        "explanation": f"Momentum breakout: price {current_price:.2f} > high {recent_high:.2f}, momentum {momentum_5:.1%}"
+                    }
+            
+            elif current_price < recent_low - breakout_threshold:
+                if volume_confirmed and bearish_trend:
+                    return {
+                        "signal": "SELL",
+                        "price": current_price,
+                        "explanation": f"Strong bearish breakdown: price {current_price:.2f} < low {recent_low:.2f}, vol {volume_ratio:.2f}x, trend down"
+                    }
+                elif volume_confirmed:
+                    return {
+                        "signal": "SELL",
+                        "price": current_price,
+                        "explanation": f"Volume breakdown: price {current_price:.2f} < low {recent_low:.2f}, vol {volume_ratio:.2f}x"
+                    }
+                elif momentum_5 < -0.003:  # -0.3% momentum
+                    return {
+                        "signal": "SELL",
+                        "price": current_price,
+                        "explanation": f"Momentum breakdown: price {current_price:.2f} < low {recent_low:.2f}, momentum {momentum_5:.1%}"
+                    }
+            
+            # Secondary signals: Range position based (more signals)
+            elif price_position > 0.85 and bullish_trend and momentum_5 > 0.001:
                 return {
                     "signal": "BUY",
                     "price": current_price,
-                    "explanation": "Breakout above recent high with volume"
+                    "explanation": f"Range top breakout setup: {price_position:.0%} of range, trend up, momentum {momentum_5:.1%}"
                 }
-            elif current_price < recent_low and volume_surge:
+            
+            elif price_position < 0.15 and bearish_trend and momentum_5 < -0.001:
                 return {
-                    "signal": "SELL", 
+                    "signal": "SELL",
                     "price": current_price,
-                    "explanation": "Breakdown below recent low with volume"
+                    "explanation": f"Range bottom breakdown setup: {price_position:.0%} of range, trend down, momentum {momentum_5:.1%}"
                 }
             
-            return {
-                "signal": "HOLD",
-                "price": current_price,
-                "explanation": "No clear breakout signal"
-            }
+            # Tertiary signals: Strong momentum (even without breakouts)
+            elif abs(momentum_5) > 0.005 and abs(momentum_10) > 0.008:  # Strong momentum
+                if momentum_5 > 0 and momentum_10 > 0 and bullish_trend:
+                    return {
+                        "signal": "BUY",
+                        "price": current_price,
+                        "explanation": f"Strong momentum: 5-period {momentum_5:.1%}, 10-period {momentum_10:.1%}, trend aligned"
+                    }
+                elif momentum_5 < 0 and momentum_10 < 0 and bearish_trend:
+                    return {
+                        "signal": "SELL",
+                        "price": current_price,
+                        "explanation": f"Strong negative momentum: 5-period {momentum_5:.1%}, 10-period {momentum_10:.1%}, trend aligned"
+                    }
             
-        except Exception:
+            # Provide informative HOLD explanation
+            if not volume_confirmed:
+                return {
+                    "signal": "HOLD",
+                    "price": current_price,
+                    "explanation": f"Low volume: {volume_ratio:.2f}x (need {volume_threshold:.2f}x), price at {price_position:.0%} of range"
+                }
+            elif price_range / current_price < 0.01:  # Range too small
+                return {
+                    "signal": "HOLD",
+                    "price": current_price,
+                    "explanation": f"Narrow range: ${price_range:.2f} ({price_range/current_price:.1%}), waiting for volatility"
+                }
+            else:
+                return {
+                    "signal": "HOLD",
+                    "price": current_price,
+                    "explanation": f"No clear signal: {price_position:.0%} range position, vol {volume_ratio:.2f}x, momentum {momentum_5:.1%}"
+                }
+            
+        except Exception as e:
+            logger.error(f"Simplified analysis error: {e}")
             return {
                 "signal": "HOLD",
-                "price": df['close'].iloc[-1],
+                "price": df['close'].iloc[-1] if not df.empty else 0,
                 "explanation": "Analysis error"
             }
 
@@ -509,10 +691,10 @@ class IndexBreakoutProStrategy(BaseStrategy):
                 'name': 'volume_surge_multiplier',
                 'display_name': 'Volume Surge Multiplier',
                 'type': 'float',
-                'default': 2.0,
-                'min': 1.5,
-                'max': 5.0,
-                'description': 'Volume multiplier to detect institutional activity'
+                'default': 1.5,
+                'min': 1.2,
+                'max': 3.0,
+                'description': 'Volume multiplier to detect institutional activity (lower = more signals)'
             },
             {
                 'name': 'confirmation_candles',
@@ -545,10 +727,10 @@ class IndexBreakoutProStrategy(BaseStrategy):
                 'name': 'min_breakout_size',
                 'display_name': 'Minimum Breakout Size',
                 'type': 'float',
-                'default': 0.3,
+                'default': 0.2,
                 'min': 0.1,
-                'max': 1.0,
-                'description': 'Minimum breakout size as fraction of ATR'
+                'max': 0.8,
+                'description': 'Minimum breakout size as fraction of ATR (lower = more sensitive)'
             },
             {
                 'name': 'vwap_filter',
@@ -563,5 +745,41 @@ class IndexBreakoutProStrategy(BaseStrategy):
                 'type': 'bool',
                 'default': True,
                 'description': 'Detect and use institutional support/resistance levels'
+            },
+            {
+                'name': 'support_resistance_strength',
+                'display_name': 'S/R Level Strength',
+                'type': 'int',
+                'default': 3,
+                'min': 2,
+                'max': 10,
+                'description': 'Minimum number of touches required for valid support/resistance level'
+            },
+            {
+                'name': 'max_risk_per_trade',
+                'display_name': 'Maximum Risk Per Trade (%)',
+                'type': 'float',
+                'default': 1.0,
+                'min': 0.5,
+                'max': 5.0,
+                'description': 'Maximum risk percentage per individual trade'
+            },
+            {
+                'name': 'trend_filter_period',
+                'display_name': 'Trend Filter Period',
+                'type': 'int',
+                'default': 50,
+                'min': 20,
+                'max': 100,
+                'description': 'Period for long-term trend filter analysis'
+            },
+            {
+                'name': 'gap_multiplier',
+                'display_name': 'Gap Trading Multiplier',
+                'type': 'float',
+                'default': 1.5,
+                'min': 1.0,
+                'max': 3.0,
+                'description': 'Multiplier for gap trading opportunity sizing'
             }
         ]

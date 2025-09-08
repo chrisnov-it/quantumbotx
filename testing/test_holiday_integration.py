@@ -8,7 +8,6 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from core.seasonal.holiday_manager import holiday_manager
-from datetime import date, datetime
 
 def test_holiday_detection():
     """Test holiday detection functionality"""

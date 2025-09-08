@@ -113,6 +113,9 @@ def create_app():
     from .routes.api_fundamentals import api_fundamentals
     from .routes.api_backtest import api_backtest
     from .routes.ai_mentor import ai_mentor_bp
+    from .routes.api_strategy_switcher import api_strategy_switcher
+    from .routes.api_ramadan import api_ramadan
+    from .routes.api_holiday import api_holiday
 
     app.register_blueprint(api_dashboard)
     app.register_blueprint(api_chart)
@@ -126,6 +129,9 @@ def create_app():
     app.register_blueprint(api_fundamentals)
     app.register_blueprint(api_backtest)
     app.register_blueprint(ai_mentor_bp)
+    app.register_blueprint(api_strategy_switcher)
+    app.register_blueprint(api_ramadan)
+    app.register_blueprint(api_holiday)
 
     @app.route('/')
     def dashboard():
@@ -174,6 +180,14 @@ def create_app():
     @app.route('/forex')
     def forex_page():
         return render_template('forex.html', active_page='forex')
+
+    @app.route('/strategy-switcher')
+    def strategy_switcher_page():
+        return render_template('strategy_switcher/dashboard.html', active_page='strategy_switcher')
+        
+    @app.route('/ramadan')
+    def ramadan_page():
+        return render_template('ramadan.html', active_page='ramadan')
 
     @app.errorhandler(404)
     def not_found_error(error):

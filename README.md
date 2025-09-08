@@ -15,7 +15,7 @@ Designed to be elegant, powerful, and flexible — whether you're a scalper, swi
 ### 🎯 **Core Trading Engine**
 - ✅ **Modular Strategy System**: 12+ professional trading strategies with plug-and-play architecture
 - ✅ **ATR-Based Risk Management**: Dynamic position sizing that adapts to market volatility
-- ✅ **Multi-Broker Support**: Automatic symbol migration (XM Global, MetaTrader Demo, Exness, Alpari)
+- ✅ **Multi-Broker Support**: Automatic symbol migration (XM Global, MetaTrader, Exness, Alpari)
 - ✅ **Real-Time Trading**: 4 concurrent bots with live MT5 integration
 - ✅ **Emergency Protection**: XAUUSD safeguards prevent account blowouts
 
@@ -39,6 +39,13 @@ Designed to be elegant, powerful, and flexible — whether you're a scalper, swi
 - ✅ **Crypto Excellence**: Bitcoin/Ethereum bots with 24/7 weekend trading mode
 - ✅ **Indonesian Market Ready**: XM Indonesia integration with IDR pairs support
 - ✅ **Cross-Platform Foundation**: cTrader, Interactive Brokers architecture
+
+### 🎉 **Culturally-Aware Features**
+- ✅ **Automatic Holiday Detection**: Christmas and Ramadan modes activate automatically
+- ✅ **Ramadan Trading Mode**: Respects prayer times with automatic trading pauses
+- ✅ **Cultural Sensitivity**: UI themes and greetings for both Christian and Muslim traders
+- ✅ **Islamic Finance Features**: Zakat calculator and charity tracker during Ramadan
+- ✅ **Seasonal Adjustments**: Risk management adapts to holiday market conditions
 
 ### 🛡️ **Professional Safety**
 - ✅ **Automated Risk Control**: 1% max risk per trade with emergency brake system
@@ -132,6 +139,7 @@ Designed to be elegant, powerful, and flexible — whether you're a scalper, swi
 - ✅ **Windows Optimization**: Clean logging and professional error handling
 - ✅ **Comprehensive Backtesting**: Interactive Chart.js visualizations
 - ✅ **Indonesian Market Support**: XM Indonesia integration with IDR pairs
+- ✅ **Culturally-Aware Trading**: Automatic holiday detection for Christmas and Ramadan
 
 ### 🚧 **v2.1 - Intelligence Enhancement (IN DEVELOPMENT)**
 - [ ] **Advanced Strategy**: `MACD_STOCH_FILTER` for more precise, filtered entries
@@ -224,7 +232,7 @@ This software is provided "as is" for educational and research purposes. The aut
 ## 🧠 Author
 
 Developed with 💖 by **Chrisnov IT Solutions**
-Concept, Logic & Execution: `@reynov` aka BabyDev
+Concept, Logic & Execution: `@chrisnov` aka BabyDev
 
 ---
 

@@ -1,9 +1,8 @@
 # core/strategies/index_momentum.py
 
 import pandas as pd
-import numpy as np
 import pandas_ta as ta
-from datetime import datetime, time
+from datetime import datetime
 from .base_strategy import BaseStrategy
 import logging
 
@@ -25,6 +24,9 @@ class IndexMomentumStrategy(BaseStrategy):
     
     Best for: Trending index movements during active trading sessions
     """
+    
+    name = 'INDEX_MOMENTUM'
+    description = 'Specialized momentum strategy for stock indices with session awareness and gap trading'
     
     def __init__(self, bot_instance, params=None):
         # Default parameters optimized for stock indices
@@ -100,6 +102,14 @@ class IndexMomentumStrategy(BaseStrategy):
 
     def _calculate_indicators(self, df):
         """Calculate all required technical indicators"""
+        # Handle volume column compatibility (CSV files use 'volume', MT5 uses 'tick_volume')
+        if 'volume' in df.columns and 'tick_volume' not in df.columns:
+            df['tick_volume'] = df['volume']
+        elif 'tick_volume' not in df.columns and 'volume' not in df.columns:
+            # Fallback: create dummy volume data
+            df['tick_volume'] = df['close'] * 0 + 1  # Dummy volume
+            logger.warning("No volume data found, using dummy volume for calculations")
+        
         # RSI for momentum
         df['rsi'] = ta.rsi(df['close'], length=self.params['momentum_period'])
         
@@ -263,9 +273,17 @@ class IndexMomentumStrategy(BaseStrategy):
             df['signal_strength'] = 0.0
             df['explanation'] = ''
             
+            # Get symbol configuration
+            symbol = getattr(self.bot, 'market_for_mt5', 'US500')
+            self.index_configs.get(symbol, self.index_configs['US500'])
+            
             # Process each row for backtesting
             for i in range(30, len(df)):
-                current_df = df.iloc[:i+1].copy()
+                # Skip if we don't have enough data or NaN values
+                if (pd.isna(df['rsi'].iloc[i]) or 
+                    pd.isna(df['volume_ratio'].iloc[i]) or 
+                    pd.isna(df['price_change'].iloc[i])):
+                    continue
                 
                 # Simple gap detection for backtesting
                 gap_info = {'has_gap': False, 'gap_size': 0, 'gap_direction': None}
@@ -280,19 +298,69 @@ class IndexMomentumStrategy(BaseStrategy):
                             'gap_direction': 'up' if current_open > prev_close else 'down'
                         }
                 
-                # Generate signal
-                symbol = getattr(self.bot, 'market_for_mt5', 'US500')
-                config = self.index_configs.get(symbol, self.index_configs['US500'])
-                signal_info = self._generate_signal(current_df, gap_info, config)
+                # Generate signal using current row data
+                df['close'].iloc[i]
+                current_rsi = df['rsi'].iloc[i]
+                volume_ratio = df['volume_ratio'].iloc[i]
+                price_change = df['price_change'].iloc[i]
+                
+                # Volume confirmation
+                volume_confirmed = volume_ratio >= self.params['volume_multiplier']
+                
+                # Momentum conditions
+                bullish_momentum = (current_rsi > 50 and 
+                                  current_rsi < self.params['momentum_overbought'] and
+                                  price_change > 0)
+                
+                bearish_momentum = (current_rsi < 50 and 
+                                  current_rsi > self.params['momentum_oversold'] and
+                                  price_change < 0)
+                
+                # Gap trading logic
+                gap_signal = self._analyze_gap_opportunity(gap_info, current_rsi)
+                
+                # Signal generation
+                signal = "HOLD"
+                explanation = "Waiting for clear momentum signal"
+                
+                # Buy conditions
+                if (bullish_momentum and volume_confirmed) or gap_signal == "BUY":
+                    signal = "BUY"
+                    reasons = []
+                    if bullish_momentum:
+                        reasons.append(f"Bullish momentum (RSI: {current_rsi:.1f})")
+                    if volume_confirmed:
+                        reasons.append(f"Volume confirmed ({volume_ratio:.2f}x)")
+                    if gap_signal == "BUY":
+                        reasons.append(f"Gap opportunity ({gap_info['gap_direction']} {gap_info['gap_size']:.2f}%)")
+                    explanation = f"BUY: {', '.join(reasons)}"
+                    
+                # Sell conditions  
+                elif (bearish_momentum and volume_confirmed) or gap_signal == "SELL":
+                    signal = "SELL"
+                    reasons = []
+                    if bearish_momentum:
+                        reasons.append(f"Bearish momentum (RSI: {current_rsi:.1f})")
+                    if volume_confirmed:
+                        reasons.append(f"Volume confirmed ({volume_ratio:.2f}x)")
+                    if gap_signal == "SELL":
+                        reasons.append(f"Gap opportunity ({gap_info['gap_direction']} {gap_info['gap_size']:.2f}%)")
+                    explanation = f"SELL: {', '.join(reasons)}"
+                    
+                # Override conditions
+                if current_rsi > self.params['momentum_overbought']:
+                    signal = "HOLD"
+                    explanation = f"Overbought condition (RSI: {current_rsi:.1f})"
+                elif current_rsi < self.params['momentum_oversold']:
+                    signal = "HOLD"
+                    explanation = f"Oversold condition (RSI: {current_rsi:.1f})"
                 
                 # Store results
-                df.loc[df.index[i], 'signal'] = signal_info['signal']
-                df.loc[df.index[i], 'explanation'] = signal_info['explanation']
+                df.loc[df.index[i], 'signal'] = signal
+                df.loc[df.index[i], 'explanation'] = explanation
                 
                 # Calculate signal strength
-                if signal_info['signal'] in ['BUY', 'SELL']:
-                    rsi = df['rsi'].iloc[i]
-                    volume_ratio = df['volume_ratio'].iloc[i]
+                if signal in ['BUY', 'SELL']:
                     strength = min(1.0, (volume_ratio - 1.0) * 0.5 + 0.5)
                     df.loc[df.index[i], 'signal_strength'] = strength
             
@@ -323,6 +391,24 @@ class IndexMomentumStrategy(BaseStrategy):
                 'min': 10,
                 'max': 50,
                 'description': 'Period for volume average calculation'
+            },
+            {
+                'name': 'momentum_oversold',
+                'display_name': 'RSI Oversold Level',
+                'type': 'int',
+                'default': 30,
+                'min': 10,
+                'max': 40,
+                'description': 'RSI level considered oversold (signals may reverse)'
+            },
+            {
+                'name': 'momentum_overbought',
+                'display_name': 'RSI Overbought Level',
+                'type': 'int',
+                'default': 70,
+                'min': 60,
+                'max': 90,
+                'description': 'RSI level considered overbought (signals may reverse)'
             },
             {
                 'name': 'gap_threshold',

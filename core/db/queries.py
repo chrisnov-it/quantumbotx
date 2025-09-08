@@ -26,31 +26,31 @@ def get_bot_by_id(bot_id):
         logger.error(f"Database error saat mengambil bot {bot_id}: {e}")
         return None
 
-def add_bot(name, market, lot_size, sl_pips, tp_pips, timeframe, interval, strategy, strategy_params='{}'):
+def add_bot(name, market, lot_size, sl_pips, tp_pips, timeframe, interval, strategy, strategy_params='{}', enable_strategy_switching=0):
     """Menambahkan bot baru ke database."""
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO bots (name, market, lot_size, sl_pips, tp_pips, timeframe, check_interval_seconds, strategy, strategy_params, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Dijeda')
-            ''', (name, market, lot_size, sl_pips, tp_pips, timeframe, interval, strategy, strategy_params))
+                INSERT INTO bots (name, market, lot_size, sl_pips, tp_pips, timeframe, check_interval_seconds, strategy, strategy_params, enable_strategy_switching, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Dijeda')
+            ''', (name, market, lot_size, sl_pips, tp_pips, timeframe, interval, strategy, strategy_params, enable_strategy_switching))
             conn.commit()
             return cursor.lastrowid
     except sqlite3.Error as e:
         logger.error(f"Gagal menambah bot ke DB: {e}", exc_info=True)
         return None
 
-def update_bot(bot_id, name, market, lot_size, sl_pips, tp_pips, timeframe, interval, strategy, strategy_params='{}'):
+def update_bot(bot_id, name, market, lot_size, sl_pips, tp_pips, timeframe, interval, strategy, strategy_params='{}', enable_strategy_switching=0):
     """Memperbarui data bot yang sudah ada di database."""
     try:
         with get_db_connection() as conn:
             conn.execute('''
                 UPDATE bots SET 
                 name = ?, market = ?, lot_size = ?, sl_pips = ?, tp_pips = ?, 
-                timeframe = ?, check_interval_seconds = ?, strategy = ?, strategy_params = ?
+                timeframe = ?, check_interval_seconds = ?, strategy = ?, strategy_params = ?, enable_strategy_switching = ?
                 WHERE id = ?
-            ''', (name, market, lot_size, sl_pips, tp_pips, timeframe, interval, strategy, strategy_params, bot_id))
+            ''', (name, market, lot_size, sl_pips, tp_pips, timeframe, interval, strategy, strategy_params, enable_strategy_switching, bot_id))
             conn.commit()
             return True
     except sqlite3.Error as e:

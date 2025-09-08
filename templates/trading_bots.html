@@ -103,6 +103,14 @@
                         <input type="number" name="check_interval_seconds" id="check_interval_seconds" value="60" step="1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                     </div>
                 </div>
+                <!-- Strategy Switching Option -->
+                <div class="border-t pt-4">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="enable_strategy_switching" name="enable_strategy_switching" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="enable_strategy_switching" class="ml-2 text-sm font-medium text-gray-900">Aktifkan Automatic Strategy Switching</label>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Jika diaktifkan, bot akan secara otomatis beralih ke strategi terbaik berdasarkan kinerja terkini.</p>
+                </div>
                 <!-- Baris 4: Strategi & Parameternya -->
                 <div>
                     <label for="strategy" class="block mb-2 text-sm font-medium text-gray-900">Strategi</label>

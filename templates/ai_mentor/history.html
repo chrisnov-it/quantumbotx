@@ -168,7 +168,7 @@
         
         <div class="stat-card">
             <h3 class="text-lg font-semibold text-gray-600 mb-2">Performa</h3>
-            {% set total_profit = reports|sum(attribute='total_profit_loss') if reports else 0 %}
+            {% set total_profit = reports|sum(attribute='profit_loss') if reports else 0 %}
             <div class="text-2xl font-bold {{ 'profit-positive' if total_profit > 0 else 'profit-negative' if total_profit < 0 else 'text-gray-600' }}">
                 ${{ "%.2f"|format(total_profit) }}
             </div>
@@ -177,7 +177,7 @@
         
         <div class="stat-card">
             <h3 class="text-lg font-semibold text-gray-600 mb-2">Win Rate</h3>
-            {% set profitable_sessions = reports|selectattr('total_profit_loss', '>', 0)|list|length if reports else 0 %}
+            {% set profitable_sessions = reports|selectattr('profit_loss', '>', 0)|list|length if reports else 0 %}
             {% set win_rate = (profitable_sessions / reports|length * 100) if reports|length > 0 else 0 %}
             <div class="text-2xl font-bold {{ 'text-green-600' if win_rate >= 60 else 'text-red-600' if win_rate < 40 else 'text-yellow-600' }}">
                 {{ "%.1f"|format(win_rate) }}%
@@ -203,14 +203,14 @@
     {% if reports %}
         <div class="space-y-4">
             {% for report in reports %}
-            <div class="history-card" onclick="viewSession('{{ report.date.strftime('%Y-%m-%d') }}')">
+            <div class="history-card" data-session-date="{{ report.date.strftime('%Y-%m-%d') if report.date else report.session_date.strftime('%Y-%m-%d') }}">
                 <div class="session-meta">
                     <div>
                         <div class="session-date">
-                            📅 {{ report.date.strftime('%d %B %Y') }}
+                            📅 {{ (report.date if report.date else report.session_date).strftime('%d %B %Y') }}
                         </div>
                         <div class="text-sm text-gray-500 mt-1">
-                            {{ report.date.strftime('%A') }} - {{ 'Sesi Trading' }}
+                            {{ (report.date if report.date else report.session_date).strftime('%A') }} - {{ 'Sesi Trading' }}
                         </div>
                     </div>
                     <div class="session-performance">
@@ -220,17 +220,17 @@
                             </span>
                         {% endif %}
                         <span class="trades-count">
-                            {{ report.total_trades or 0 }} trades
+                            {{ report.total_trades or report.trades|length or 0 }} trades
                         </span>
-                        <div class="text-xl font-bold {{ 'profit-positive' if report.total_profit_loss > 0 else 'profit-negative' if report.total_profit_loss < 0 else 'text-gray-600' }}">
-                            ${{ "%.2f"|format(report.total_profit_loss or 0) }}
+                        <div class="text-xl font-bold {{ 'profit-positive' if (report.profit_loss or 0) > 0 else 'profit-negative' if (report.profit_loss or 0) < 0 else 'text-gray-600' }}">
+                            ${{ "%.2f"|format(report.profit_loss or 0) }}
                         </div>
                     </div>
                 </div>
                 
-                {% if report.ai_summary %}
+                {% if report.motivation %}
                 <div class="ai-summary">
-                    <strong>🤖 AI Summary:</strong> {{ report.ai_summary[:200] }}{% if report.ai_summary|length > 200 %}...{% endif %}
+                    <strong>🤖 AI Summary:</strong> {{ report.motivation[:200] }}{% if report.motivation|length > 200 %}...{% endif %}
                 </div>
                 {% endif %}
                 
@@ -287,10 +287,18 @@ function changeFilter(days) {
     window.location.href = url.toString();
 }
 
-function viewSession(sessionDate) {
-    // Redirect ke halaman detail sesi
-    window.location.href = `/ai-mentor/session/${sessionDate}`;
-}
+// Add click event listeners to history cards
+document.addEventListener('DOMContentLoaded', function() {
+    const historyCards = document.querySelectorAll('.history-card');
+    historyCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Get session date from data attribute
+            const sessionDate = this.getAttribute('data-session-date');
+            // Redirect ke halaman detail sesi
+            window.location.href = `/ai-mentor/session/${sessionDate}`;
+        });
+    });
+});
 
 // Auto-refresh setiap 5 menit untuk update data terbaru
 setInterval(() => {

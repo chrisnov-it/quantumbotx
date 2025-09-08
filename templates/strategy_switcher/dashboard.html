@@ -1,0 +1,398 @@
+<!-- templates/strategy_switcher/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Strategy Switcher Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">🔄 Automatic Strategy Switcher</h1>
+        <p class="text-gray-600">Real-time monitoring and performance analytics for automatic strategy switching</p>
+    </div>
+
+    <!-- Current Status Card -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">Current Status</h2>
+            <div class="flex space-x-2">
+                <button id="manual-trigger" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                    Manual Evaluate
+                </button>
+                <span id="cooldown-status" class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                    Loading...
+                </span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="border rounded-lg p-4">
+                <div class="text-sm text-gray-500 mb-1">Active Strategy</div>
+                <div id="current-strategy" class="text-lg font-semibold text-blue-600">
+                    Loading...
+                </div>
+            </div>
+            
+            <div class="border rounded-lg p-4">
+                <div class="text-sm text-gray-500 mb-1">Active Symbol</div>
+                <div id="current-symbol" class="text-lg font-semibold text-blue-600">
+                    Loading...
+                </div>
+            </div>
+            
+            <div class="border rounded-lg p-4">
+                <div class="text-sm text-gray-500 mb-1">Last Switch</div>
+                <div id="last-switch" class="text-lg font-semibold">
+                    Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Strategy Rankings -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">📊 Strategy Performance Rankings</h2>
+            <button id="refresh-rankings" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                Refresh Rankings
+            </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strategy/Symbol</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Composite Score</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profitability</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Control</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Market Fit</th>
+                    </tr>
+                </thead>
+                <tbody id="rankings-table" class="bg-white divide-y divide-gray-200">
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            Loading strategy rankings...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Switches -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">⚡ Recent Strategy Switches</h2>
+            <button id="refresh-switches" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                Refresh Switches
+            </button>
+        </div>
+        
+        <div id="recent-switches-container">
+            <div class="text-center py-8 text-gray-500">
+                Loading recent switches...
+            </div>
+        </div>
+    </div>
+
+    <!-- Monitored Instruments -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">🔍 Monitored Instruments & Strategies</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3"> Instruments</h3>
+                <div id="monitored-instruments" class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                        Loading...
+                    </span>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Strategies</h3>
+                <div id="test-strategies" class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                        Loading...
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Function to format date
+function formatDateTime(dateString) {
+    if (!dateString) return 'Never';
+    const date = new Date(dateString);
+    return date.toLocaleString();
+}
+
+// Function to update status section
+function updateStatus(status) {
+    document.getElementById('current-strategy').textContent = status.current_strategy || 'Not initialized';
+    document.getElementById('current-symbol').textContent = status.current_symbol || 'Not initialized';
+    
+    const lastSwitchElement = document.getElementById('last-switch');
+    if (status.last_switch_time) {
+        lastSwitchElement.textContent = formatDateTime(status.last_switch_time);
+    } else {
+        lastSwitchElement.innerHTML = '<span class="text-gray-400">Never</span>';
+    }
+    
+    const cooldownElement = document.getElementById('cooldown-status');
+    if (status.in_cooldown) {
+        cooldownElement.className = 'px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
+        cooldownElement.textContent = 'Cooldown Active';
+    } else {
+        cooldownElement.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800';
+        cooldownElement.textContent = 'Active';
+    }
+}
+
+// Function to update rankings table
+function updateRankings(rankings) {
+    const tableBody = document.getElementById('rankings-table');
+    
+    if (!rankings || rankings.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                    No strategy rankings available
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    let rows = '';
+    rankings.forEach((combination, index) => {
+        const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}️⃣`;
+        const rankClass = index === 0 ? 'bg-blue-100 text-blue-800' : 
+                         index === 1 ? 'bg-gray-100 text-gray-800' : 
+                         index === 2 ? 'bg-amber-100 text-amber-800' : 
+                         'bg-gray-50 text-gray-600';
+        
+        rows += `
+            <tr class="${index === 0 ? 'bg-blue-50' : ''}">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${rankClass}">
+                        ${rankEmoji} ${index + 1}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${combination.strategy_id}</div>
+                    <div class="text-sm text-gray-500">${combination.symbol}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900 font-semibold">${combination.composite_score.toFixed(3)}</div>
+                    <div class="w-24 bg-gray-200 rounded-full h-2 mt-1">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: ${combination.composite_score * 100}%"></div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${combination.components.profitability.toFixed(2)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${combination.components.risk_control.toFixed(2)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${combination.components.market_fit.toFixed(2)}
+                </td>
+            </tr>
+        `;
+    });
+    
+    tableBody.innerHTML = rows;
+}
+
+// Function to update recent switches
+function updateRecentSwitches(switches) {
+    const container = document.getElementById('recent-switches-container');
+    
+    if (!switches || switches.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <p>No strategy switches recorded yet.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let switchesHtml = '<div class="space-y-4">';
+    switches.forEach(switchData => {
+        const decision = switchData.decision;
+        const timestamp = formatDateTime(switchData.timestamp);
+        
+        let switchDetails = '';
+        if (decision.action === 'STRATEGY_SWITCH') {
+            switchDetails = `
+                <div class="text-sm">
+                    <span class="font-medium">Switched from</span> 
+                    <span class="text-red-600">${decision.old_strategy}/${decision.old_symbol}</span>
+                    <span class="font-medium">to</span> 
+                    <span class="text-green-600">${decision.new_strategy}/${decision.new_symbol}</span>
+                </div>
+            `;
+        } else {
+            switchDetails = `
+                <div class="text-sm">
+                    <span class="font-medium">Initialized with</span> 
+                    <span class="text-green-600">${decision.new_strategy}/${decision.new_symbol}</span>
+                </div>
+            `;
+        }
+        
+        const improvementHtml = decision.improvement ? 
+            `<div class="text-xs text-green-600">+${decision.improvement.toFixed(3)}</div>` : '';
+        
+        switchesHtml += `
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                ${decision.action}
+                            </span>
+                            <span class="ml-2 text-xs text-gray-500">${timestamp}</span>
+                        </div>
+                        ${switchDetails}
+                        <div class="text-xs text-gray-500 mt-1">
+                            ${decision.reason}
+                        </div>
+                    </div>
+                    
+                    <div class="text-right">
+                        <div class="text-sm font-medium text-gray-900">
+                            Score: ${decision.confidence.toFixed(3)}
+                        </div>
+                        ${improvementHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    switchesHtml += '</div>';
+    
+    container.innerHTML = switchesHtml;
+}
+
+// Function to update monitored instruments and strategies
+function updateConfiguration(config) {
+    const instrumentsContainer = document.getElementById('monitored-instruments');
+    const strategiesContainer = document.getElementById('test-strategies');
+    
+    if (config.monitored_instruments && config.monitored_instruments.length > 0) {
+        instrumentsContainer.innerHTML = config.monitored_instruments.map(instrument => 
+            `<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                ${instrument}
+            </span>`
+        ).join(' ');
+    } else {
+        instrumentsContainer.innerHTML = '<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">None</span>';
+    }
+    
+    if (config.test_strategies && config.test_strategies.length > 0) {
+        strategiesContainer.innerHTML = config.test_strategies.map(strategy => 
+            `<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                ${strategy}
+            </span>`
+        ).join(' ');
+    } else {
+        strategiesContainer.innerHTML = '<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">None</span>';
+    }
+}
+
+// Function to manually trigger strategy evaluation
+async function manualTrigger() {
+    try {
+        const response = await fetch('/api/strategy-switcher/manual-trigger', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Show success message
+            alert('Manual strategy evaluation completed successfully!');
+            // Refresh all data
+            fetchData();
+        } else {
+            // Show error message
+            alert(`Error: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Error triggering manual evaluation:', error);
+        alert('Error triggering manual evaluation. Check console for details.');
+    }
+}
+
+// Function to fetch and update all data
+async function fetchData() {
+    try {
+        // Fetch status
+        const statusResponse = await fetch('/api/strategy-switcher/status');
+        const statusData = await statusResponse.json();
+        if (statusData.success) {
+            updateStatus(statusData.data);
+        }
+        
+        // Fetch rankings
+        const rankingsResponse = await fetch('/api/strategy-switcher/rankings');
+        const rankingsData = await rankingsResponse.json();
+        if (rankingsData.success) {
+            updateRankings(rankingsData.data);
+        }
+        
+        // Fetch recent switches
+        const switchesResponse = await fetch('/api/strategy-switcher/recent-switches?count=5');
+        const switchesData = await switchesResponse.json();
+        if (switchesData.success) {
+            updateRecentSwitches(switchesData.data);
+        }
+        
+        // Fetch configuration
+        const configResponse = await fetch('/api/strategy-switcher/configuration');
+        const configData = await configResponse.json();
+        if (configData.success) {
+            updateConfiguration(configData.data);
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+// Add event listeners for refresh buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial data load
+    fetchData();
+    
+    // Set up refresh buttons
+    document.getElementById('refresh-rankings').addEventListener('click', function() {
+        fetchData();
+    });
+    
+    document.getElementById('refresh-switches').addEventListener('click', function() {
+        fetchData();
+    });
+    
+    // Set up manual trigger button
+    document.getElementById('manual-trigger').addEventListener('click', function() {
+        if (confirm('Are you sure you want to manually trigger strategy evaluation?')) {
+            manualTrigger();
+        }
+    });
+    
+    // Auto-refresh every 30 seconds
+    setInterval(fetchData, 30000);
+});
+</script>
+{% endblock %}

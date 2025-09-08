@@ -38,7 +38,21 @@ def get_strategy_params_route(strategy_id):
     # Panggil metode class untuk mendapatkan parameter
     if hasattr(strategy_class, 'get_definable_params'):
         params = strategy_class.get_definable_params()
-        return jsonify(params)
+        
+        # Normalize parameter format for frontend compatibility
+        # Frontend expects 'label' but some strategies use 'display_name'
+        normalized_params = []
+        for param in params:
+            normalized_param = param.copy()
+            # If display_name exists but label doesn't, use display_name as label
+            if 'display_name' in param and 'label' not in param:
+                normalized_param['label'] = param['display_name']
+            # If neither exists, create a label from the name
+            elif 'label' not in param and 'display_name' not in param:
+                normalized_param['label'] = param['name'].replace('_', ' ').title()
+            normalized_params.append(normalized_param)
+        
+        return jsonify(normalized_params)
     
     return jsonify([]) # Kembalikan array kosong jika tidak ada parameter
 
@@ -63,6 +77,9 @@ def get_single_bot_route(bot_id):
     if bot and bot.get('strategy_params'):
         # Ubah string JSON menjadi objek untuk frontend
         bot['strategy_params'] = json.loads(bot['strategy_params'])
+    # Convert enable_strategy_switching to integer for frontend
+    if bot and 'enable_strategy_switching' in bot:
+        bot['enable_strategy_switching'] = int(bot['enable_strategy_switching'])
     return jsonify(bot) if bot else (jsonify({"error": "Bot tidak ditemukan"}), 404)
 
 @api_bots.route('/api/bots', methods=['POST'])
@@ -70,12 +87,15 @@ def add_bot_route():
     """Membuat bot baru."""
     data = request.get_json()
     params_json = json.dumps(data.get('params', {}))
+    
+    # Get strategy switching setting
+    enable_strategy_switching = int(data.get('enable_strategy_switching', False))
 
     new_bot_id = queries.add_bot(
         name=data.get('name'), market=data.get('market'), lot_size=data.get('risk_percent'),
         sl_pips=data.get('sl_atr_multiplier'), tp_pips=data.get('tp_atr_multiplier'), timeframe=data.get('timeframe'),
         interval=data.get('check_interval_seconds'), strategy=data.get('strategy'),
-        strategy_params=params_json
+        strategy_params=params_json, enable_strategy_switching=enable_strategy_switching
     )
     if new_bot_id:
         controller.add_new_bot_to_controller(new_bot_id)
@@ -89,10 +109,28 @@ def update_bot_route(bot_id):
     
     bot_instance = controller.get_bot_instance_by_id(bot_id)
     bot_was_running = bot_instance and bot_instance.status == 'Aktif'
+    
+    # Get strategy switching setting
+    enable_strategy_switching = int(bot_data.get('enable_strategy_switching', False))
 
     success, result = controller.perbarui_bot(bot_id, bot_data)
     
+    # Update the database with the strategy switching setting
     if success:
+        queries.update_bot(
+            bot_id=bot_id,
+            name=bot_data.get('name'),
+            market=bot_data.get('market'),
+            lot_size=bot_data.get('risk_percent'),
+            sl_pips=bot_data.get('sl_atr_multiplier'),
+            tp_pips=bot_data.get('tp_atr_multiplier'),
+            timeframe=bot_data.get('timeframe'),
+            interval=bot_data.get('check_interval_seconds'),
+            strategy=bot_data.get('strategy'),
+            strategy_params=json.dumps(bot_data.get('params', {})),
+            enable_strategy_switching=enable_strategy_switching
+        )
+        
         if bot_was_running:
             controller.mulai_bot(bot_id)
         return jsonify({"message": "Bot berhasil diperbarui."}), 200

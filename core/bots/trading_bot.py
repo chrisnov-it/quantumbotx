@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class TradingBot(threading.Thread):
-    def __init__(self, id, name, market, risk_percent, sl_pips, tp_pips, timeframe, check_interval, strategy, strategy_params={}, status='Dijeda'):
+    def __init__(self, id, name, market, risk_percent, sl_pips, tp_pips, timeframe, check_interval, strategy, strategy_params={}, status='Dijeda', enable_strategy_switching=False):
         super().__init__()
         self.id = id
         self.name = name
@@ -26,6 +26,7 @@ class TradingBot(threading.Thread):
         self.check_interval = check_interval
         self.strategy_name = strategy
         self.strategy_params = strategy_params
+        self.enable_strategy_switching = enable_strategy_switching
         self.market_for_mt5 = None # Akan diisi setelah verifikasi simbol
         self.status = status
 

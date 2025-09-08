@@ -61,14 +61,22 @@ document.addEventListener('click', function(e) {
         const symbol = e.target.dataset.symbol;
         fetchSymbolProfile(symbol);
     }
+    
+    // Add handler for Trade buttons
+    if (e.target.classList.contains('bg-blue-600') && e.target.textContent === 'Trade') {
+        const row = e.target.closest('tr');
+        const symbol = row.querySelector('.details-btn').dataset.symbol;
+        // Redirect to trading_bots.html with symbol parameter
+        window.location.href = `/trading-bots?symbol=${encodeURIComponent(symbol)}`;
+    }
 });
 
 document.getElementById('close-modal').addEventListener('click', function() {
-    document.getElementById('stock-modal').classList.add('hidden'); // Menggunakan modal yang sama dengan stocks
+    document.getElementById('forex-modal').classList.add('hidden'); // Fixed: was referencing 'stock-modal'
 });
 
 async function fetchSymbolProfile(symbol) {
-    const modal = document.getElementById('stock-modal'); // Menggunakan modal yang sama dengan stocks
+    const modal = document.getElementById('forex-modal'); // Fixed: was referencing 'stock-modal'
     const modalTitle = document.getElementById('modal-title');
     const modalContent = document.getElementById('modal-content');
 

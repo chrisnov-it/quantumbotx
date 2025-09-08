@@ -10,7 +10,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
 import logging
 
 # Set up logging
@@ -59,7 +58,7 @@ def generate_index_test_data(symbol='US500', periods=500):
     # Generate volume (higher during market hours)
     base_volume = np.random.randint(800, 1500, periods)
     # Simulate higher volume during NY session (14:30-21:00 UTC)
-    hour_factor = [1.5 if 14 <= h <= 21 else 0.8 for h in dates.hour]
+    hour_factor = [1.5 if 14 <= h <= 21 else 0.8 for h in dates.hour]  # pyright: ignore
     df['tick_volume'] = base_volume * hour_factor
     
     # Ensure OHLC integrity
@@ -103,7 +102,7 @@ def test_index_momentum_strategy():
             print(f"   Explanation: {signal_info['explanation']}")
             
             # Test backtesting
-            print(f"   🔄 Running backtest analysis...")
+            print("   🔄 Running backtest analysis...")
             df_with_signals = strategy.analyze_df(df)
             
             # Count signals
@@ -159,7 +158,7 @@ def test_index_breakout_pro_strategy():
             print(f"   Analysis: {signal_info['explanation']}")
             
             # Test backtesting
-            print(f"   🔄 Running professional backtest...")
+            print("   🔄 Running professional backtest...")
             df_with_signals = strategy.analyze_df(df)
             
             # Count signals

@@ -7,7 +7,6 @@ Built specifically for Indonesian Catholic and Muslim traders
 
 from datetime import datetime, date
 from typing import Dict, List, Any, Optional
-import calendar
 from dataclasses import dataclass
 
 @dataclass
@@ -17,7 +16,7 @@ class HolidayConfig:
     start_date: date
     end_date: date
     trading_adjustments: Dict[str, Any]
-    ui_theme: Dict[str, str]
+    ui_theme: Dict[str, Any]
     greetings: List[str]
 
 class IndonesianHolidayManager:
@@ -94,7 +93,11 @@ class IndonesianHolidayManager:
                 'risk_reduction': 0.8,  # 20% risk reduction during fasting
                 'optimal_hours': [(22, 0), (3, 0)],  # 22:00-03:00 WIB
                 'patience_mode': True,
-                'halal_focus': True
+                'halal_focus': True,
+                'zakat_calculator': True,
+                'charity_tracker': True,
+                'reduced_risk_mode': True,
+                'iftar_countdown': True
             },
             ui_theme={
                 'primary_color': '#006600',  # Islamic green
@@ -102,7 +105,8 @@ class IndonesianHolidayManager:
                 'accent_color': '#ffffff',   # White
                 'background_gradient': 'linear-gradient(135deg, #006600 0%, #ffd700 100%)',
                 'crescent_moon': True,
-                'islamic_patterns': True
+                'islamic_patterns': True,
+                'ramadan_decorations': True
             },
             greetings=[
                 "🌙 Ramadan Mubarak! Semoga trading dan ibadah berkah",
@@ -110,7 +114,10 @@ class IndonesianHolidayManager:
                 "✨ Lailatul Qadar trading wisdom: Quality over quantity",
                 "🤲 Barakallahu fiikum dalam trading bulan suci ini",
                 "💰 Ingat zakat dari profit trading - berkah berlipat",
-                "🌅 Sahur dengan doa, trading dengan tawakal"
+                "🌅 Sahur dengan doa, trading dengan tawakal",
+                "🌙 Puasa hari ini, profit berkah selalu",
+                "🕌 Trading dengan sabar seperti puasa - hasil terbaik",
+                "🌙 Bulan suci, hati tenang, trading profit"
             ]
         )
     
@@ -203,7 +210,112 @@ class IndonesianHolidayManager:
         if current_holiday and 'pause_dates' in current_holiday.trading_adjustments:
             return today in current_holiday.trading_adjustments['pause_dates']
         
+        # Check for Ramadan-specific pauses
+        if current_holiday and current_holiday.name == "Ramadan Trading Mode":
+            return self._is_ramadan_pause_time()
+        
         return False
+    
+    def _is_ramadan_pause_time(self) -> bool:
+        """Check if current time is during Ramadan pause periods (Sahur, Iftar, Tarawih)"""
+        from datetime import datetime
+        now = datetime.now()
+        current_time = (now.hour, now.minute)
+        
+        # Get current holiday config
+        current_holiday = self.get_current_holiday_mode()
+        if not current_holiday:
+            return False
+            
+        adjustments = current_holiday.trading_adjustments
+        
+        # Check Sahur pause (03:30-05:00 WIB)
+        if 'sahur_pause' in adjustments:
+            start_hour, start_min, end_hour, end_min = adjustments['sahur_pause']
+            if (start_hour, start_min) <= current_time <= (end_hour, end_min):
+                return True
+        
+        # Check Iftar pause (18:00-19:30 WIB)
+        if 'iftar_pause' in adjustments:
+            start_hour, start_min, end_hour, end_min = adjustments['iftar_pause']
+            if (start_hour, start_min) <= current_time <= (end_hour, end_min):
+                return True
+        
+        # Check Tarawih pause (20:00-21:30 WIB)
+        if 'tarawih_pause' in adjustments:
+            start_hour, start_min, end_hour, end_min = adjustments['tarawih_pause']
+            if (start_hour, start_min) <= current_time <= (end_hour, end_min):
+                return True
+                
+        return False
+    
+    def get_ramadan_features(self) -> Dict[str, Any]:
+        """Get Ramadan-specific features and data"""
+        current_holiday = self.get_current_holiday_mode()
+        
+        if not current_holiday or current_holiday.name != "Ramadan Trading Mode":
+            return {}
+        
+        from datetime import datetime, timedelta
+        now = datetime.now()
+        
+        # Calculate Iftar countdown
+        iftar_time = datetime(now.year, now.month, now.day, 18, 0)  # 18:00 WIB
+        if now > iftar_time:
+            # If it's past Iftar today, set for tomorrow
+            iftar_time += timedelta(days=1)
+        
+        countdown_seconds = (iftar_time - now).total_seconds()
+        countdown_hours = int(countdown_seconds // 3600)
+        countdown_minutes = int((countdown_seconds % 3600) // 60)
+        
+        # Get next prayer times (simplified)
+        next_prayer = "Iftar" if now.hour < 18 else "Sahur (besok)"
+        
+        return {
+            'iftar_countdown': {
+                'hours': countdown_hours,
+                'minutes': countdown_minutes,
+                'next_prayer': next_prayer
+            },
+            'zakat_info': self._calculate_zakat_info(),
+            'charity_tracker': self._get_charity_tracker_data(),
+            'patience_reminder': self._get_patience_reminder(),
+            'optimal_trading_hours': current_holiday.trading_adjustments.get('optimal_hours', [])
+        }
+    
+    def _calculate_zakat_info(self) -> Dict[str, Any]:
+        """Calculate Zakat information based on trading profits"""
+        # This would integrate with actual trading data in a real implementation
+        return {
+            'nissab_gold': 85,  # grams of gold (simplified)
+            'nissab_silver': 595,  # grams of silver (simplified)
+            'zakat_percentage': 2.5,  # 2.5% of eligible wealth
+            'reminder': 'Zakat perdagangan: 2.5% dari profit trading selama 1 tahun hijriah'
+        }
+    
+    def _get_charity_tracker_data(self) -> Dict[str, Any]:
+        """Get charity tracking data"""
+        # This would integrate with actual charity donations in a real implementation
+        return {
+            'total_donated': 0.0,  # Would come from actual data
+            'monthly_target': 100.0,  # User-configurable target
+            'progress_percentage': 0,  # Would be calculated from actual data
+            'suggested_amount': 10.0  # Suggested donation amount
+        }
+    
+    def _get_patience_reminder(self) -> str:
+        """Get a patience reminder for Ramadan trading"""
+        patience_reminders = [
+            "🧠 Sabar dalam trading seperti puasa - hasil terbaik datang dengan kesabaran",
+            "🌙 Puasa mengajarkan kontrol diri - kontrol emosi trading juga penting",
+            "🕌 Seperti salat, konsistensi dalam trading menghasilkan profit berkelanjutan",
+            "✨ Lailatul Qadar: Kualitas lebih penting dari kuantitas dalam trading",
+            "🤲 Tawakal dalam setiap keputusan trading, percayalah pada proses",
+            "🕌 Puasa hari ini, profit berkah selalu - trading dengan niat ikhlas"
+        ]
+        import random
+        return random.choice(patience_reminders)
     
     def get_risk_multiplier(self) -> float:
         """Get risk reduction multiplier for current holiday"""
@@ -270,3 +382,7 @@ def get_holiday_risk_multiplier() -> float:
 def get_holiday_greeting() -> str:
     """Get current holiday greeting"""
     return holiday_manager.get_holiday_greeting()
+
+def get_current_holiday_mode() -> Optional[HolidayConfig]:
+    """Get current holiday mode for dashboard integration"""
+    return holiday_manager.get_current_holiday_mode()
