@@ -13,18 +13,29 @@ Designed to be elegant, powerful, and flexible — whether you're a scalper, swi
 ## 🚀 Features
 
 ### 🎯 **Core Trading Engine**
-- ✅ **Modular Strategy System**: 12+ professional trading strategies with plug-and-play architecture
-- ✅ **ATR-Based Risk Management**: Dynamic position sizing that adapts to market volatility
-- ✅ **Multi-Broker Support**: Automatic symbol migration (XM Global, MetaTrader, Exness, Alpari)
-- ✅ **Real-Time Trading**: 4 concurrent bots with live MT5 integration
-- ✅ **Emergency Protection**: XAUUSD safeguards prevent account blowouts
+- ✅ **Modular Strategy System**: 16+ professional trading strategies with plug-and-play architecture
+- ✅ **ATR-Based Risk Management**: Dynamic position sizing that adapts to market volatility with realistic backtesting
+- ✅ **Advanced Backtesting Engine**: Realistic spread/slippage modeling with instrument-specific configurations
+- ✅ **Multi-Broker Support**: Automatic symbol migration (XM Global, MetaTrader, Exness, Alpari, FBS)
+- ✅ **Real-Time Trading**: 4 concurrent bots with live MT5 integration and smart symbol validation
+- ✅ **Emergency Protection**: XAUUSD safeguards with auto-halting and account blowout prevention
+- ✅ **Strategy Switcher**: AI-powered automatic strategy switching based on market conditions
+- ✅ **Market Condition Detector**: Real-time market regime analysis (trending/ranging/volatile)
+
+### 🧠 **AI-Powered Mentorship**
+- ✅ **Indonesian AI Mentor**: Personal trading mentor dengan bahasa Indonesia, analisis emosi vs performa
+- ✅ **Cultural Intelligence**: Supportif seperti mentor manusia dengan konteks budaya Indonesia
+- ✅ **Personalized Guidance**: Analisis pola trading, evaluasi risiko, dan rekomendasi strategi
+- ✅ **Motivational Support**: Pesan motivasi yang contextual berdasarkan journey dan performa
+- ✅ **Database Integration**: Log semua trade untuk analisis AI dan feedback yang lebih baik
 
 ### 🎓 **Educational Framework**
 - ✅ **Beginner-Friendly System**: Progressive learning path from Week 1 to Month 3
 - ✅ **Strategy Difficulty Ratings**: 2-12 complexity scale with automatic recommendations
 - ✅ **Parameter Education**: Every setting explained in plain English
-- ✅ **Market-Specific Guidance**: Different strategies for FOREX vs GOLD vs CRYPTO
+- ✅ **Market-Specific Guidance**: Different strategies for FOREX vs GOLD vs CRYPTO vs INDICES
 - ✅ **Built-in Mentorship**: Strategy selector guides users by experience level
+- ✅ **Database Migration System**: Seamless version upgrades with `migrate_db.py`
 
 ### 📊 **Advanced Analytics**
 - ✅ **Comprehensive Backtester**: Historical testing with interactive Chart.js visualizations
@@ -119,10 +130,17 @@ Designed to be elegant, powerful, and flexible — whether you're a scalper, swi
 |---|---|---|---|
 | `QuantumBotX Crypto` | Bitcoin/Ethereum optimized with 24/7 weekend mode | BTCUSD, ETHUSD | Crypto volatility management |
 
+### 📊 **Index Strategies (NEW!)**
+- ✅ **Index Momentum**: Stock index momentum with gap detection for US500, US30
+- ✅ **Index Breakout Pro**: Professional index breakout with institutional analysis
+- ✅ **Multi-Timeframe Analysis**: Daily, weekly, and monthly perspective for indices
+- ✅ **Risk-Adjusted Position Sizing**: Conservative approach for volatile index markets
+
 ### 🎯 **Market-Specific Optimization**
 - **FOREX Trading**: MA Crossover, Ichimoku Cloud, Bollinger Reversion
-- **Gold (XAUUSD)**: Quantum Velocity, Turtle Breakout, Dynamic Breakout  
+- **Gold (XAUUSD)**: Quantum Velocity, Turtle Breakout, Dynamic Breakout
 - **Cryptocurrency**: QuantumBotX Crypto, RSI Crossover with crypto detection
+- **Stock Indices**: Index Momentum, Index Breakout Pro (US30, US100, US500, DE30, etc.)
 - **Multi-Asset**: QuantumBotX Hybrid adapts automatically to any market
 
 ---

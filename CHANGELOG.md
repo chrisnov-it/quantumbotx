@@ -257,7 +257,7 @@
 ### 🎁 **Beta Benefits**
 - **Full Feature Access**: Complete v2.0 feature set
 - **Direct Developer Access**: Rapid bug fixes and feature requests
-- **Exclusive Community**: Premium Indian trading group access
+- **Exclusive Community**: Premium trading group access
 - **Free Updates**: Lifetime upgrades included
 
 ---
