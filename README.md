@@ -243,25 +243,16 @@ This software is provided "as is" for educational and research purposes. The aut
 
 ## 📈 Screenshot
 
+### Dashboard Preview
+Main dashboard showing bot status, performance metrics, and quick access to all features.
+
 ![QuantumBotX Dashboard Preview](static/img/dashboard-preview.png)
 
----
+### Demo Account View
+Example of a demo trading account with risk management settings and strategy configuration.
 
-## 🧠 Author
+### Strategy Configuration
+Interface for setting up and customizing trading strategies with ATR-based risk management.
 
-Developed with 💖 by **Chrisnov IT Solutions**
-Concept, Logic & Execution: `@chrisnov` aka BabyDev
-
----
-
-## ☕ Support This Project
-
-If you like this project, give it a ⭐ on GitHub, or buy me a coffee to support future versions:
-
-[<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal" />](https://www.paypal.com/paypalme/rebarakaz)
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+### Backtesting Results
+Visualization of strategy performance with interactive charts and detailed metrics.
