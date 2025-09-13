@@ -82,3 +82,11 @@ Thumbs.db # Untuk Windows
 # (seperti laporan hasil) yang ingin diabaikan, sebutkan secara spesifik.
 # Contoh:
 # reports/*.csv
+
+# ==============================================================================
+# File yang secara eksplisit dikecualikan
+# ==============================================================================
+DESKTOP_DEPLOYMENT.md
+INVESTMENT_RETURN.md
+PAYMENT_SETUP.md
+STRATEGY_IDEAS.md
