@@ -3,12 +3,16 @@
 import threading
 import time
 import logging
+from datetime import datetime
 import MetaTrader5 as mt5
 from core.strategies.strategy_map import STRATEGY_MAP
 from core.mt5.trade import place_trade, close_trade
 from core.utils.mt5 import TIMEFRAME_MAP  # <-- Impor dari lokasi terpusat
 # AI Mentor Integration
 from core.db.models import log_trade_for_ai_analysis
+# Holiday and market hours management
+from core.seasonal.holiday_manager import holiday_manager
+from core.strategies.index_optimizations import get_trading_hours, is_index_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +100,12 @@ class TradingBot(threading.Thread):
 
                 current_position = self._get_open_position()
 
-                self._handle_trade_signal(signal, current_position)
+                # Check if market is open before handling trade signal
+                if self._is_market_open_for_symbol():
+                    self._handle_trade_signal(signal, current_position)
+                else:
+                    logger.info(f"Bot {self.id} [{self.strategy_name}] - Market is closed for {self.market_for_mt5}. Skipping trade execution.")
+                    self.log_activity('INFO', f"Market closed for {self.market_for_mt5}. Trade execution skipped.", is_notification=False)
 
                 time.sleep(self.check_interval)
             except Exception as e:
@@ -142,6 +151,64 @@ class TradingBot(threading.Thread):
         except Exception as e:
             self.log_activity('ERROR', f"Gagal mendapatkan posisi terbuka: {e}", exc_info=True, is_notification=True)
             return None
+
+    def _is_market_open_for_symbol(self):
+        """Check if the market is open for the specific symbol"""
+        try:
+            # Check if trading is paused due to holidays
+            if holiday_manager.is_trading_paused():
+                return False
+            
+            # Check if it's weekend and symbol is not crypto
+            current_time = datetime.now()
+            is_weekend = current_time.weekday() >= 5  # Saturday=5, Sunday=6
+            
+            # Crypto markets are always open
+            if "BTC" in self.market_for_mt5 or "ETH" in self.market_for_mt5:
+                return True
+                
+            # Stock indices are only open on weekdays during specific hours
+            if is_index_symbol(self.market_for_mt5):
+                if is_weekend:
+                    return False
+                    
+                # Check specific trading hours for indices
+                trading_hours = get_trading_hours(self.market_for_mt5)
+                if trading_hours:
+                    market_open = trading_hours.get('market_open', '14:30')  # UTC
+                    market_close = trading_hours.get('market_close', '21:00')  # UTC
+                    
+                    # Convert current time to UTC hours and minutes
+                    utc_hour = current_time.hour
+                    utc_minute = current_time.minute
+                    
+                    # Parse market hours
+                    open_hour, open_minute = map(int, market_open.split(':'))
+                    close_hour, close_minute = map(int, market_close.split(':'))
+                    
+                    # Check if current time is within market hours
+                    current_minutes = utc_hour * 60 + utc_minute
+                    open_minutes = open_hour * 60 + open_minute
+                    close_minutes = close_hour * 60 + close_minute
+                    
+                    # Handle overnight sessions
+                    if open_minutes <= close_minutes:
+                        return open_minutes <= current_minutes <= close_minutes
+                    else:
+                        # Market closes next day
+                        return current_minutes >= open_minutes or current_minutes <= close_minutes
+            
+            # Forex markets are closed on weekends
+            if any(forex_pair in self.market_for_mt5 for forex_pair in ['EUR', 'GBP', 'USD', 'JPY', 'AUD', 'NZD', 'CAD', 'CHF']):
+                return not is_weekend
+                
+            # For other symbols, allow trading unless it's a holiday
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error checking market hours for {self.market_for_mt5}: {e}")
+            # Default to allowing trading if we can't determine market hours
+            return True
 
     def _handle_trade_signal(self, signal, position):
         """Menangani sinyal trading: membuka, menutup, atau tidak melakukan apa-apa."""
