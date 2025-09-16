@@ -253,6 +253,29 @@ Example of a demo trading account with risk management settings and strategy con
 
 ### Strategy Configuration
 Interface for setting up and customizing trading strategies with ATR-based risk management.
+![Strategy Configuration](static/img/strategy-configuration.png)
 
 ### Backtesting Results
 Visualization of strategy performance with interactive charts and detailed metrics.
+![Backtesting Results](static/img/backtesting-results.png)
+
+---
+
+## 🧠 Author
+
+Developed with 💖 by **Chrisnov IT Solutions**
+Concept, Logic & Execution: `@chrisnov` aka BabyDev
+
+---
+
+## ☕ Support This Project
+
+If you like this project, give it a ⭐ on GitHub, or buy me a coffee to support future versions:
+
+[<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal" />](https://www.paypal.com/paypalme/rebarakaz)
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
