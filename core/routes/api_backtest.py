@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import json
 import logging
+import subprocess
+import os
 from flask import Blueprint, request, jsonify
 from core.backtesting.enhanced_engine import run_enhanced_backtest as run_backtest
 from core.db.queries import get_all_backtest_history
@@ -169,3 +171,91 @@ def get_history_route():
     except Exception as e:
         logger.error(f"Error processing history: {str(e)}", exc_info=True)
         return jsonify({"error": f"Terjadi kesalahan saat mengambil riwayat: {str(e)}"}), 500
+
+@api_backtest.route('/api/download-data', methods=['POST'])
+def download_data_route():
+    """Download historical market data using the standalone script"""
+    try:
+        # Path to the download script
+        script_path = os.path.join(os.path.dirname(__file__), '..', '..', 'lab', 'download_data.py')
+        script_path = os.path.abspath(script_path)
+
+        if not os.path.exists(script_path):
+            return jsonify({"error": "Download script not found"}), 404
+
+        # Check if the script can import MT5 (basic validation)
+        try:
+            result_check = subprocess.run(
+                ['python', '-c', 'import MetaTrader5 as mt5; print("MT5 available")'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if result_check.returncode != 0:
+                return jsonify({
+                    "error": "MetaTrader5 module not available. Make sure you run the download script manually in an environment where MT5 is installed.",
+                    "solution": "Run 'python lab/download_data.py' from command line instead."
+                }), 500
+        except subprocess.TimeoutExpired:
+            return jsonify({
+                "error": "MT5 availability check timed out",
+                "solution": "Ensure MT5 terminal is running and accessible"
+            }), 408
+
+        # Run the download script
+        logger.info(f"Starting data download with script: {script_path}")
+
+        # Use subprocess to run the script and capture output
+        result = subprocess.run(
+            ['python', script_path],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+
+        if result.returncode == 0:
+            # Success - parse output to extract info
+            output_lines = result.stdout.strip().split('\n')
+            downloaded_files = []
+            failed_count = 0
+
+            for line in output_lines:
+                if line.startswith('✅') and 'bars saved to' in line:
+                    # Extract filename from success message
+                    parts = line.split('bars saved to')
+                    if len(parts) > 1:
+                        filepath = parts[1].strip()
+                        filename = os.path.basename(filepath)
+                        downloaded_files.append(filename)
+                elif line.startswith('❌ Failed downloads:'):
+                    # Extract failed count
+                    parts = line.split(':')
+                    if len(parts) > 1:
+                        try:
+                            failed_count = len(parts[1].strip().split(', ')) if parts[1].strip() else 0
+                        except:
+                            failed_count = 0
+
+            return jsonify({
+                "success": True,
+                "message": f"Downloaded {len(downloaded_files)} files successfully" + (f", {failed_count} failed" if failed_count > 0 else ""),
+                "downloaded_files": downloaded_files,
+                "failed_count": failed_count,
+                "output": result.stdout
+            })
+        else:
+            # Process failed
+            error_msg = result.stderr or "Unknown error occurred"
+            logger.error(f"Data download failed: {error_msg}")
+            return jsonify({
+                "error": f"Download failed: {error_msg}",
+                "output": result.stderr,
+                "stdout": result.stdout
+            }), 500
+
+    except subprocess.TimeoutExpired:
+        logger.error("Data download timed out")
+        return jsonify({"error": "Download timed out after 5 minutes"}), 408
+    except Exception as e:
+        logger.error(f"Error in download data route: {str(e)}", exc_info=True)
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500

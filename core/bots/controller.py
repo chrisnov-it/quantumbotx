@@ -4,6 +4,7 @@ import json
 import logging
 from core.db import queries
 from .trading_bot import TradingBot
+from core.strategies.strategy_map import STRATEGY_MAP
 
 logger = logging.getLogger(__name__)
 
@@ -257,4 +258,42 @@ def get_bot_analysis_data(bot_id: int):
     bot = active_bots.get(bot_id)
     if bot and hasattr(bot, 'last_analysis'):
         return bot.last_analysis
-    return None
+
+    # For inactive bots, generate analysis on-demand
+    bot_data = queries.get_bot_by_id(bot_id)
+    if not bot_data:
+        return None
+
+    try:
+        import MetaTrader5 as mt5
+        from core.utils.mt5 import find_mt5_symbol, get_rates_mt5, TIMEFRAME_MAP
+
+        # Find the symbol
+        market_for_mt5 = find_mt5_symbol(bot_data['market'])
+        if not market_for_mt5:
+            return {"signal": "ERROR", "explanation": f"Symbol '{bot_data['market']}' not found in MT5"}
+
+        # Get market data
+        tf_const = TIMEFRAME_MAP.get(bot_data['timeframe'], mt5.TIMEFRAME_H1)
+        df = get_rates_mt5(market_for_mt5, tf_const, 250)
+        if df.empty:
+            return {"signal": "ERROR", "explanation": "Unable to fetch market data"}
+
+        # Instantiate strategy
+        strategy_class = STRATEGY_MAP.get(bot_data['strategy'])
+        if not strategy_class:
+            return {"signal": "ERROR", "explanation": f"Strategy '{bot_data['strategy']}' not found"}
+
+        # Parse strategy params
+        params_dict = json.loads(bot_data.get('strategy_params', '{}'))
+
+        # Create a temp strategy instance (without bot_instance since it's just for analysis)
+        strategy_instance = strategy_class(bot_instance=None, params=params_dict)
+
+        # Generate analysis
+        analysis = strategy_instance.analyze(df)
+        return analysis
+
+    except Exception as e:
+        logger.error(f"Error generating analysis for inactive bot {bot_id}: {e}")
+        return {"signal": "ERROR", "explanation": f"Failed to generate analysis: {str(e)}"}

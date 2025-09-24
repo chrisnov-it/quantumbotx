@@ -134,12 +134,22 @@ async function fetchAndDisplayAnalysis() {
 }
 
     // --- Pusat Kontrol ---
-    // Panggil semua fungsi sekali saat halaman dimuat untuk data awal
-    fetchBotDetails();      // Ambil parameter bot (hanya sekali)
-    fetchBotHistory();      // Ambil riwayat awal
-    fetchAndDisplayAnalysis(); // Ambil analisis awal
-    
-    // Atur interval refresh untuk data yang dinamis
-    setInterval(fetchAndDisplayAnalysis, 5000); // Refresh analisis setiap 5 detik
-    setInterval(fetchBotHistory, 10000);      // Refresh riwayat setiap 10 detik
+    async function initializePage() {
+        // Ambil detail bot dulu untuk menentukan interval
+        await fetchBotDetails();
+
+        // Tentukan interval berdasarkan status bot
+        const analysisInterval = botData && botData.status === 'Aktif' ? 5000 : 30000; // 5s untuk aktif, 30s untuk inactive
+
+        // Panggil fungsi lainnya untuk data awal
+        fetchBotHistory();
+        fetchAndDisplayAnalysis();
+
+        // Atur interval refresh untuk data yang dinamis
+        setInterval(fetchAndDisplayAnalysis, analysisInterval);
+        setInterval(fetchBotHistory, 10000);      // Refresh riwayat setiap 10 detik
+    }
+
+    // Inisialisasi halaman
+    initializePage();
 });

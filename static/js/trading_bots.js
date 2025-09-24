@@ -56,7 +56,15 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchBots() {
         try {
             const response = await fetch('/api/bots');
-            const bots = await response.json();
+            let bots = await response.json();
+
+            // Sort bots: Active bots (status 'Aktif') first, then inactive
+            bots.sort((a, b) => {
+                if (a.status === 'Aktif' && b.status !== 'Aktif') return -1;
+                if (a.status !== 'Aktif' && b.status === 'Aktif') return 1;
+                return a.name.localeCompare(b.name); // Secondary sort by name
+            });
+
             tableBody.innerHTML = ''; // Kosongkan tabel sebelum mengisi
 
             if (bots.length === 0) {

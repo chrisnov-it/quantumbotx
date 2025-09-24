@@ -10,6 +10,20 @@ Designed to be elegant, powerful, and flexible — whether you're a scalper, swi
 
 ---
 
+## ⚠️ Platform Support Notice
+
+### **Primary Platform: Windows** 🪟
+This version of QuantumBotX is **optimized for Windows** and requires MetaTrader 5 terminal to be installed locally. It's designed for learning algorithmic trading on your personal computer.
+
+### **Alternative Platforms** 🔄
+- **Linux**: Can attempt using Wine (experimental - see Linux Setup guide below)
+- **macOS**: Not officially supported (requires Wine or Windows VM)
+- **Cloud/VPS**: Not compatible (requires local MT5 terminal)
+
+> 💡 **Pro Tip**: For cloud deployment and multi-platform support, check out our upcoming **QuantumBotX API** version!
+
+---
+
 ## 🚀 Features
 
 ### 🎯 **Core Trading Engine**

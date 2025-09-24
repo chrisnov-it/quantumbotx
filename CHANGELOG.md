@@ -17,6 +17,50 @@
 
 ---
 
+## 📈 **v2.0.3 - "Global Expansion & Multilingual"** ✨
+
+### 🌐 **Internationalization (i18n) System** ⭐⭐⭐
+- **Complete Language Support**: Indonesian and English fully implemented
+- **Global Language Switcher**: Fixed position toggle in top-right corner
+- **Persistent Language Preferences**: Remembers user choice across sessions
+- **Extensible Architecture**: Ready for Chinese, Arabic, Spanish, Russian additions
+- **Centralized Translation**: 80+ UI elements translated with clean dictionary system
+
+### 🎯 **Data Integration Enhancements**
+- **Smart MT5 Detection**: Intelligent environment checking with fallback guidance
+- **Automatic Data Download**: One-click market data fetching with progress tracking
+- **Multi-Instrument Support**: Forex, Gold, Indices, Commodities, Crypto data handling
+- **Broker Symbol Aliasing**: Automatic symbol mapping for different brokers (XM, FBS, IC Markets)
+- **Data Quality Verification**: Automatic validation of downloaded historical data
+
+### 🛠 **Setup & Installation Improvements**
+- **Automated MT5 Installer**: One-command setup script with dependency management
+- **Comprehensive Setup Guide**: 50+ page MT5 integration documentation
+- **Environment Configuration**: Enhanced .env templates with broker-specific settings
+- **Connection Testing**: Built-in MT5 connectivity verification tools
+- **Troubleshooting Guides**: Detailed error resolution for common setup issues
+
+### ⚙️ **Settings & Preferences Expansion**
+- **Global App Settings**: Language, theme, and user preferences management
+- **Profile Management**: User profile editing with local data storage
+- **Quick Settings Panel**: Toggle notifications, auto-updates, demo mode
+- **Version Information**: App version tracking and update notifications
+- **Future API Preview**: Preparatory UI for upcoming QuantumBotX API features
+
+### 📊 **Navigation & UI Improvements**
+- **Dynamic Navigation**: Context-aware menu items based on language and features
+- **Real-time Updates**: Language changes apply instantly without page reload
+- **Holiday Integration**: Bahasa Indonesia support for Ramadan/Christmas features
+- **Accessibility Enhancement**: Better screen reader support with proper labels
+
+### 🔧 **Developer Experience**
+- **Global Translation System**: Page-agnostic translation keys for consistent UI
+- **Dynamic Content Loading**: SEO-friendly progressive enhancement
+- **Fallback Translation**: Intelligent English fallback for missing translations
+- **Translation Validation**: Built-in checks for missing translation keys
+
+---
+
 ## 📈 **v2.0.2 - "Production Ready Improvements"**
 
 ### 🔥 **Critical Bug Fixes**
