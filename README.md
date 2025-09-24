@@ -229,7 +229,109 @@ DB_NAME=bots.db
     ```
 
 > **Important:** You must have the MetaTrader 5 terminal installed and running on the same machine.
+> **Linux Users:** MetaTrader 5 is Windows-only, but you can run it on Linux using Wine. See the Linux Setup section below for detailed instructions.
 > **For Developers:** Check the `testing/` directory for comprehensive test scripts and development tools.
+
+---
+
+## 🐧 Linux Setup (Wine Configuration)
+
+Since MetaTrader 5 is Windows-only software, Linux users need to use Wine to run MT5. Here's a step-by-step guide:
+
+### 1. Install Wine
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install wine winetricks
+
+# Fedora/CentOS/RHEL
+sudo dnf install wine winetricks
+
+# Arch Linux
+sudo pacman -S wine winetricks
+```
+
+### 2. Configure Wine Environment
+```bash
+# Create a new Wine prefix for MT5 (recommended for isolation)
+export WINEPREFIX="$HOME/.wine-mt5"
+wineboot --init
+
+# Install required Windows components
+winetricks corefonts vcrun2019 dotnet48
+```
+
+### 3. Download and Install MetaTrader 5
+```bash
+# Download MT5 installer from your broker's website
+# Example for XM Global:
+wget https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/xmglobal5setup.exe
+
+# Install MT5 using Wine
+wine xmglobal5setup.exe
+```
+
+### 4. Configure Python Environment
+```bash
+# Set up the project as usual
+git clone https://github.com/rebarakaz/quantumbotx.git
+cd quantumbotx
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Configure environment variables
+cp .env.example .env
+# Edit .env with your MT5 credentials
+```
+
+### 5. Run QuantumBotX with Wine
+```bash
+# Start MT5 in Wine (in background)
+export WINEPREFIX="$HOME/.wine-mt5"
+wine "$HOME/.wine-mt5/drive_c/Program Files/MetaTrader 5/terminal64.exe" &
+
+# Wait for MT5 to fully load, then start QuantumBotX
+python run.py
+```
+
+### 6. Troubleshooting Tips
+- **MT5 Connection Issues**: Ensure MT5 is fully loaded before starting QuantumBotX
+- **Wine Performance**: Use `winecfg` to adjust graphics settings for better performance
+- **Font Issues**: Install additional fonts with `winetricks corefonts`
+- **Memory Issues**: Increase Wine's virtual memory in `winecfg`
+
+### Alternative: Docker Approach
+For advanced users, you can also run MT5 in a Windows container:
+```bash
+# This requires Docker with Windows container support
+# Implementation details depend on your specific setup
+```
+
+> **Note**: Wine performance may vary depending on your Linux distribution and hardware. For production trading, consider using a dedicated Windows machine or VM.
+
+---
+
+## 🖥️ System Requirements
+
+### Windows (Native Support)
+- Windows 10/11 (64-bit recommended)
+- MetaTrader 5 terminal
+- Python 3.10 or higher
+- Minimum 4GB RAM
+- Stable internet connection
+
+### Linux (Wine Required)
+- Any modern Linux distribution
+- Wine 6.0 or higher
+- Python 3.10 or higher
+- Minimum 6GB RAM (Wine overhead)
+- X11 or Wayland display server
+
+### macOS (Not Officially Supported)
+- macOS users may attempt Wine/CrossOver setup
+- Consider using Windows VM or Parallels
+- Not recommended for production trading
 
 ---
 
