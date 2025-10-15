@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingSpinner = document.getElementById('loading-spinner');
     let equityChart = null; // Variabel untuk menyimpan instance grafik
     const resultsLog = document.getElementById('results-log');
-    const downloadBtn = document.getElementById('download-data-btn');
 
     // Muat strategi ke dropdown
     async function loadStrategies() {
@@ -241,44 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // Handle data download
-    downloadBtn.addEventListener('click', async () => {
-        if (!confirm("This will download historical market data from MT5.\n\nRequirements:\n• MT5 Terminal must be running\n• MT5 Python library must be available\n• Account credentials in .env file\n\nThis may take several minutes. Continue?")) {
-            return;
-        }
-
-        const originalText = downloadBtn.innerHTML;
-        downloadBtn.disabled = true;
-        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
-
-        try {
-            const response = await fetch('/api/download-data', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                if (result.success) {
-                    alert(`✅ Download completed successfully!\n\nDownloaded: ${result.downloaded_files.length} files\nFailed: ${result.failed_count}\n\nFiles saved to 'lab/backtest_data/' directory.`);
-                } else {
-                    alert(`❌ Download failed: ${result.error}`);
-                }
-            } else {
-                alert(`❌ Download error: ${result.error}`);
-            }
-        } catch (err) {
-            console.error("Download failed:", err);
-            alert('❌ Failed to connect to server for data download.');
-        } finally {
-            downloadBtn.disabled = false;
-            downloadBtn.innerHTML = originalText;
-        }
-    });
 
     loadStrategies();
 });

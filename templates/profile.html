@@ -1,43 +1,40 @@
 <!-- templates/profile.html (Setelah Refactor) -->
 {% extends "base.html" %}
 
+{% block title_key %}profile.title{% endblock %}
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-bold text-gray-800 mb-6">Profil Saya</h2>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="md:col-span-1">
-        <div class="bg-white p-6 rounded-lg shadow text-center">
-            <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-user fa-3x text-gray-500"></i>
+<h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="profile.my_profile">Profil Saya</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex flex-col items-center">
+                <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-4xl font-bold mb-4">RC</div>
+                <h3 id="profile-display-name" class="text-xl font-bold text-gray-800" data-i18n="profile.loading">Memuat...</h3>
+                <p id="profile-join-date" class="text-xs text-gray-400 mt-2" data-i18n="profile.joined_since">Bergabung sejak: Juli 2025</p>
             </div>
-            <h3 id="profile-display-name" class="text-xl font-bold text-gray-800">Memuat...</h3>
-            <p class="text-sm text-gray-500">Developer</p>
-            <p id="profile-join-date" class="text-xs text-gray-400 mt-2">Bergabung sejak: Juli 2025</p>
         </div>
     </div>
-
-    <div class="md:col-span-2">
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4">Detail Akun</h3>
-            <form id="profile-form" class="space-y-4">
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-800" data-i18n="settings.profile">Profil</h3>
+            </div>
+            <form id="profile-form" class="p-6 space-y-4">
                 <div>
-                    <label for="profile-name" class="text-sm font-medium text-gray-700">Nama Lengkap</label>
-                    <input type="text" id="profile-name" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" required>
+                    <label for="profile-name" class="text-sm font-medium text-gray-700" data-i18n="label.full_name">Nama Lengkap</label>
+                    <input type="text" id="profile-name" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
                 </div>
                 <div>
-                    <label for="profile-email" class="text-sm font-medium text-gray-700">Alamat Email</label>
-                    <input type="email" id="profile-email" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md" required>
+                    <label for="profile-email" class="text-sm font-medium text-gray-700" data-i18n="label.email">Alamat Email</label>
+                    <input type="email" id="profile-email" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required readonly>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4 pt-6">Keamanan</h3>
                 <div>
-                    <label for="profile-password" class="text-sm font-medium text-gray-700">Ganti Password (kosongkan jika tidak ingin diubah)</label>
-                    <input type="password" id="profile-password" placeholder="••••••••" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                    <label for="profile-password" class="text-sm font-medium text-gray-700" data-i18n="label.password">Ganti Password (kosongkan jika tidak ingin diubah)</label>
+                    <input type="password" id="profile-password" data-i18n-placeholder="profile.password_placeholder" placeholder="••••••••" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
-                <div class="flex justify-end pt-4">
-                    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700">Simpan Perubahan</button>
-                </div>
+                <button type="submit" id="save-profile-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700" data-i18n="msg.save_changes">Simpan Perubahan</button>
             </form>
         </div>
     </div>

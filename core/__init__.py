@@ -1,10 +1,13 @@
 # core/__init__.py
 
 import os
+import sys
 import logging
+import sqlite3
 from logging.handlers import RotatingFileHandler
 from flask import Flask, render_template, send_from_directory
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash
 
 class RequestLogFilter(logging.Filter):
     """Filter untuk menghilangkan noise dari terminal log."""
@@ -58,6 +61,155 @@ class RequestLogFilter(logging.Filter):
         # Tampilkan semua request lainnya (termasuk GET yang error)
         return True
 
+def init_database():
+    """Initialize database and create tables if they don't exist."""
+    try:
+        # Get the directory where the executable is located
+        if getattr(sys, 'frozen', False):
+            # Running as PyInstaller bundle
+            base_dir = os.path.dirname(sys.executable)
+            db_path = os.path.join(base_dir, 'bots.db')
+        else:
+            # Running as script
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            db_path = os.path.join(base_dir, '..', '..', 'bots.db')
+
+        # Create connection
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        # Create users table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                join_date DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        # Create bots table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS bots (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                market TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'Dijeda',
+                lot_size REAL NOT NULL DEFAULT 0.01,
+                sl_pips INTEGER NOT NULL DEFAULT 100,
+                tp_pips INTEGER NOT NULL DEFAULT 200,
+                timeframe TEXT NOT NULL DEFAULT 'H1',
+                check_interval_seconds INTEGER NOT NULL DEFAULT 60,
+                strategy TEXT NOT NULL,
+                strategy_params TEXT,
+                enable_strategy_switching INTEGER NOT NULL DEFAULT 0
+            )
+        ''')
+
+        # Create trade_history table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS trade_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                bot_id INTEGER NOT NULL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                action TEXT NOT NULL,
+                details TEXT,
+                is_notification INTEGER NOT NULL DEFAULT 0,
+                is_read INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY (bot_id) REFERENCES bots (id) ON DELETE CASCADE
+            )
+        ''')
+
+        # Create backtest_results table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS backtest_results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                strategy_name TEXT NOT NULL,
+                data_filename TEXT NOT NULL,
+                total_profit_usd REAL NOT NULL,
+                total_trades INTEGER NOT NULL,
+                win_rate_percent REAL NOT NULL,
+                max_drawdown_percent REAL NOT NULL,
+                wins INTEGER NOT NULL,
+                losses INTEGER NOT NULL,
+                equity_curve TEXT,
+                trade_log TEXT,
+                parameters TEXT
+            )
+        ''')
+
+        # Create trading_sessions table (AI Mentor)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS trading_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_date DATE NOT NULL,
+                user_id INTEGER DEFAULT 1,
+                total_trades INTEGER NOT NULL DEFAULT 0,
+                total_profit_loss REAL NOT NULL DEFAULT 0.0,
+                emotions TEXT NOT NULL DEFAULT 'netral',
+                market_conditions TEXT NOT NULL DEFAULT 'normal',
+                personal_notes TEXT,
+                risk_score INTEGER DEFAULT 5,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            )
+        ''')
+
+        # Create ai_mentor_reports table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS ai_mentor_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id INTEGER NOT NULL,
+                trading_patterns_analysis TEXT,
+                emotional_analysis TEXT,
+                risk_management_score INTEGER,
+                recommendations TEXT,
+                motivation_message TEXT,
+                language TEXT DEFAULT 'bahasa_indonesia',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (session_id) REFERENCES trading_sessions (id) ON DELETE CASCADE
+            )
+        ''')
+
+        # Create daily_trading_data table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS daily_trading_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id INTEGER NOT NULL,
+                bot_id INTEGER NOT NULL,
+                symbol TEXT NOT NULL,
+                entry_time DATETIME,
+                exit_time DATETIME,
+                profit_loss REAL NOT NULL,
+                lot_size REAL NOT NULL,
+                stop_loss_used BOOLEAN DEFAULT 0,
+                take_profit_used BOOLEAN DEFAULT 0,
+                risk_percent REAL,
+                strategy_used TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (session_id) REFERENCES trading_sessions (id) ON DELETE CASCADE,
+                FOREIGN KEY (bot_id) REFERENCES bots (id) ON DELETE CASCADE
+            )
+        ''')
+
+        # Check if default user exists
+        cursor.execute('SELECT COUNT(*) FROM users')
+        if cursor.fetchone()[0] == 0:
+            # Insert default user
+            default_password_hash = generate_password_hash('admin')
+            cursor.execute(
+                'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
+                ('Admin User', 'admin@quantumbotx.com', default_password_hash)
+            )
+
+        conn.commit()
+        conn.close()
+
+    except Exception as e:
+        raise Exception(f"Database initialization failed: {e}")
+
 # ============================
 # APPLICATION FACTORY FUNCTION
 # ============================
@@ -66,13 +218,21 @@ def create_app():
     Membuat dan mengkonfigurasi instance aplikasi Flask.
     """
     load_dotenv()
-    
+
     app = Flask(
-        __name__, 
+        __name__,
         instance_relative_config=True,
         template_folder='../templates',
         static_folder='../static'
-    )    
+    )
+
+    # Initialize database on startup
+    try:
+        init_database()
+        app.logger.info("Database initialized successfully")
+    except Exception as e:
+        app.logger.error(f"Failed to initialize database: {e}")
+        # Don't crash the app, but log the error
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
     
     # Konfigurasi logging yang lebih bersih

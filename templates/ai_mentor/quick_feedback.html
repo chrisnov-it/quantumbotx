@@ -1,65 +1,65 @@
 <!-- Quick feedback form untuk modal AI mentor -->
-<form id=\"quickFeedbackForm\" onsubmit=\"submitQuickFeedback(event)\">
-    <div class=\"space-y-4\">
+<form id="quickFeedbackForm" onsubmit="submitQuickFeedback(event)">
+    <div class="space-y-4">
         <!-- Emosi Saat Ini -->
         <div>
-            <label class=\"block text-sm font-semibold text-gray-700 mb-2\">🧠 Bagaimana perasaan Anda saat trading hari ini?</label>
-            <div class=\"grid grid-cols-2 gap-2\">
-                <button type=\"button\" onclick=\"selectEmotion('tenang')\" class=\"emotion-btn p-3 border rounded-lg text-left hover:bg-blue-50 focus:ring-2 focus:ring-blue-500\" data-emotion=\"tenang\">
-                    <div class=\"font-semibold text-green-600\">😌 Tenang</div>
-                    <div class=\"text-xs text-gray-500\">Pikiran jernih, tidak terburu-buru</div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="ai_mentor.how_are_you_feeling">🧠 Bagaimana perasaan Anda saat trading hari ini?</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="selectEmotion('tenang')" class="emotion-btn p-3 border rounded-lg text-left hover:bg-blue-50 focus:ring-2 focus:ring-blue-500" data-emotion="tenang">
+                    <div class="font-semibold text-green-600" data-i18n="ai_mentor.emotion_calm">😌 Tenang</div>
+                    <div class="text-xs text-gray-500" data-i18n="ai_mentor.calm_description">Pikiran jernih, tidak terburu-buru</div>
                 </button>
-                <button type=\"button\" onclick=\"selectEmotion('serakah')\" class=\"emotion-btn p-3 border rounded-lg text-left hover:bg-yellow-50 focus:ring-2 focus:ring-yellow-500\" data-emotion=\"serakah\">
-                    <div class=\"font-semibold text-yellow-600\">🤑 Serakah</div>
-                    <div class=\"text-xs text-gray-500\">Ingin profit besar, agresif</div>
+                <button type="button" onclick="selectEmotion('serakah')" class="emotion-btn p-3 border rounded-lg text-left hover:bg-yellow-50 focus:ring-2 focus:ring-yellow-500" data-emotion="serakah">
+                    <div class="font-semibold text-yellow-600" data-i18n="ai_mentor.emotion_greedy">🤑 Serakah</div>
+                    <div class="text-xs text-gray-500" data-i18n="ai_mentor.greedy_description">Ingin profit besar, agresif</div>
                 </button>
-                <button type=\"button\" onclick=\"selectEmotion('takut')\" class=\"emotion-btn p-3 border rounded-lg text-left hover:bg-purple-50 focus:ring-2 focus:ring-purple-500\" data-emotion=\"takut\">
-                    <div class=\"font-semibold text-purple-600\">😰 Takut</div>
-                    <div class=\"text-xs text-gray-500\">Khawatir loss, ragu-ragu</div>
+                <button type="button" onclick="selectEmotion('takut')" class="emotion-btn p-3 border rounded-lg text-left hover:bg-purple-50 focus:ring-2 focus:ring-purple-500" data-emotion="takut">
+                    <div class="font-semibold text-purple-600" data-i18n="ai_mentor.emotion_fearful">😰 Takut</div>
+                    <div class="text-xs text-gray-500" data-i18n="ai_mentor.fearful_description">Khawatir loss, ragu-ragu</div>
                 </button>
-                <button type=\"button\" onclick=\"selectEmotion('frustasi')\" class=\"emotion-btn p-3 border rounded-lg text-left hover:bg-red-50 focus:ring-2 focus:ring-red-500\" data-emotion=\"frustasi\">
-                    <div class=\"font-semibold text-red-600\">😤 Frustasi</div>
-                    <div class=\"text-xs text-gray-500\">Kesal karena loss beruntun</div>
+                <button type="button" onclick="selectEmotion('frustasi')" class="emotion-btn p-3 border rounded-lg text-left hover:bg-red-50 focus:ring-2 focus:ring-red-500" data-emotion="frustasi">
+                    <div class="font-semibold text-red-600" data-i18n="ai_mentor.emotion_frustrated">😤 Frustasi</div>
+                    <div class="text-xs text-gray-500" data-i18n="ai_mentor.frustrated_description">Kesal karena loss beruntun</div>
                 </button>
             </div>
-            <input type=\"hidden\" id=\"selectedEmotion\" name=\"emotions\" value=\"netral\" required>
+            <input type="hidden" id="selectedEmotion" name="emotions" value="netral" required>
         </div>
 
         <!-- P&L Saat Ini -->
         <div>
-            <label for=\"currentPnL\" class=\"block text-sm font-semibold text-gray-700 mb-2\">💰 P&L Hari Ini (USD)</label>
-            <input type=\"number\" id=\"currentPnL\" name=\"current_pnl\" step=\"0.01\" 
-                   class=\"w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500\"
-                   placeholder=\"Contoh: 25.50 atau -15.30\">
+            <label for="currentPnL" class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="ai_mentor.today_pnl">💰 P&L Hari Ini (USD)</label>
+            <input type="number" id="currentPnL" name="current_pnl" step="0.01" 
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="Contoh: 25.50 atau -15.30" data-i18n="ai_mentor.pnl_placeholder">
         </div>
 
         <!-- Catatan Personal -->
         <div>
-            <label for=\"personalNotes\" class=\"block text-sm font-semibold text-gray-700 mb-2\">📝 Catatan Trading Hari Ini</label>
-            <textarea id=\"personalNotes\" name=\"notes\" rows=\"3\" 
-                      class=\"w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500\"
-                      placeholder=\"Contoh: Hari ini fokus EURUSD, pakai SL ketat. Market agak volatile karena berita NFP...\"></textarea>
+            <label for="personalNotes" class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="ai_mentor.today_notes">📝 Catatan Trading Hari Ini</label>
+            <textarea id="personalNotes" name="notes" rows="3" 
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Contoh: Hari ini fokus EURUSD, pakai SL ketat. Market agak volatile karena berita NFP..." data-i18n="ai_mentor.notes_placeholder"></textarea>
         </div>
 
         <!-- Action Buttons -->
-        <div class=\"flex space-x-3\">
-            <button type=\"button\" onclick=\"getInstantFeedback()\" 
-                    class=\"flex-1 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors\">
-                ⚡ Feedback Instan
+        <div class="flex space-x-3">
+            <button type="button" onclick="getInstantFeedback()" 
+                    class="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                <span data-i18n="ai_mentor.instant_feedback">⚡ Feedback Instan</span>
             </button>
-            <button type=\"submit\" 
-                    class=\"flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors\">
-                💾 Simpan Data
+            <button type="submit" 
+                    class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                <span data-i18n="ai_mentor.save_data">💾 Simpan Data</span>
             </button>
         </div>
     </div>
 </form>
 
 <!-- Instant Feedback Area -->
-<div id=\"instantFeedback\" class=\"mt-4 hidden\">
-    <div class=\"bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-4\">
-        <h4 class=\"font-bold text-blue-800 mb-2\">🤖 Feedback AI Mentor:</h4>
-        <div id=\"feedbackContent\" class=\"text-gray-700\"></div>
+<div id="instantFeedback" class="mt-4 hidden">
+    <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-4">
+        <h4 class="font-bold text-blue-800 mb-2" data-i18n="ai_mentor.ai_feedback">🤖 Feedback AI Mentor:</h4>
+        <div id="feedbackContent" class="text-gray-700"></div>
     </div>
 </div>
 
@@ -73,7 +73,7 @@ function selectEmotion(emotion) {
     });
     
     // Add selection to clicked button
-    const clickedBtn = document.querySelector(`[data-emotion=\"${emotion}\"]`);
+    const clickedBtn = document.querySelector(`[data-emotion="${emotion}"]`);
     clickedBtn.classList.add('ring-2', 'bg-blue-100', 'border-blue-500');
     
     // Update hidden input
@@ -92,7 +92,7 @@ function getInstantFeedback() {
     const feedbackDiv = document.getElementById('instantFeedback');
     const contentDiv = document.getElementById('feedbackContent');
     feedbackDiv.classList.remove('hidden');
-    contentDiv.innerHTML = '<div class=\"animate-pulse\">🤖 AI sedang menganalisis trading Anda...</div>';
+    contentDiv.innerHTML = '<div class="animate-pulse" data-i18n="ai_mentor.analyzing">🤖 AI sedang menganalisis trading Anda...</div>';
     
     fetch('/ai-mentor/api/generate-instant-feedback', {
         method: 'POST',
@@ -106,30 +106,30 @@ function getInstantFeedback() {
         if (data.success) {
             const feedback = data.feedback;
             contentDiv.innerHTML = `
-                <div class=\"space-y-3\">
+                <div class="space-y-3">
                     <div>
-                        <strong class=\"text-blue-700\">🧠 Analisis Emosi:</strong>
-                        <p class=\"text-gray-700\">${feedback.emotional_analysis}</p>
+                        <strong class="text-blue-700" data-i18n="ai_mentor.emotional_analysis">🧠 Analisis Emosi:</strong>
+                        <p class="text-gray-700">${feedback.emotional_analysis}</p>
                     </div>
                     <div>
-                        <strong class=\"text-green-700\">💪 Motivasi:</strong>
-                        <p class=\"text-gray-700\">${feedback.motivation}</p>
+                        <strong class="text-green-700" data-i18n="ai_mentor.motivation">💪 Motivasi:</strong>
+                        <p class="text-gray-700">${feedback.motivation}</p>
                     </div>
                     <div>
-                        <strong class=\"text-purple-700\">💡 Tips Cepat:</strong>
-                        <ul class=\"list-disc pl-5 text-gray-700\">
+                        <strong class="text-purple-700" data-i18n="ai_mentor.quick_tips">💡 Tips Cepat:</strong>
+                        <ul class="list-disc pl-5 text-gray-700">
                             ${feedback.quick_tips.map(tip => `<li>${tip}</li>`).join('')}
                         </ul>
                     </div>
                 </div>
             `;
         } else {
-            contentDiv.innerHTML = `<div class=\"text-red-600\">❌ ${data.message}</div>`;
+            contentDiv.innerHTML = `<div class="text-red-600">❌ ${data.message}</div>`;
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        contentDiv.innerHTML = '<div class=\"text-red-600\">❌ Gagal mendapatkan feedback. Silakan coba lagi.</div>';
+        contentDiv.innerHTML = '<div class="text-red-600" data-i18n="ai_mentor.failed_feedback">❌ Gagal mendapatkan feedback. Silakan coba lagi.</div>';
     });
 }
 

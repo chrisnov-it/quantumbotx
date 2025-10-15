@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Ramadan Trading Mode{% endblock %}
+{% block title_key %}ramadan.page_title{% endblock %}
+{% block title %}🌙 Ramadan Trading Mode{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="mb-8 text-center">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">🌙 Ramadan Trading Mode</h1>
-        <p class="text-gray-600">Bulan suci dengan fitur trading yang menghormati ibadah puasa</p>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2" data-i18n="ramadan.title">🌙 Ramadan Trading Mode</h1>
+        <p class="text-gray-600" data-i18n="ramadan.subtitle">Bulan suci dengan fitur trading yang menghormati ibadah puasa</p>
         <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p class="text-blue-800">
-                <i class="fas fa-info-circle"></i> Mode ini aktif secara otomatis selama bulan Ramadan dan akan 
-                menyesuaikan pengaturan trading Anda untuk menghormati waktu ibadah. Anda tidak perlu mengaktifkannya secara manual.
+                <i class="fas fa-info-circle"></i> <span data-i18n="ramadan.info">Mode ini aktif secara otomatis selama bulan Ramadan dan akan menyesuaikan pengaturan trading Anda untuk menghormati waktu ibadah. Anda tidak perlu mengaktifkannya secara manual.</span>
             </p>
         </div>
     </div>
@@ -19,23 +19,23 @@
     <!-- Current Status Card -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold text-gray-800">Status Ramadan</h2>
-            <span id="ramadan-status" class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <h2 class="text-xl font-semibold text-gray-800" data-i18n="ramadan.status">Status Ramadan</h2>
+            <span id="ramadan-status" class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800" data-i18n="ramadan.loading">
                 Loading...
             </span>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="border rounded-lg p-4">
-                <div class="text-sm text-gray-500 mb-1">Periode Ramadan</div>
-                <div id="ramadan-period" class="text-lg font-semibold text-blue-600">
+                <div class="text-sm text-gray-500 mb-1" data-i18n="ramadan.period">Periode Ramadan</div>
+                <div id="ramadan-period" class="text-lg font-semibold text-blue-600" data-i18n="ramadan.loading">
                     Loading...
                 </div>
             </div>
             
             <div class="border rounded-lg p-4">
-                <div class="text-sm text-gray-500 mb-1">Salam Ramadan</div>
-                <div id="ramadan-greeting" class="text-lg font-semibold text-green-600">
+                <div class="text-sm text-gray-500 mb-1" data-i18n="ramadan.greeting">Salam Ramadan</div>
+                <div id="ramadan-greeting" class="text-lg font-semibold text-green-600" data-i18n="ramadan.loading">
                     Loading...
                 </div>
             </div>
@@ -44,79 +44,79 @@
 
     <!-- Iftar Countdown -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">⏱️ Hitung Mundur Iftar</h2>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4" data-i18n="ramadan.iftar_countdown">⏱️ Hitung Mundur Iftar</h2>
         
         <div class="flex justify-center items-center">
             <div class="text-center mx-4">
                 <div id="iftar-hours" class="text-4xl font-bold text-gray-800">00</div>
-                <div class="text-sm text-gray-500">Jam</div>
+                <div class="text-sm text-gray-500" data-i18n="ramadan.hours">Jam</div>
             </div>
             <div class="text-4xl font-bold text-gray-300">:</div>
             <div class="text-center mx-4">
                 <div id="iftar-minutes" class="text-4xl font-bold text-gray-800">00</div>
-                <div class="text-sm text-gray-500">Menit</div>
+                <div class="text-sm text-gray-500" data-i18n="ramadan.minutes">Menit</div>
             </div>
         </div>
         
         <div class="text-center mt-4 text-gray-600">
-            Sampai <span id="next-prayer">Iftar</span>
+            <span data-i18n="ramadan.until">Sampai</span> <span id="next-prayer" data-i18n="ramadan.iftar">Iftar</span>
         </div>
     </div>
 
     <!-- Trading Adjustments -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">⚙️ Penyesuaian Trading</h2>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4" data-i18n="ramadan.trading_adjustments">⚙️ Penyesuaian Trading</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <h3 class="text-lg font-medium text-gray-700 mb-3">Waktu Istirahat Puasa</h3>
+                <h3 class="text-lg font-medium text-gray-700 mb-3" data-i18n="ramadan.fasting_times">Waktu Istirahat Puasa</h3>
                 <div class="space-y-3">
                     <div class="flex items-center">
                         <div class="w-3 h-3 rounded-full bg-yellow-500 mr-3"></div>
                         <div>
-                            <div class="font-medium">Sahur</div>
-                            <div class="text-sm text-gray-500">03:30 - 05:00 WIB</div>
+                            <div class="font-medium" data-i18n="ramadan.suhoor">Sahur</div>
+                            <div class="text-sm text-gray-500" data-i18n="ramadan.suhoor_time">03:30 - 05:00 WIB</div>
                         </div>
                     </div>
                     <div class="flex items-center">
                         <div class="w-3 h-3 rounded-full bg-orange-500 mr-3"></div>
                         <div>
-                            <div class="font-medium">Iftar</div>
-                            <div class="text-sm text-gray-500">18:00 - 19:30 WIB</div>
+                            <div class="font-medium" data-i18n="ramadan.iftar_time">Iftar</div>
+                            <div class="text-sm text-gray-500" data-i18n="ramadan.iftar_time_range">18:00 - 19:30 WIB</div>
                         </div>
                     </div>
                     <div class="flex items-center">
                         <div class="w-3 h-3 rounded-full bg-purple-500 mr-3"></div>
                         <div>
-                            <div class="font-medium">Tarawih</div>
-                            <div class="text-sm text-gray-500">20:00 - 21:30 WIB</div>
+                            <div class="font-medium" data-i18n="ramadan.tarawih">Tarawih</div>
+                            <div class="text-sm text-gray-500" data-i18n="ramadan.tarawih_time">20:00 - 21:30 WIB</div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <div>
-                <h3 class="text-lg font-medium text-gray-700 mb-3">Penyesuaian Risiko</h3>
+                <h3 class="text-lg font-medium text-gray-700 mb-3" data-i18n="ramadan.risk_adjustments">Penyesuaian Risiko</h3>
                 <div class="space-y-3">
                     <div class="flex items-center">
                         <div class="w-3 h-3 rounded-full bg-red-500 mr-3"></div>
                         <div>
-                            <div class="font-medium">Reduced Risk Mode</div>
-                            <div class="text-sm text-gray-500">20% pengurangan risiko selama puasa</div>
+                            <div class="font-medium" data-i18n="ramadan.reduced_risk_mode">Reduced Risk Mode</div>
+                            <div class="text-sm text-gray-500" data-i18n="ramadan.reduced_risk_description">20% pengurangan risiko selama puasa</div>
                         </div>
                     </div>
                     <div class="flex items-center">
                         <div class="w-3 h-3 rounded-full bg-blue-500 mr-3"></div>
                         <div>
-                            <div class="font-medium">Patience Mode</div>
-                            <div class="text-sm text-gray-500">Fokus pada kualitas bukan kuantitas</div>
+                            <div class="font-medium" data-i18n="ramadan.patience_mode">Patience Mode</div>
+                            <div class="text-sm text-gray-500" data-i18n="ramadan.patience_mode_description">Fokus pada kualitas bukan kuantitas</div>
                         </div>
                     </div>
                     <div class="flex items-center">
                         <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
                         <div>
-                            <div class="font-medium">Optimal Hours</div>
-                            <div class="text-sm text-gray-500">22:00 - 03:00 WIB</div>
+                            <div class="font-medium" data-i18n="ramadan.optimal_hours">Optimal Hours</div>
+                            <div class="text-sm text-gray-500" data-i18n="ramadan.optimal_hours_time">22:00 - 03:00 WIB</div>
                         </div>
                     </div>
                 </div>
@@ -126,33 +126,32 @@
 
     <!-- Zakat Calculator -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">💰 Kalkulator Zakat Trading</h2>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4" data-i18n="ramadan.zakat_calculator">💰 Kalkulator Zakat Trading</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <h3 class="text-lg font-medium text-gray-700 mb-3">Informasi Zakat</h3>
+                <h3 class="text-lg font-medium text-gray-700 mb-3" data-i18n="ramadan.zakat_information">Informasi Zakat</h3>
                 <div class="space-y-3">
                     <div class="border rounded-lg p-3">
-                        <div class="text-sm text-gray-500">Nisab Emas</div>
+                        <div class="text-sm text-gray-500" data-i18n="ramadan.gold_nisab">Nisab Emas</div>
                         <div class="text-lg font-semibold">85 gram</div>
                     </div>
                     <div class="border rounded-lg p-3">
-                        <div class="text-sm text-gray-500">Nisab Perak</div>
+                        <div class="text-sm text-gray-500" data-i18n="ramadan.silver_nisab">Nisab Perak</div>
                         <div class="text-lg font-semibold">595 gram</div>
                     </div>
                     <div class="border rounded-lg p-3">
-                        <div class="text-sm text-gray-500">Persentase Zakat</div>
+                        <div class="text-sm text-gray-500" data-i18n="ramadan.zakat_percentage">Persentase Zakat</div>
                         <div class="text-lg font-semibold">2.5%</div>
                     </div>
                 </div>
             </div>
             
             <div>
-                <h3 class="text-lg font-medium text-gray-700 mb-3">Pengingat Zakat</h3>
+                <h3 class="text-lg font-medium text-gray-700 mb-3" data-i18n="ramadan.zakat_reminder">Pengingat Zakat</h3>
                 <div class="border rounded-lg p-4 bg-blue-50">
                     <p class="text-gray-700">
-                        Zakat perdagangan: 2.5% dari profit trading selama 1 tahun hijriah. 
-                        Jangan lupa menghitung zakat dari profit trading Anda selama Ramadan.
+                        <span data-i18n="ramadan.zakat_trading_reminder">Zakat perdagangan: 2.5% dari profit trading selama 1 tahun hijriah. Jangan lupa menghitung zakat dari profit trading Anda selama Ramadan.</span>
                     </p>
                 </div>
             </div>
@@ -161,10 +160,10 @@
 
     <!-- Patience Reminder -->
     <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">🧘‍♂️ Pengingat Kesabaran</h2>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4" data-i18n="ramadan.patience_reminder">🧘‍♂️ Pengingat Kesabaran</h2>
         
         <div class="border rounded-lg p-6 bg-green-50 text-center">
-            <div id="patience-reminder" class="text-lg text-gray-700 italic">
+            <div id="patience-reminder" class="text-lg text-gray-700 italic" data-i18n="ramadan.loading">
                 Loading...
             </div>
         </div>

@@ -47,18 +47,26 @@ document.addEventListener('DOMContentLoaded', function() {
             currentSort.direction = 'asc';
         }
 
-        // Update sort icons
-        document.getElementById('profit-sort-icon').innerHTML = column === 'profit' ? (currentSort.direction === 'asc' ? '▲' : '▼') : '';
-        document.getElementById('time-sort-icon').innerHTML = column === 'time' ? (currentSort.direction === 'asc' ? '▲' : '▼') : '';
+        // Reset all icons
+        ['symbol', 'type', 'volume', 'profit', 'time', 'magic'].forEach(col => {
+            const iconEl = document.getElementById(`${col}-sort-icon`);
+            if (iconEl) {
+                iconEl.innerHTML = '';
+            }
+        });
+
+        // Set active icon
+        const activeIconEl = document.getElementById(`${column}-sort-icon`);
+        if (activeIconEl) {
+            activeIconEl.innerHTML = currentSort.direction === 'asc' ? '▲' : '▼';
+        }
 
         const sortedData = [...historyData].sort((a, b) => {
             let aValue = a[column];
             let bValue = b[column];
 
-            if (column === 'profit' || column === 'time') {
-                aValue = parseFloat(aValue);
-                bValue = parseFloat(bValue);
-            } else if (column === 'volume' || column === 'magic') {
+            // For numeric columns, parse as float
+            if (['profit', 'time', 'volume', 'magic', 'type'].includes(column)) {
                 aValue = parseFloat(aValue);
                 bValue = parseFloat(bValue);
             }

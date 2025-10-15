@@ -1,51 +1,52 @@
 <!-- templates/settings.html (Setelah Refactor) -->
 {% extends "base.html" %}
 
+{% block title_key %}settings.title{% endblock %}
 {% block title %}Pengaturan{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-bold text-gray-800 mb-6">Pengaturan</h2>
+<h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="settings.title">Pengaturan</h2>
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="lg:col-span-2 space-y-6">
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4" id="profile-title">Profil</h3>
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4" id="profile-title" data-i18n="settings.profile">Profil</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="text-sm font-medium text-gray-700" id="full-name-label">Nama Lengkap</label>
+                    <label class="text-sm font-medium text-gray-700" id="full-name-label" data-i18n="label.full_name">Nama Lengkap</label>
                     <input type="text" value="Reynov Christian" id="full-name-input" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700" id="email-label">Alamat Email</label>
+                    <label class="text-sm font-medium text-gray-700" id="email-label" data-i18n="label.email">Alamat Email</label>
                     <input type="email" value="contact@chrisnov.com" id="email-input" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm" readonly>
                 </div>
-                <button id="save-profile-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700">Simpan Perubahan</button>
+                <button id="save-profile-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700" data-i18n="msg.save_changes">Simpan Perubahan</button>
             </div>
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4" id="preferences-title">Preferensi</h3>
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4" id="preferences-title" data-i18n="settings.preferences">Preferensi</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="text-sm font-medium text-gray-700" id="language-label">Bahasa</label>
+                    <label class="text-sm font-medium text-gray-700" id="language-label" data-i18n="settings.language">Bahasa</label>
                     <select id="language-select" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        <option value="id">Indonesia</option>
-                        <option value="en">English</option>
+                        <option value="id" data-i18n="settings.indonesian">Indonesia</option>
+                        <option value="en" data-i18n="settings.english">English</option>
                     </select>
                     <p class="text-xs text-gray-500 mt-1">Application language settings</p>
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700" id="theme-label">Tema</label>
+                    <label class="text-sm font-medium text-gray-700" id="theme-label" data-i18n="settings.theme">Tema</label>
                     <select id="theme-select" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        <option value="light">Terang</option>
-                        <option value="dark">Gelap (Segera Hadir)</option>
+                        <option value="light" data-i18n="settings.light">Terang</option>
+                        <option value="dark" data-i18n="settings.dark">Gelap (Segera Hadir)</option>
                     </select>
                 </div>
-                <button id="save-preferences-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700">Simpan Preferensi</button>
+                <button id="save-preferences-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700" data-i18n="msg.save_preferences">Simpan Preferensi</button>
             </div>
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4" id="api-keys-title">API Keys Bursa</h3>
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4" id="api-keys-title" data-i18n="settings.api_keys">API Keys Bursa</h3>
             <div class="space-y-4">
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <div class="flex">
@@ -53,13 +54,13 @@
                             <i class="fas fa-info-circle text-yellow-400"></i>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-yellow-800" id="api-info-text">
+                            <p class="text-sm text-yellow-800" id="api-info-text" data-i18n="settings.api_info">
                                 API Keys akan digunakan oleh versi QuantumBotX berikutnya untuk mengakses broker non-MT5.
                             </p>
                         </div>
                     </div>
                 </div>
-                <div class="text-sm text-gray-600" id="api-placeholder-text">
+                <div class="text-sm text-gray-600" id="api-placeholder-text" data-i18n="settings.api_placeholder">
                     Fitur ini akan tersedia di QuantumBotX API versi mendatang.
                 </div>
             </div>
@@ -68,24 +69,24 @@
 
     <div class="lg:col-span-1 space-y-6">
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4" id="quick-settings-title">Pengaturan Cepat</h3>
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-4 mb-4" id="quick-settings-title" data-i18n="settings.quick_settings">Pengaturan Cepat</h3>
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-700" id="notifications-label">Notifikasi Email</span>
+                    <span class="text-sm text-gray-700" id="notifications-label" data-i18n="settings.email_notifications">Notifikasi Email</span>
                     <input type="checkbox" id="email-notifications" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                 </div>
                 <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-700" id="auto-update-label">Update Otomatis Strategi</span>
+                    <span class="text-sm text-gray-700" id="auto-update-label" data-i18n="settings.auto_update">Update Otomatis Strategi</span>
                     <input type="checkbox" id="auto-update" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                 </div>
                 <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-700" id="demo-mode-label">Mode Demo</span>
+                    <span class="text-sm text-gray-700" id="demo-mode-label" data-i18n="settings.demo_mode">Mode Demo</span>
                     <input type="checkbox" id="demo-mode" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                 </div>
                 <hr class="my-4">
                 <div class="text-sm text-gray-600" id="version-info">
-                    <strong>Versi:</strong> 2.0.0<br>
-                    <strong>Terakhir Update:</strong> September 2025
+                    <strong data-i18n="settings.version">Versi:</strong> 2.0.0<br>
+                    <strong data-i18n="settings.last_updated">Terakhir Update:</strong> September 2025
                 </div>
             </div>
         </div>

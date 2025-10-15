@@ -1,3 +1,4 @@
+/** eslint-disable markdown/fenced-code-language */
 # 🚀 QuantumBotX MT5 Integration Guide
 
 > **Get Historical Market Data for Advanced Backtesting**

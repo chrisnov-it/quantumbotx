@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terjadi Kesalahan Internal - QuantumBotX</title>
+    <title><span data-i18n="error.500_title">Terjadi Kesalahan Internal - QuantumBotX</span></title>
     <!-- Menggunakan versi Tailwind yang lebih modern jika memungkinkan, tapi kita samakan dengan 404.html -->
     <link href="https://cdn.tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -13,15 +13,23 @@
 <body class="bg-gray-100 font-sans flex items-center justify-center h-screen">
     <div class="text-center">
         <h1 class="text-9xl font-bold text-red-500">500</h1>
-        <h2 class="text-3xl font-semibold text-gray-800 mt-4">Terjadi Kesalahan Internal</h2>
-        <p class="text-gray-600 mt-2">
+        <h2 class="text-3xl font-semibold text-gray-800 mt-4" data-i18n="error.500_heading">Terjadi Kesalahan Internal</h2>
+        <p class="text-gray-600 mt-2" data-i18n="error.500_message">
             Maaf, terjadi masalah pada server kami. Tim kami telah diberitahu dan sedang menanganinya.
         </p>
         <div class="mt-8">
             <a href="{{ url_for('dashboard') }}" class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 transition">
-                <i class="fas fa-home mr-2"></i>Kembali ke Dashboard
+                <i class="fas fa-home mr-2"></i><span data-i18n="error.back_to_dashboard">Kembali ke Dashboard</span>
             </a>
         </div>
     </div>
+    
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        // Initialize i18n for this page
+        document.addEventListener('DOMContentLoaded', function() {
+            window.QuantumBotXI18n.init();
+        });
+    </script>
 </body>
 </html>

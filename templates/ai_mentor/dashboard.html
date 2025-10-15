@@ -1,7 +1,8 @@
 <!-- templates/ai_mentor/dashboard.html -->
 {% extends "base.html" %}
 
-{% block title %}🧠 AI Mentor Trading - QuantumBotX{% endblock %}
+{% block title_key %}ai_mentor.page_title{% endblock %}
+{% block title %}🧠 AI Mentor Trading{% endblock %}
 
 {% block head_extra %}
 <style>
@@ -20,11 +21,11 @@
     font-weight: 500;
 }
 
-.emotion-tenang { background-color: #10b981; color: white; }
-.emotion-serakah { background-color: #f59e0b; color: white; }
-.emotion-takut { background-color: #8b5cf6; color: white; }
-.emotion-frustasi { background-color: #ef4444; color: white; }
-.emotion-netral { background-color: #6b7280; color: white; }
+.emotion-calm { background-color: #10b981; color: white; }
+.emotion-greedy { background-color: #f59e0b; color: white; }
+.emotion-fear { background-color: #8b5cf6; color: white; }
+.emotion-frustrated { background-color: #ef4444; color: white; }
+.emotion-neutral { background-color: #6b7280; color: white; }
 
 .profit-positive { color: #10b981; font-weight: bold; }
 .profit-negative { color: #ef4444; font-weight: bold; }
@@ -149,8 +150,8 @@
         <h2 class="text-xl font-bold mb-2">{{ holiday_config.active_holiday }} 🎆</h2>
         <p class="text-lg">{{ holiday_greeting }}</p>
         {% if holiday_config.adjustments.risk_reduction %}
-            <p class="text-sm mt-2 opacity-90">
-                ⚠️ Risk otomatis dikurangi {{ (100 - holiday_config.adjustments.risk_reduction * 100)|int }}% untuk periode liburan
+            <p class="text-sm mt-2 opacity-90" data-i18n="ai_mentor.holiday_risk_reduction">
+                ⚠️ Risk automatically reduced by {{ (100 - holiday_config.adjustments.risk_reduction * 100)|int }}% during holiday period
             </p>
         {% endif %}
     </div>
@@ -158,14 +159,14 @@
     
     <!-- Header -->
     <div class="mentor-card">
-        <h1 class="text-3xl font-bold mb-2">🧠 AI Mentor Trading Indonesia</h1>
-        <p class="text-blue-100 text-lg">Mentor digital Anda untuk sukses trading jangka panjang</p>
+        <h1 class="text-3xl font-bold mb-2" data-i18n="ai_mentor.header">🧠 AI Mentor Trading</h1>
+        <p class="text-blue-100 text-lg" data-i18n="ai_mentor.subtitle">Your digital mentor for long-term trading success</p>
         <div class="mt-4 flex items-center space-x-4">
-            <span class="text-blue-200">🇮🇩 Bahasa Indonesia</span>
-            <span class="text-blue-200">• 📊 Analisis Real-time</span>
-            <span class="text-blue-200">• 🎯 Personal</span>
+            <span class="text-blue-200" data-i18n="ai_mentor.language_indonesian">🇺🇸 English Language</span>
+            <span class="text-blue-200" data-i18n="ai_mentor.realtime">• 📊 Real-time Analysis</span>
+            <span class="text-blue-200" data-i18n="ai_mentor.personal">• 🎯 Personal</span>
             {% if holiday_config.active_holiday %}
-                <span class="text-blue-200">• {{ holiday_config.active_holiday.split()[0] }} 🎄</span>
+                <span class="text-blue-200" data-i18n="ai_mentor.holiday">• {{ holiday_config.active_holiday.split()[0] }} 🎄</span>
             {% endif %}
         </div>
     </div>
@@ -173,35 +174,35 @@
     <!-- Quick Stats -->
     <div class="quick-stats">
         <div class="stat-card">
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Total Sesi</h3>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.total_sessions">Total Sessions</h3>
             <div class="text-3xl font-bold text-blue-600">{{ total_sessions or 0 }}</div>
-            <p class="text-sm text-gray-500 mt-1">sesi trading</p>
+            <p class="text-sm text-gray-500 mt-1" data-i18n="ai_mentor.sessions">trading sessions</p>
         </div>
         
         <div class="stat-card">
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Win Rate</h3>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.win_rate">Win Rate</h3>
             <div class="text-3xl font-bold {{ 'text-green-600' if (win_rate or 0) >= 60 else 'text-red-600' if (win_rate or 0) < 40 else 'text-yellow-600' }}">{{ "%.1f"|format(win_rate or 0) }}%</div>
-            <p class="text-sm text-gray-500 mt-1">sesi profit</p>
+            <p class="text-sm text-gray-500 mt-1" data-i18n="ai_mentor.profit_sessions">profit sessions</p>
         </div>
         
         <div class="stat-card">
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Hari Ini</h3>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.today">Today</h3>
             {% if today_session %}
                 {% set profit_loss = today_session.get('profit_loss', today_session.get('total_profit_loss', 0)) %}
                 <div class="text-2xl font-bold {{ 'profit-positive' if profit_loss > 0 else 'profit-negative' if profit_loss < 0 else 'text-gray-600' }}">
                     ${{ "%.2f"|format(profit_loss) }}
                 </div>
-                <span class="emotion-badge emotion-{{ today_session.get('emotions', 'netral') }}">{{ (today_session.get('emotions', 'netral')|title) }}</span>
+                <span class="emotion-badge emotion-{{ today_session.get('emotions', 'neutral') }}">{{ (today_session.get('emotions', 'neutral')|title) }}</span>
             {% else %}
                 <div class="text-2xl font-bold text-gray-400">-</div>
-                <p class="text-sm text-gray-500 mt-1">belum trading</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="ai_mentor.not_traded">not traded yet</p>
             {% endif %}
         </div>
         
         <div class="stat-card">
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Status AI</h3>
-            <div class="text-2xl font-bold text-green-600">🤖 Aktif</div>
-            <p class="text-sm text-gray-500 mt-1">siap menganalisis</p>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.ai_status">AI Status</h3>
+            <div class="text-2xl font-bold text-green-600" data-i18n="ai_mentor.ai_active">🤖 Active</div>
+            <p class="text-sm text-gray-500 mt-1" data-i18n="ai_mentor.ai_ready">ready to analyze</p>
         </div>
     </div>
 
@@ -211,7 +212,7 @@
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-bold mb-4 flex items-center">
                 <span class="mr-2">📊</span>
-                Trading Hari Ini
+                <span data-i18n="ai_mentor.today_trading">Today's Trading</span>
             </h2>
             
             {% if today_session %}
@@ -219,43 +220,43 @@
                 {% set total_trades = today_session.get('total_trades', today_session.get('trades_count', 0)) %}
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
-                        <span class="text-gray-600">Total Trades:</span>
+                        <span class="text-gray-600" data-i18n="ai_mentor.total_trades">Total Trades:</span>
                         <span class="font-semibold">{{ total_trades }}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-gray-600">P&L:</span>
+                        <span class="text-gray-600" data-i18n="ai_mentor.pnl">P&L:</span>
                         <span class="font-semibold {{ 'profit-positive' if profit_loss > 0 else 'profit-negative' if profit_loss < 0 else 'text-gray-600' }}">
                             ${{ "%.2f"|format(profit_loss) }}
                         </span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-gray-600">Emosi:</span>
-                        <span class="emotion-badge emotion-{{ today_session.get('emotions', 'netral') }}">{{ (today_session.get('emotions', 'netral')|title) }}</span>
+                        <span class="text-gray-600" data-i18n="ai_mentor.emotion">Emotion:</span>
+                        <span class="emotion-badge emotion-{{ today_session.get('emotions', 'neutral') }}">{{ (today_session.get('emotions', 'neutral')|title) }}</span>
                     </div>
                     
                     {% if today_session.get('personal_notes') %}
                         <div class="ai-insight">
-                            <p class="text-sm"><strong>Catatan Anda:</strong></p>
+                            <p class="text-sm"><strong data-i18n="ai_mentor.your_notes">Your Notes:</strong></p>
                             <p class="text-gray-700 italic">"{{ today_session.get('personal_notes') }}"</p>
                         </div>
                     {% endif %}
                     
                     <div class="mt-4 space-y-2">
                         <a href="{{ url_for('ai_mentor.today_report') }}" class="block w-full bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                            🧠 Lihat Analisis AI Lengkap
+                            <span data-i18n="ai_mentor.view_full_analysis">🧠 View Full AI Analysis</span>
                         </a>
                         <button onclick="openQuickFeedback()" class="block w-full bg-green-600 text-white text-center py-2 rounded-lg hover:bg-green-700 transition-colors">
-                            ✏️ Update Emosi & Catatan
+                            <span data-i18n="ai_mentor.update_emotion">✏️ Update Emotion & Notes</span>
                         </button>
                     </div>
                 </div>
             {% else %}
                 <div class="text-center py-8">
                     <div class="text-6xl mb-4">📈</div>
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Trading Hari Ini</h3>
-                    <p class="text-gray-500 mb-4">Mulai trading untuk mendapatkan analisis AI yang personal!</p>
+                    <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.not_traded_today">No Trading Today Yet</h3>
+                    <p class="text-gray-500 mb-4" data-i18n="ai_mentor.start_trading">Start trading to get personalized AI analysis!</p>
                     <button onclick="openQuickFeedback()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        📝 Catat Emosi Trading
+                        <span data-i18n="ai_mentor.record_emotion">📝 Record Trading Emotion</span>
                     </button>
                 </div>
             {% endif %}
@@ -265,7 +266,7 @@
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-bold mb-4 flex items-center">
                 <span class="mr-2">🤖</span>
-                AI Insights Terbaru
+                <span data-i18n="ai_mentor.ai_insights">Latest AI Insights</span>
             </h2>
             
             {% if recent_reports %}
@@ -280,21 +281,21 @@
                                 </span>
                             </div>
                             <p class="text-sm text-gray-600">{{ (report.get('motivation', 'No insights available'))[:100] }}{% if (report.get('motivation', '')|length) > 100 %}...{% endif %}</p>
-                            <span class="emotion-badge emotion-{{ report.get('emotions', 'netral') }} text-xs mt-1 inline-block">{{ (report.get('emotions', 'netral')|title) }}</span>
+                            <span class="emotion-badge emotion-{{ report.get('emotions', 'neutral') }} text-xs mt-1 inline-block">{{ (report.get('emotions', 'neutral')|title) }}</span>
                         </div>
                     {% endfor %}
                 </div>
                 
                 <div class="mt-4">
                     <a href="{{ url_for('ai_mentor.history') }}" class="block w-full bg-gray-600 text-white text-center py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                        📚 Lihat Semua Riwayat
+                        <span data-i18n="ai_mentor.view_history">📚 View All History</span>
                     </a>
                 </div>
             {% else %}
                 <div class="text-center py-8">
                     <div class="text-6xl mb-4">🤖</div>
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">AI Siap Membantu!</h3>
-                    <p class="text-gray-500">Mulai trading untuk mendapatkan insight personal dari AI mentor Anda.</p>
+                    <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.no_insights">AI is Ready to Help!</h3>
+                    <p class="text-gray-500" data-i18n="ai_mentor.start_trading_insights">Start trading to get personalized insights from your AI mentor.</p>
                 </div>
             {% endif %}
         </div>
@@ -304,46 +305,46 @@
     <div class="bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-md p-6 text-white">
         <h2 class="text-xl font-bold mb-4 flex items-center">
             <span class="mr-2">💡</span>
-            Tips Harian dari AI Mentor
+            <span data-i18n="ai_mentor.daily_tips">Daily Tips from AI Mentor</span>
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div class="bg-white bg-opacity-20 rounded-lg p-4">
-                <h4 class="font-semibold mb-2">🎯 Konsistensi</h4>
-                <p class="text-sm">"Profit kecil tapi konsisten lebih baik daripada profit besar sekali terus loss."</p>
+                <h4 class="font-semibold mb-2" data-i18n="ai_mentor.consistency">🎯 Consistency</h4>
+                <p class="text-sm" data-i18n="ai_mentor.consistency_tip">"Small but consistent profits are better than one big profit followed by losses."</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-lg p-4">
-                <h4 class="font-semibold mb-2">🛡️ Risk Management</h4>
-                <p class="text-sm">"Jangan pernah risiko lebih dari 2% modal per trade. Modal adalah nyawa trader!"</p>
+                <h4 class="font-semibold mb-2" data-i18n="ai_mentor.risk_management">🛡️ Risk Management</h4>
+                <p class="text-sm" data-i18n="ai_mentor.risk_tip">"Never risk more than 2% of your capital per trade. Capital is a trader's life!"</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-lg p-4">
-                <h4 class="font-semibold mb-2">🧠 Emosi</h4>
-                <p class="text-sm">"Trading dengan emosi tenang adalah kunci trader profesional. Istirahat jika frustasi."</p>
+                <h4 class="font-semibold mb-2" data-i18n="ai_mentor.emotions">🧠 Emotions</h4>
+                <p class="text-sm" data-i18n="ai_mentor.emotion_tip">"Trading with a calm emotion is the key to professional trading. Take a break if frustrated."</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Floating Chat Button -->
-<button class="floating-chat-btn" onclick="openQuickFeedback()" title="Chat dengan AI Mentor">
+<button class="floating-chat-btn" onclick="openQuickFeedback()" title="Chat with AI Mentor">
     💬
 </button>
 
-<!-- Quick Feedback Modal (akan dimuat dengan AJAX) -->
+<!-- Quick Feedback Modal (will be loaded with AJAX) -->
 <div id="quickFeedbackModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-lg max-w-md w-full p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold">💬 Chat dengan AI Mentor</h3>
+                <h3 class="text-lg font-bold" data-i18n="ai_mentor.chat_with_mentor">💬 Chat with AI Mentor</h3>
                 <button onclick="closeQuickFeedback()" class="text-gray-500 hover:text-gray-700">
                     ✕
                 </button>
             </div>
             <div id="quickFeedbackContent">
-                <!-- Content akan dimuat dengan AJAX -->
+                <!-- Content will be loaded with AJAX -->
                 <div class="text-center py-4">
                     <div class="text-4xl mb-2">🤖</div>
-                    <p class="text-gray-600">Fitur sedang dikembangkan...</p>
-                    <p class="text-sm text-gray-500 mt-2">Sementara ini, gunakan dashboard untuk melihat analisis AI.</p>
+                    <p class="text-gray-600" data-i18n="ai_mentor.developing">Feature under development...</p>
+                    <p class="text-sm text-gray-500 mt-2" data-i18n="ai_mentor.use_dashboard">For now, use the dashboard to view AI analysis.</p>
                 </div>
             </div>
         </div>

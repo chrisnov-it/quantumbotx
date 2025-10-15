@@ -1,12 +1,13 @@
 <!-- templates/portfolio.html -->
 {% extends "base.html" %}
+{% block title_key %}portfolio.title{% endblock %}
 {% block title %}Portfolio Real-Time{% endblock %}
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <div>
-        <h2 class="text-2xl font-bold text-gray-800">Portfolio Real-Time</h2>
-        <p class="text-gray-600">Posisi trading yang sedang terbuka di akun MetaTrader 5.</p>
+        <h2 class="text-2xl font-bold text-gray-800" data-i18n="portfolio.title">Portfolio Real-Time</h2>
+        <p class="text-gray-600" data-i18n="portfolio.description">Posisi trading yang sedang terbuka di akun MetaTrader 5.</p>
     </div>
     <div id="portfolio-summary" class="text-right">
         <!-- Summary akan dimuat di sini -->
@@ -17,13 +18,13 @@
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
     <!-- Chart P/L (lebih lebar) -->
     <div class="lg:col-span-3 bg-white rounded-lg shadow p-4">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">Grafik Profit/Loss Terbuka (Real-Time)</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2" data-i18n="portfolio.pnl_chart">Grafik Profit/Loss Terbuka (Real-Time)</h3>
         <div style="height: 250px;"><canvas id="pnlChart"></canvas></div>
     </div>
     
     <!-- Chart Alokasi Aset (lebih kecil) -->
     <div class="lg:col-span-2 bg-white rounded-lg shadow p-4">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">Alokasi Aset</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2" data-i18n="portfolio.allocation_chart">Alokasi Aset</h3>
         <div style="height: 250px;"><canvas id="assetAllocationChart"></canvas></div>
     </div>
 </div>
@@ -32,16 +33,16 @@
 <table class="min-w-full bg-white rounded-lg shadow overflow-hidden">
     <thead class="bg-gray-50">
         <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Simbol</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Buka</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit/Loss</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Magic Number</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.symbol">Simbol</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.type">Tipe</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.volume">Volume</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.open_price">Harga Buka</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.profit_loss">Profit/Loss</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.magic">Magic Number</th>
         </tr>
     </thead>
     <tbody id="portfolio-table-body" class="bg-white divide-y divide-gray-200">
-        <tr><td colspan="6" class="p-4 text-center text-gray-500">Memuat posisi terbuka...</td></tr>
+        <tr><td colspan="6" class="p-4 text-center text-gray-500" data-i18n="portfolio.loading">Memuat posisi terbuka...</td></tr>
     </tbody>
 </table>
 

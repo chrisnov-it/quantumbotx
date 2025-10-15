@@ -1,4 +1,3 @@
-/* eslint-disable no-dupe-keys */
 /**
  * QuantumBotX Internationalization (i18n) System
  * Global language support across the entire application
@@ -134,7 +133,149 @@ window.QuantumBotXI18n = {
       "mentor.greeting": "Halo, Teman Trader!",
       "mentor.welcome": "Selamat datang di sistem trading AI saya",
 
-      // AI Mentor (Consolidated - removed duplications)
+      // Units & Currencies
+      "currency.usd": "USD",
+      "currency.idr": "IDR",
+      "currency.percentage": "%",
+
+      // Settings
+      "settings.title": "Pengaturan",
+      "settings.language": "Bahasa",
+      "settings.theme": "Tema",
+      "settings.save": "Simpan Perubahan",
+      "settings.profile": "Profil",
+      "settings.preferences": "Preferensi",
+      "settings.api_keys": "API Keys Bursa",
+      "settings.quick_settings": "Pengaturan Cepat",
+      "settings.email_notifications": "Notifikasi Email",
+      "settings.auto_update": "Update Otomatis Strategi",
+      "settings.demo_mode": "Mode Demo",
+      "settings.version": "Versi",
+      "settings.last_updated": "Terakhir Update",
+      "settings.light": "Terang",
+      "settings.dark": "Gelap (Segera Hadir)",
+      "settings.indonesian": "Indonesia",
+      "settings.english": "English",
+      "settings.api_info": "API Keys akan digunakan oleh versi QuantumBotX berikutnya untuk mengakses broker non-MT5.",
+      "settings.api_placeholder": "Fitur ini akan tersedia di QuantumBotX API versi mendatang.",
+
+      // Trading Bots
+      "bots.title": "Trading Bots",
+      "bots.manage": "Kelola semua bot dan strategi Anda.",
+      "bots.start_all_title": "Jalankan semua bot yang dijeda",
+      "bots.stop_all_title": "Hentikan semua bot yang aktif",
+      "bots.name_market": "Nama / Pasar",
+      "bots.parameters": "Parameter",
+      "bots.configuration": "Konfigurasi",
+      "bots.actions": "Aksi",
+      "bots.create_edit_modal": "Modal untuk Membuat/Mengedit Bot",
+      "bots.create_new": "🚀 Buat Bot Baru",
+      "bots.close_modal": "Tutup modal",
+      "bots.row_name_market": "Baris 1: Nama & Pasar",
+      "bots.row_lot_sl_tp": "Baris 2: Lot, SL, TP",
+      "bots.row_timeframe_interval": "Baris 3: Timeframe & Interval",
+      "bots.enable_strategy_switching": "Aktifkan Automatic Strategy Switching",
+      "bots.strategy_switching_info": "Jika diaktifkan, bot akan secara otomatis beralih ke strategi terbaik berdasarkan kinerja terkini.",
+      "bots.row_strategy_params": "Baris 4: Strategi & Parameternya",
+      "bots.strategy_params_loaded": "Parameter strategi akan dimuat di sini oleh JavaScript",
+      "bots.create_bot": "Buat Bot",
+      "bots.cancel": "Batal",
+      "bots.example_name": "Contoh: XAUUSD Hybrid H1",
+      "bots.example_market": "Contoh: XAUUSD atau EURUSD",
+      "bots.timeframe_1m": "1 Menit",
+      "bots.timeframe_5m": "5 Menit",
+      "bots.timeframe_15m": "15 Menit",
+      "bots.timeframe_30m": "30 Menit",
+      "bots.timeframe_1h": "1 Jam",
+      "bots.timeframe_4h": "4 Jam",
+      "bots.timeframe_1d": "1 Hari",
+      "bots.select_strategy": "Pilih sebuah strategi",
+      "bots.detail_title": "Detail Bot - QuantumBotX",
+
+      // Profile
+      "profile.title": "Profil",
+      "profile.my_profile": "Profil Saya",
+      "profile.loading": "Memuat...",
+      "profile.joined_since": "Bergabung sejak: Juli 2025",
+      "profile.save_changes": "Simpan Perubahan",
+      "profile.password_placeholder": "••••••••",
+
+      // Holidays
+      "holiday.countdown.iftar": "⏱️ Hitung Mundur Iftar",
+      "holiday.countdown.christmas": "🎄 Hitung Mundur Natal",
+      "holiday.countdown.new_year": "🎆 Hitung Mundur Tahun Baru",
+      "holiday.countdown.days_until": "hari lagi sampai",
+      "holiday.patience_reminder": "🧘‍♂️ Pengingat Kesabaran",
+      "holiday.risk_adjustment": "🛡️ Penyesuaian Risiko",
+      "holiday.risk_reduction": "Pengurangan risiko otomatis",
+      "holiday.optimal_trading_hours": "⏰ Waktu Trading Optimal",
+      "holiday.christmas_greeting": "✨ Salam Natal",
+      "holiday.lot_adjustment": "📏 Penyesuaian Lot",
+      "holiday.lot_reduction": "Pengurangan ukuran lot",
+      "holiday.new_year_resolution": "🎯 Resolusi Trading",
+      "holiday.new_year_goal_setting": "Waktu yang tepat untuk menetapkan tujuan trading tahun ini",
+
+      // Backtesting
+      "backtest.enhanced_engine_active": "🚀 Enhanced Backtesting Engine Active",
+      "backtest.includes": "Your backtesting now includes:",
+      "backtest.realistic_spread": "Realistic spread costs",
+      "backtest.actual_costs": "Actual trading costs deducted",
+      "backtest.atr_risk": "ATR-based risk management",
+      "backtest.dynamic_sizing": "Dynamic position sizing",
+      "backtest.instrument_protection": "Instrument protection",
+      "backtest.gold_safeguards": "Gold trading safeguards",
+      "backtest.slippage": "Slippage simulation",
+      "backtest.accurate_modeling": "More accurate execution modeling",
+      "backtest.upload_data": "Unggah Data Historis (CSV)",
+      "backtest.enhanced": "🚀 Enhanced",
+      "backtest.dynamic_sl": "Dynamic SL based on volatility",
+      "backtest.dynamic_tp": "Dynamic TP based on volatility",
+      "backtest.run": "Jalankan Backtest",
+      "backtest.results": "Hasil Backtest",
+      "backtest.history_title": "Riwayat Backtest - QuantumBotX",
+      "backtest.running": "Menjalankan simulasi...",
+
+      // History
+      "history.title": "Riwayat Transaksi Global",
+      "history.description": "Semua transaksi yang telah ditutup dari akun MetaTrader 5.",
+      "history.symbol": "Simbol",
+      "history.type": "Tipe",
+      "history.volume": "Volume",
+      "history.profit": "Profit",
+      "history.close_time": "Waktu Penutupan",
+      "history.magic": "Magic Number",
+      "history.loading": "Memuat riwayat...",
+
+      // Portfolio
+      "portfolio.title": "Portfolio Real-Time",
+      "portfolio.description": "Posisi trading yang sedang terbuka di akun MetaTrader 5.",
+      "portfolio.pnl_chart": "Grafik Profit/Loss Terbuka (Real-Time)",
+      "portfolio.allocation_chart": "Alokasi Aset",
+      "portfolio.symbol": "Simbol",
+      "portfolio.type": "Tipe",
+      "portfolio.volume": "Volume",
+      "portfolio.open_price": "Harga Buka",
+      "portfolio.profit_loss": "Profit/Loss",
+      "portfolio.magic": "Magic Number",
+      "portfolio.loading": "Memuat posisi terbuka...",
+
+      // Market Data
+      "market.forex_title": "Pasar Forex",
+      "market.forex_description": "Data harga real-time dari pasar valuta asing.",
+      "market.stocks_title": "Pasar Saham",
+      "market.stocks_description": "Data harga real-time dari pasar saham global.",
+      "market.pair": "Pasangan",
+      "market.bid_price": "Harga Bid",
+      "market.ask_price": "Harga Ask",
+      "market.spread": "Spread",
+      "market.stock": "Saham",
+      "market.price": "Harga",
+      "market.change_24h": "Perubahan 24j",
+      "market.time": "Waktu",
+      "market.loading": "Memuat data...",
+      "market.close": "Close",
+
+      // AI Mentor
       "ai_mentor.title": "🧠 AI Mentor Trading - QuantumBotX",
       "ai_mentor.page_title": "🧠 AI Mentor Trading - QuantumBotX",
       "ai_mentor.header": "🧠 AI Mentor Trading Indonesia",
@@ -167,15 +308,15 @@ window.QuantumBotXI18n = {
       "ai_mentor.consistency": "🎯 Konsistensi",
       "ai_mentor.consistency_tip": "Profit kecil tapi konsisten lebih baik daripada profit besar sekali terus loss.",
       "ai_mentor.risk_management": "🛡️ Risk Management",
-      "ai_mentor.risk_management_tip": "Jangan pernah risiko lebih dari 2% modal per trade. Modal adalah nyawa trader!",
-      "ai_mentor.emotion": "🧠 Emosi",
+      "ai_mentor.risk_tip": "Jangan pernah risiko lebih dari 2% modal per trade. Modal adalah nyawa trader!",
+      "ai_mentor.emotions": "🧠 Emosi",
       "ai_mentor.emotion_tip": "Trading dengan emosi tenang adalah kunci trader profesional. Istirahat jika frustasi.",
       "ai_mentor.chat_with_mentor": "💬 Chat dengan AI Mentor",
       "ai_mentor.developing": "Fitur sedang dikembangkan...",
       "ai_mentor.use_dashboard": "Sementara ini, gunakan dashboard untuk melihat analisis AI.",
       "ai_mentor.history_page_title": "📊 Riwayat AI Mentor - QuantumBotX",
       "ai_mentor.report_page_title": "📊 Laporan AI Mentor - QuantumBotX",
-      "ai_mentor.session_detail_title": "📈 Detail Sesi {{ session_date }} - AI Mentor - QuantumBotX",
+      // Consolidated AI Mentor section (removed massive duplications)
       "ai_mentor.holiday_risk_reduction": "⚠️ Risk otomatis dikurangi {{ (100 - holiday_config.adjustments.risk_reduction * 100)|int }}% untuk periode liburan",
       "ai_mentor.holiday": "• {{ holiday_config.active_holiday.split()[0] }} 🎄",
       "ai_mentor.language_indonesian": "🇮🇩 Bahasa Indonesia",
@@ -341,7 +482,7 @@ window.QuantumBotXI18n = {
       "ai_mentor.overtrading_alert_description": "Peringatan jika terlalu banyak trading",
       "ai_mentor.cultural_preferences": "🎭 Preferensi Budaya",
       "ai_mentor.automatic_holiday_mode": "Mode Liburan Otomatis",
-      "ai_mentor.automatic_holiday_mode_description": "Aktivkan mode Ramadan dan Natal secara otomatis",
+      "ai_mentor.automatic_holiday_mode_description": "Aktifkan mode Ramadan dan Natal secara otomatis",
       "ai_mentor.ramadan_risk_adjustment": "Penyesuaian Risk Ramadan",
       "ai_mentor.ramadan_risk_adjustment_description": "Kurangi risk otomatis selama bulan Ramadan",
       "ai_mentor.sahur_iftar_pause": "Pause Trading Sahur/Iftar",
@@ -361,151 +502,6 @@ window.QuantumBotXI18n = {
       "ai_mentor.reset": "🗑️ Reset",
       "ai_mentor.save_settings": "💾 Simpan Pengaturan",
       "ai_mentor.reset_to_defaults": "🔄 Reset ke Default",
-      "ai_mentor.back_to_dashboard": "← Kembali ke Dashboard",
-
-      // Units & Currencies
-      "currency.usd": "USD",
-      "currency.idr": "IDR",
-      "currency.percentage": "%",
-
-      // Settings
-      "settings.title": "Pengaturan",
-      "settings.language": "Bahasa",
-      "settings.theme": "Tema",
-      "settings.save": "Simpan Perubahan",
-      "settings.profile": "Profil",
-      "settings.preferences": "Preferensi",
-      "settings.api_keys": "API Keys Bursa",
-      "settings.quick_settings": "Pengaturan Cepat",
-      "settings.email_notifications": "Notifikasi Email",
-      "settings.auto_update": "Update Otomatis Strategi",
-      "settings.demo_mode": "Mode Demo",
-      "settings.version": "Versi",
-      "settings.last_updated": "Terakhir Update",
-      "settings.light": "Terang",
-      "settings.dark": "Gelap (Segera Hadir)",
-      "settings.indonesian": "Indonesia",
-      "settings.english": "English",
-      "settings.api_info": "API Keys akan digunakan oleh versi QuantumBotX berikutnya untuk mengakses broker non-MT5.",
-      "settings.api_placeholder": "Fitur ini akan tersedia di QuantumBotX API versi mendatang.",
-
-      // Trading Bots
-      "bots.title": "Trading Bots",
-      "bots.manage": "Kelola semua bot dan strategi Anda.",
-      "bots.start_all_title": "Jalankan semua bot yang dijeda",
-      "bots.stop_all_title": "Hentikan semua bot yang aktif",
-      "bots.name_market": "Nama / Pasar",
-      "bots.parameters": "Parameter",
-      "bots.configuration": "Konfigurasi",
-      "bots.actions": "Aksi",
-      "bots.create_edit_modal": "Modal untuk Membuat/Mengedit Bot",
-      "bots.create_new": "🚀 Buat Bot Baru",
-      "bots.close_modal": "Tutup modal",
-      "bots.row_name_market": "Baris 1: Nama & Pasar",
-      "bots.row_lot_sl_tp": "Baris 2: Lot, SL, TP",
-      "bots.row_timeframe_interval": "Baris 3: Timeframe & Interval",
-      "bots.enable_strategy_switching": "Aktifkan Automatic Strategy Switching",
-      "bots.strategy_switching_info": "Jika diaktifkan, bot akan secara otomatis beralih ke strategi terbaik berdasarkan kinerja terkini.",
-      "bots.row_strategy_params": "Baris 4: Strategi & Parameternya",
-      "bots.strategy_params_loaded": "Parameter strategi akan dimuat di sini oleh JavaScript",
-      "bots.create_bot": "Buat Bot",
-      "bots.cancel": "Batal",
-      "bots.example_name": "Contoh: XAUUSD Hybrid H1",
-      "bots.example_market": "Contoh: XAUUSD atau EURUSD",
-      "bots.timeframe_1m": "1 Menit",
-      "bots.timeframe_5m": "5 Menit",
-      "bots.timeframe_15m": "15 Menit",
-      "bots.timeframe_30m": "30 Menit",
-      "bots.timeframe_1h": "1 Jam",
-      "bots.timeframe_4h": "4 Jam",
-      "bots.timeframe_1d": "1 Hari",
-      "bots.select_strategy": "Pilih sebuah strategi",
-      "bots.detail_title": "Detail Bot - QuantumBotX",
-
-      // Profile
-      "profile.title": "Profil",
-      "profile.my_profile": "Profil Saya",
-      "profile.loading": "Memuat...",
-      "profile.joined_since": "Bergabung sejak: Juli 2025",
-      "profile.save_changes": "Simpan Perubahan",
-      "profile.password_placeholder": "••••••••",
-
-      // Holidays
-      "holiday.countdown.iftar": "⏱️ Hitung Mundur Iftar",
-      "holiday.countdown.christmas": "🎄 Hitung Mundur Natal",
-      "holiday.countdown.new_year": "🎆 Hitung Mundur Tahun Baru",
-      "holiday.countdown.days_until": "hari lagi sampai",
-      "holiday.patience_reminder": "🧘‍♂️ Pengingat Kesabaran",
-      "holiday.risk_adjustment": "🛡️ Penyesuaian Risiko",
-      "holiday.risk_reduction": "Pengurangan risiko otomatis",
-      "holiday.optimal_trading_hours": "⏰ Waktu Trading Optimal",
-      "holiday.christmas_greeting": "✨ Salam Natal",
-      "holiday.lot_adjustment": "📏 Penyesuaian Lot",
-      "holiday.lot_reduction": "Pengurangan ukuran lot",
-      "holiday.new_year_resolution": "🎯 Resolusi Trading",
-      "holiday.new_year_goal_setting": "Waktu yang tepat untuk menetapkan tujuan trading tahun ini",
-
-      // Backtesting
-      "backtest.enhanced_engine_active": "🚀 Enhanced Backtesting Engine Active",
-      "backtest.includes": "Your backtesting now includes:",
-      "backtest.realistic_spread": "Realistic spread costs",
-      "backtest.actual_costs": "Actual trading costs deducted",
-      "backtest.atr_risk": "ATR-based risk management",
-      "backtest.dynamic_sizing": "Dynamic position sizing",
-      "backtest.instrument_protection": "Instrument protection",
-      "backtest.gold_safeguards": "Gold trading safeguards",
-      "backtest.slippage": "Slippage simulation",
-      "backtest.accurate_modeling": "More accurate execution modeling",
-      "backtest.upload_data": "Unggah Data Historis (CSV)",
-      "backtest.enhanced": "🚀 Enhanced",
-      "backtest.dynamic_sl": "Dynamic SL based on volatility",
-      "backtest.dynamic_tp": "Dynamic TP based on volatility",
-      "backtest.run": "Jalankan Backtest",
-      "backtest.results": "Hasil Backtest",
-      "backtest.history_title": "Riwayat Backtest - QuantumBotX",
-      "backtest.running": "Menjalankan simulasi...",
-
-      // History
-      "history.title": "Riwayat Transaksi Global",
-      "history.description": "Semua transaksi yang telah ditutup dari akun MetaTrader 5.",
-      "history.symbol": "Simbol",
-      "history.type": "Tipe",
-      "history.volume": "Volume",
-      "history.profit": "Profit",
-      "history.close_time": "Waktu Penutupan",
-      "history.magic": "Magic Number",
-      "history.loading": "Memuat riwayat...",
-
-      // Portfolio
-      "portfolio.title": "Portfolio Real-Time",
-      "portfolio.description": "Posisi trading yang sedang terbuka di akun MetaTrader 5.",
-      "portfolio.pnl_chart": "Grafik Profit/Loss Terbuka (Real-Time)",
-      "portfolio.allocation_chart": "Alokasi Aset",
-      "portfolio.symbol": "Simbol",
-      "portfolio.type": "Tipe",
-      "portfolio.volume": "Volume",
-      "portfolio.open_price": "Harga Buka",
-      "portfolio.profit_loss": "Profit/Loss",
-      "portfolio.magic": "Magic Number",
-      "portfolio.loading": "Memuat posisi terbuka...",
-      "portfolio.open_pnl_total": "Total P/L Terbuka",
-      "portfolio.no_open_positions": "Belum ada posisi terbuka.",
-
-      // Market Data
-      "market.forex_title": "Pasar Forex",
-      "market.forex_description": "Data harga real-time dari pasar valuta asing.",
-      "market.stocks_title": "Pasar Saham",
-      "market.stocks_description": "Data harga real-time dari pasar saham global.",
-      "market.pair": "Pasangan",
-      "market.bid_price": "Harga Bid",
-      "market.ask_price": "Harga Ask",
-      "market.spread": "Spread",
-      "market.stock": "Saham",
-      "market.price": "Harga",
-      "market.change_24h": "Perubahan 24j",
-      "market.time": "Waktu",
-      "market.loading": "Memuat data...",
-      "market.close": "Close",
 
       // Strategy Switcher
       "strategy_switcher.title": "Dasbor Strategy Switcher",
@@ -597,10 +593,10 @@ window.QuantumBotXI18n = {
       "common.close": "Tutup",
       "common.yes": "Ya",
       "common.no": "Tidak",
-
+      
       // Notifications
       "notifications.loading": "Memuat notifikasi...",
-
+      
       // AI Mentor Settings
       "ai_mentor.settings_title": "⚙️ Pengaturan AI Mentor - QuantumBotX"
     },
@@ -731,235 +727,6 @@ window.QuantumBotXI18n = {
       "mentor.greeting": "Hello, Trading Friend!",
       "mentor.welcome": "Welcome to my AI trading system",
 
-      // AI Mentor (Consolidated - no duplicates)
-      "ai_mentor.title": "🧠 AI Trading Mentor - QuantumBotX",
-      "ai_mentor.page_title": "🧠 AI Mentor Trading - QuantumBotX",
-      "ai_mentor.header": "🧠 AI Trading Mentor",
-      "ai_mentor.subtitle": "Your digital mentor for long-term trading success",
-      "ai_mentor.language": "🇺🇸 English Language",
-      "ai_mentor.realtime": "📊 Real-time Analysis",
-      "ai_mentor.personal": "🎯 Personal",
-      "ai_mentor.total_sessions": "Total Sessions",
-      "ai_mentor.win_rate": "Win Rate",
-      "ai_mentor.today": "Today",
-      "ai_mentor.not_traded": "not traded yet",
-      "ai_mentor.ai_status": "AI Status",
-      "ai_mentor.ai_active": "🤖 Active",
-      "ai_mentor.ai_ready": "ready to analyze",
-      "ai_mentor.today_trading": "📊 Today's Trading",
-      "ai_mentor.total_trades": "Total Trades:",
-      "ai_mentor.pnl": "P&L:",
-      "ai_mentor.emotion": "Emotion:",
-      "ai_mentor.your_notes": "Your Notes:",
-      "ai_mentor.view_full_analysis": "🧠 View Full AI Analysis",
-      "ai_mentor.update_emotion": "✏️ Update Emotion & Notes",
-      "ai_mentor.not_traded_today": "No Trading Today Yet",
-      "ai_mentor.start_trading": "Start trading to get personalized AI analysis!",
-      "ai_mentor.record_emotion": "📝 Record Trading Emotion",
-      "ai_mentor.ai_insights": "🤖 Latest AI Insights",
-      "ai_mentor.no_insights": "AI is Ready to Help!",
-      "ai_mentor.start_trading_insights": "Start trading to get personalized insights from your AI mentor.",
-      "ai_mentor.view_history": "📚 View All History",
-      "ai_mentor.daily_tips": "💡 Daily Tips from AI Mentor",
-      "ai_mentor.consistency": "🎯 Consistency",
-      "ai_mentor.consistency_tip": "Small but consistent profits are better than one big profit followed by losses.",
-      "ai_mentor.risk_management": "🛡️ Risk Management",
-      "ai_mentor.risk_tip": "Never risk more than 2% of your capital per trade. Capital is a trader's life!",
-      "ai_mentor.emotion": "🧠 Emotions",
-      "ai_mentor.emotion_tip": "Trading with a calm emotion is the key to professional trading. Take a break if frustrated.",
-      "ai_mentor.chat_with_mentor": "💬 Chat with AI Mentor",
-      "ai_mentor.developing": "Feature under development...",
-      "ai_mentor.use_dashboard": "For now, use the dashboard to view AI analysis.",
-      "ai_mentor.history_page_title": "📊 AI Mentor History - QuantumBotX",
-      "ai_mentor.report_page_title": "📊 AI Mentor Report - QuantumBotX",
-      "ai_mentor.session_detail_title": "📈 Session Detail {{ session_date }} - AI Mentor - QuantumBotX",
-      "ai_mentor.holiday_risk_reduction": "⚠️ Automatic risk reduced {{ (100 - holiday_config.adjustments.risk_reduction * 100)|int }}% for holiday period",
-      "ai_mentor.holiday": "• {{ holiday_config.active_holiday.split()[0] }} 🎄",
-      "ai_mentor.language_indonesian": "🇮🇩 Bahasa Indonesia",
-      "ai_mentor.realtime_analysis": "📊 Real-time Analysis",
-      "ai_mentor.sessions": "trading sessions",
-      "ai_mentor.profit_sessions": "profit sessions",
-      "ai_mentor.no_trading": "no trading yet",
-      "ai_mentor.ai_status": "AI Status",
-      "ai_mentor.ai_active": "🤖 Active",
-      "ai_mentor.ready_to_analyze": "ready to analyze",
-      "ai_mentor.todays_trading": "Today's Trading",
-      "ai_mentor.view_full_analysis": "🧠 View Full AI Analysis",
-      "ai_mentor.update_emotion": "✏️ Update Emotion & Notes",
-      "ai_mentor.record_emotion": "📝 Record Trading Emotion",
-      "ai_mentor.latest_insights": "Latest AI Insights",
-      "ai_mentor.view_all_history": "📚 View All History",
-      "ai_mentor.ai_ready": "AI is Ready to Help!",
-      "ai_mentor.start_trading_for_insights": "Start trading to get personalized insights from your AI mentor.",
-      "ai_mentor.daily_tips": "Daily Tips from AI Mentor",
-      "ai_mentor.consistency": "🎯 Consistency",
-      "ai_mentor.consistency_tip": "Small but consistent profits are better than one big profit followed by losses.",
-      "ai_mentor.risk_management": "🛡️ Risk Management",
-      "ai_mentor.risk_management_tip": "Never risk more than 2% of your capital per trade. Capital is a trader's life!",
-      "ai_mentor.emotion": "🧠 Emotions",
-      "ai_mentor.emotion_tip": "Trading with a calm emotion is the key to professional trading. Take a break if frustrated.",
-      "ai_mentor.chat_with_mentor": "💬 Chat with AI Mentor",
-      "ai_mentor.feature_development": "Feature under development...",
-      "ai_mentor.use_dashboard": "For now, use the dashboard to view AI analysis.",
-      "ai_mentor.report_title": "📊 AI Mentor Report",
-      "ai_mentor.report_subtitle": "Personal analysis for {{ session_data.session_date if session_data else 'Today' }}",
-      "ai_mentor.created_by_ai": "🤖 Created by AI",
-      "ai_mentor.real_data": "📈 Real Data",
-      "ai_mentor.trades": "trades",
-      "ai_mentor.no_data": "No data",
-      "ai_mentor.back_to_dashboard": "Back to Dashboard",
-      "ai_mentor.report_history": "Report History",
-      "ai_mentor.trading_summary": "Trading Summary",
-      "ai_mentor.profit_loss": "Profit/Loss",
-      "ai_mentor.emotional_condition": "Emotional Condition",
-      "ai_mentor.market_conditions": "Market Conditions",
-      "ai_mentor.trading_patterns": "Trading Pattern Analysis",
-      "ai_mentor.main_pattern": "Main Pattern:",
-      "ai_mentor.strength": "Strength:",
-      "ai_mentor.improvement_areas": "Area for Improvement:",
-      "ai_mentor.emotional_analysis": "Emotional vs Performance Analysis",
-      "ai_mentor.emotional_feedback": "Emotional Feedback:",
-      "ai_mentor.tip": "Tip:",
-      "ai_mentor.risk_management_analysis": "Risk Management Evaluation",
-      "ai_mentor.recommendations": "AI Mentor Recommendations",
-      "ai_mentor.motivational_message": "Motivational Message",
-      "ai_mentor.trade_details": "Today's Trade Details",
-      "ai_mentor.lot_size": "Lot: {{ trade.lot_size }}",
-      "ai_mentor.sl": "SL: {{ '✅' if trade.stop_loss_used else '❌' }}",
-      "ai_mentor.tp": "TP: {{ '✅' if trade.take_profit_used else '❌' }}",
-      "ai_mentor.personal_notes": "Your Personal Notes",
-      "ai_mentor.no_trading_data": "No Trading Data Yet",
-      "ai_mentor.back_to_dashboard_button": "← Back to Dashboard",
-      "ai_mentor.full_report": "Full AI Report",
-      "ai_mentor.view_full_report": "View Full Report",
-      "ai_mentor.history_title": "📊 AI Mentor Trading History",
-      "ai_mentor.history_subtitle": "Complete analysis of your trading journey with AI assistance",
-      "ai_mentor.performance_analysis": "📈 Performance Analysis",
-      "ai_mentor.ai_insights": "🧠 AI Insights",
-      "ai_mentor.total_reports": "Total Reports",
-      "ai_mentor.sessions_analyzed": "sessions analyzed",
-      "ai_mentor.period": "Period",
-      "ai_mentor.days": "days",
-      "ai_mentor.last_history": "last history",
-      "ai_mentor.performance": "Performance",
-      "ai_mentor.total_pnl": "total P&L",
-      "ai_mentor.profit_sessions": "profit sessions",
-      "ai_mentor.period_filter": "Period Filter",
-      "ai_mentor.filter_7_days": "7 Days",
-      "ai_mentor.filter_30_days": "30 Days",
-      "ai_mentor.filter_90_days": "90 Days",
-      "ai_mentor.filter_1_year": "1 Year",
-      "ai_mentor.trading_session": "Trading Session",
-      "ai_mentor.ai_summary": "🤖 AI Summary:",
-      "ai_mentor.market": "Market",
-      "ai_mentor.view_details": "View Details →",
-      "ai_mentor.load_more": "Load More",
-      "ai_mentor.no_history": "No Trading History Yet",
-      "ai_mentor.start_trading_for_history": "Start trading to get analysis and personal advice from your digital mentor.",
-      "ai_mentor.start_trading_session": "Start Trading Session",
-      "ai_mentor.view_trading_bots": "View Trading Bots",
-      "ai_mentor.how_are_you_feeling": "🧠 How are you feeling about trading today?",
-      "ai_mentor.emotion_calm": "😌 Calm",
-      "ai_mentor.calm_description": "Clear mind, not rushed",
-      "ai_mentor.emotion_greedy": "🤑 Greedy",
-      "ai_mentor.greedy_description": "Want big profits, aggressive",
-      "ai_mentor.emotion_fearful": "😰 Fearful",
-      "ai_mentor.fearful_description": "Worried about losses, hesitant",
-      "ai_mentor.emotion_frustrated": "😤 Frustrated",
-      "ai_mentor.frustrated_description": "Annoyed by losing streak",
-      "ai_mentor.today_pnl": "💰 Today's P&L (USD)",
-      "ai_mentor.pnl_placeholder": "Example: 25.50 or -15.30",
-      "ai_mentor.today_notes": "📝 Today's Trading Notes",
-      "ai_mentor.notes_placeholder": "Example: Focused on EURUSD today, used tight SL. Market was volatile due to NFP news...",
-      "ai_mentor.instant_feedback": "⚡ Instant Feedback",
-      "ai_mentor.save_data": "💾 Save Data",
-      "ai_mentor.ai_feedback": "🤖 AI Mentor Feedback:",
-      "ai_mentor.analyzing": "🤖 AI is analyzing your trading...",
-      "ai_mentor.emotional_analysis": "🧠 Emotional Analysis:",
-      "ai_mentor.motivation": "💪 Motivation:",
-      "ai_mentor.quick_tips": "💡 Quick Tips:",
-      "ai_mentor.failed_feedback": "❌ Failed to get feedback. Please try again.",
-      "ai_mentor.session_trading_detail": "📈 Session Trading Details",
-      "ai_mentor.full_analysis": "Complete analysis from AI Mentor Indonesia",
-      "ai_mentor.ai_analysis": "🇺🇸 AI Analysis",
-      "ai_mentor.personal_insights": "🧠 Personal Insights",
-      "ai_mentor.performance_review": "📊 Performance Review",
-      "ai_mentor.total_pnl": "Total P&L",
-      "ai_mentor.total_trades": "Total Trades",
-      "ai_mentor.emotional_state": "Emotional State",
-      "ai_mentor.trading_summary": "📊 Trading Summary",
-      "ai_mentor.market_context": "🌐 Market Context",
-      "ai_mentor.market_conditions": "Market Conditions",
-      "ai_mentor.personal_notes": "📝 Personal Notes",
-      "ai_mentor.ai_mentor_report": "🤖 AI Mentor Report",
-      "ai_mentor.emotional_analysis_vs_performance": "💭 Emotional vs Performance Analysis",
-      "ai_mentor.emotional_status": "Status Emosi: {{ session_data.emotions|title if session_data.emotions else 'Not Recorded' }}",
-      "ai_mentor.emotional_advice": "💡 Emotional Advice",
-      "ai_mentor.ai_recommendations": "🎯 AI Recommendations",
-      "ai_mentor.motivation_inspiration": "🚀 Motivation & Inspiration",
-      "ai_mentor.learning_points": "📚 Learning Points",
-      "ai_mentor.back_to_history": "Back to History",
-      "ai_mentor.back_to_history_button": "← Back to History",
-      "ai_mentor.ai_mentor_dashboard": "AI Mentor Dashboard",
-      "ai_mentor.reanalyze": "🔄 Re-analyze",
-      "ai_mentor.session_detail_title": "📈 Session Detail {{ session_date }} - AI Mentor - QuantumBotX",
-      "ai_mentor.settings_title": "⚙️ AI Mentor Settings - QuantumBotX",
-      "ai_mentor.settings_subtitle": "Customize your AI Trading Mentor experience to your preferences",
-      "ai_mentor.indonesia_setup": "🇺🇸 English Setup",
-      "ai_mentor.realtime_config": "⚡ Real-time Configuration",
-      "ai_mentor.personal": "🎯 Personal",
-      "ai_mentor.language_regional": "🌏 Language & Regional",
-      "ai_mentor.interface_language": "Interface Language",
-      "ai_mentor.language_choice": "Select language for AI Mentor",
-      "ai_mentor.timezone": "Timezone",
-      "ai_mentor.timezone_description": "Timezone for trading analysis",
-      "ai_mentor.timezone_wib": "WIB (UTC+7) - Jakarta Time",
-      "ai_mentor.currency_format": "Currency Format",
-      "ai_mentor.currency_display": "Profit/loss display format",
-      "ai_mentor.ai_behavior": "🧠 AI Mentor Behavior",
-      "ai_mentor.automatic_analysis": "Automatic Analysis",
-      "ai_mentor.automatic_analysis_description": "AI automatically analyzes each trading session",
-      "ai_mentor.emotional_feedback": "Emotional Feedback",
-      "ai_mentor.emotional_feedback_description": "AI provides feedback based on emotional condition",
-      "ai_mentor.daily_motivation": "Daily Motivation",
-      "ai_mentor.daily_motivation_description": "Receive daily motivational messages",
-      "ai_mentor.analysis_detail_level": "Analysis Detail Level",
-      "ai_mentor.analysis_detail_description": "Level of detail in AI feedback",
-      "ai_mentor.basic": "Basic",
-      "ai_mentor.detailed": "Detailed",
-      "ai_mentor.expert": "Expert",
-      "ai_mentor.notifications": "🔔 Notifications",
-      "ai_mentor.daily_report": "Daily Report",
-      "ai_mentor.daily_report_time": "Time to send AI daily report",
-      "ai_mentor.timezone_wib_short": "WIB",
-      "ai_mentor.trading_reminder": "Trading Reminder",
-      "ai_mentor.trading_reminder_description": "Reminders for emotion input and notes",
-      "ai_mentor.overtrading_alert": "Overtrading Alert",
-      "ai_mentor.overtrading_alert_description": "Warning if trading too much",
-      "ai_mentor.cultural_preferences": "🎭 Cultural Preferences",
-      "ai_mentor.automatic_holiday_mode": "Automatic Holiday Mode",
-      "ai_mentor.automatic_holiday_mode_description": "Automatically activate Ramadan and Christmas modes",
-      "ai_mentor.ramadan_risk_adjustment": "Ramadan Risk Adjustment",
-      "ai_mentor.ramadan_risk_adjustment_description": "Automatically reduce risk during Ramadan",
-      "ai_mentor.sahur_iftar_pause": "Sahur/Iftar Trading Pause",
-      "ai_mentor.sahur_iftar_pause_description": "Automatically pause trading during sahur and iftar times",
-      "ai_mentor.data_privacy": "🔒 Data & Privacy",
-      "ai_mentor.save_ai_history": "Save AI History",
-      "ai_mentor.save_ai_history_description": "How long to save AI analysis",
-      "ai_mentor.30_days": "30 Days",
-      "ai_mentor.90_days": "90 Days",
-      "ai_mentor.1_year": "1 Year",
-      "ai_mentor.unlimited": "Unlimited",
-      "ai_mentor.export_data": "Export Data",
-      "ai_mentor.export_data_description": "Download all your AI Mentor data",
-      "ai_mentor.export": "📥 Export",
-      "ai_mentor.reset_all_data": "Reset All Data",
-      "ai_mentor.reset_all_data_description": "⚠️ Delete all history and analysis",
-      "ai_mentor.reset": "🗑️ Reset",
-      "ai_mentor.save_settings": "💾 Save Settings",
-      "ai_mentor.reset_to_defaults": "🔄 Reset to Defaults",
-      "ai_mentor.back_to_dashboard": "← Back to Dashboard",
-
       // Units & Currencies
       "currency.usd": "USD",
       "currency.idr": "IDR",
@@ -1077,7 +844,6 @@ window.QuantumBotXI18n = {
       "portfolio.title": "Real-Time Portfolio",
       "portfolio.description": "Open trading positions in the MetaTrader 5 account.",
       "portfolio.pnl_chart": "Open Profit/Loss Chart (Real-Time)",
-      "portfolio.open_pnl_total": "Open P/L Total",
       "portfolio.allocation_chart": "Asset Allocation",
       "portfolio.symbol": "Symbol",
       "portfolio.type": "Type",
@@ -1086,7 +852,6 @@ window.QuantumBotXI18n = {
       "portfolio.profit_loss": "Profit/Loss",
       "portfolio.magic": "Magic Number",
       "portfolio.loading": "Loading open positions...",
-      "portfolio.no_open_positions": "No open positions yet",
 
       // Market Data
       "market.forex_title": "Forex Market",
@@ -1103,6 +868,50 @@ window.QuantumBotXI18n = {
       "market.time": "Time",
       "market.loading": "Loading data...",
       "market.close": "Close",
+
+      // AI Mentor
+      "ai_mentor.title": "🧠 AI Trading Mentor - QuantumBotX",
+      "ai_mentor.page_title": "🧠 AI Mentor Trading - QuantumBotX",
+      "ai_mentor.header": "🧠 AI Trading Mentor",
+      "ai_mentor.subtitle": "Your digital mentor for long-term trading success",
+      "ai_mentor.language": "🇺🇸 English Language",
+      "ai_mentor.realtime": "📊 Real-time Analysis",
+      "ai_mentor.personal": "🎯 Personal",
+      "ai_mentor.total_sessions": "Total Sessions",
+      "ai_mentor.win_rate": "Win Rate",
+      "ai_mentor.today": "Today",
+      "ai_mentor.not_traded": "not traded yet",
+      "ai_mentor.ai_status": "AI Status",
+      "ai_mentor.ai_active": "🤖 Active",
+      "ai_mentor.ai_ready": "ready to analyze",
+      "ai_mentor.today_trading": "📊 Today's Trading",
+      "ai_mentor.total_trades": "Total Trades:",
+      "ai_mentor.pnl": "P&L:",
+      "ai_mentor.emotion": "Emotion:",
+      "ai_mentor.your_notes": "Your Notes:",
+      "ai_mentor.view_full_analysis": "🧠 View Full AI Analysis",
+      "ai_mentor.update_emotion": "✏️ Update Emotion & Notes",
+      "ai_mentor.not_traded_today": "No Trading Today Yet",
+      "ai_mentor.start_trading": "Start trading to get personalized AI analysis!",
+      "ai_mentor.record_emotion": "📝 Record Trading Emotion",
+      "ai_mentor.ai_insights": "🤖 Latest AI Insights",
+      "ai_mentor.no_insights": "AI is Ready to Help!",
+      "ai_mentor.start_trading_insights": "Start trading to get personalized insights from your AI mentor.",
+      "ai_mentor.view_history": "📚 View All History",
+      "ai_mentor.daily_tips": "💡 Daily Tips from AI Mentor",
+      "ai_mentor.consistency": "🎯 Consistency",
+      "ai_mentor.consistency_tip": "Small but consistent profits are better than one big profit followed by losses.",
+      "ai_mentor.risk_management": "🛡️ Risk Management",
+      "ai_mentor.risk_tip": "Never risk more than 2% of your capital per trade. Capital is a trader's life!",
+      "ai_mentor.emotions": "🧠 Emotions",
+      "ai_mentor.emotion_tip": "Trading with a calm emotion is the key to professional trading. Take a break if frustrated.",
+      "ai_mentor.chat_with_mentor": "💬 Chat with AI Mentor",
+      "ai_mentor.developing": "Feature under development...",
+      "ai_mentor.use_dashboard": "For now, use the dashboard to view AI analysis.",
+      "ai_mentor.history_page_title": "📊 AI Mentor History - QuantumBotX",
+      "ai_mentor.report_page_title": "📊 AI Mentor Report - QuantumBotX",
+      "ai_mentor.session_detail_title": "📈 Session Detail {{ session_date }} - AI Mentor - QuantumBotX",
+      "ai_mentor.holiday": "• {{ holiday_config.active_holiday.split()[0] }} 🎄",
 
       // Strategy Switcher
       "strategy_switcher.title": "Strategy Switcher Dashboard",
@@ -1130,7 +939,7 @@ window.QuantumBotXI18n = {
       "strategy_switcher.refresh_switches": "Refresh Switches",
       "strategy_switcher.no_switches": "No strategy switches recorded yet.",
       "strategy_switcher.monitored_instruments": "🔍 Monitored Instruments & Strategies",
-      "strategy_switcher.instruments": "Instruments",
+      "strategy_switcher.instruments": " Instruments",
       "strategy_switcher.strategies": "Strategies",
       "strategy_switcher.none": "None",
       "strategy_switcher.switch_from": "Switched from",
@@ -1160,31 +969,27 @@ window.QuantumBotXI18n = {
       "ramadan.iftar_countdown": "⏱️ Iftar Countdown",
       "ramadan.hours": "Hours",
       "ramadan.minutes": "Minutes",
-      "ramadan.until": "Until",
+      "ramadan.sampai": "Until",
       "ramadan.trading_adjustments": "⚙️ Trading Adjustments",
-      "ramadan.fasting_times": "Fasting Rest Times",
-      "ramadan.suhoor": "Sahur",
-      "ramadan.suhoor_time": "03:30 - 05:00 WIB",
-      "ramadan.iftar_time": "Iftar",
-      "ramadan.iftar_time_range": "18:00 - 19:30 WIB",
+      "ramadan.rest_times": "Fasting Rest Times",
+      "ramadan.sahur": "Sahur",
+      "ramadan.iftar": "Iftar",
       "ramadan.tarawih": "Tarawih",
-      "ramadan.tarawih_time": "20:00 - 21:30 WIB",
       "ramadan.risk_adjustments": "Risk Adjustments",
-      "ramadan.reduced_risk_mode": "Reduced Risk Mode",
-      "ramadan.reduced_risk_description": "20% risk reduction during fasting",
+      "ramadan.reduced_risk": "Reduced Risk Mode",
+      "ramadan.risk_reduction_detail": "20% risk reduction during fasting",
       "ramadan.patience_mode": "Patience Mode",
-      "ramadan.patience_mode_description": "Focus on quality not quantity",
+      "ramadan.patience_detail": "Focus on quality not quantity",
       "ramadan.optimal_hours": "Optimal Hours",
-      "ramadan.optimal_hours_time": "22:00 - 03:00 WIB",
       "ramadan.zakat_calculator": "💰 Trading Zakat Calculator",
-      "ramadan.zakat_information": "Zakat Information",
-      "ramadan.gold_nisab": "Gold Nisab",
-      "ramadan.silver_nisab": "Silver Nisab",
+      "ramadan.zakat_info": "Zakat Information",
+      "ramadan.nisab_gold": "Gold Nisab",
+      "ramadan.nisab_silver": "Silver Nisab",
       "ramadan.zakat_percentage": "Zakat Percentage",
       "ramadan.zakat_reminder": "Zakat Reminder",
-      "ramadan.zakat_trading_reminder": "Trading zakat: 2.5% of trading profits during 1 hijri year. Don't forget to calculate zakat from your trading profits during Ramadan.",
+      "ramadan.zakat_reminder_text": "Trading zakat: 2.5% of trading profits during 1 hijri year. Don't forget to calculate zakat from your trading profits during Ramadan.",
       "ramadan.patience_reminder": "🧘‍♂️ Patience Reminder",
-      "ramadan.loading": "Loading...",
+      "ramadan.patience_loading": "Loading...",
       "ramadan.active": "Active",
       "ramadan.inactive": "Inactive",
       "ramadan.not_ramadan": "Not Ramadan period",
@@ -1194,10 +999,7 @@ window.QuantumBotXI18n = {
       "common.close": "Close",
       "common.yes": "Yes",
       "common.no": "No",
-
-      // Notifications
-      "notifications.loading": "Loading notifications...",
-
+      
       // AI Mentor Settings
       "ai_mentor.settings_title": "⚙️ AI Mentor Settings - QuantumBotX"
     }
@@ -1209,7 +1011,7 @@ window.QuantumBotXI18n = {
   // Initialize i18n system
   init: function() {
     this.loadLanguage();
-    this.setupLanguageSwitcher();
+    this.createLanguageSwitcher();
     this.applyTranslations();
   },
 
@@ -1221,35 +1023,33 @@ window.QuantumBotXI18n = {
     }
   },
 
-  // Set up language switcher buttons (works with existing buttons in header)
-  setupLanguageSwitcher: function() {
-    // Update button states based on current language
-    this.updateLanguageButtonState();
+  // Create global language switcher (can be embedded anywhere)
+  createLanguageSwitcher: function() {
+    // Check if already exists
+    if (document.getElementById('global-lang-switcher')) return;
 
-    // Add click handlers to all language buttons
-    document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('lang-btn')) {
-        e.preventDefault();
-        const newLang = e.target.dataset.lang;
-        if (newLang && newLang !== this.currentLang) {
-          this.setLanguage(newLang);
-        }
-      }
+    const switcher = document.createElement('div');
+    switcher.id = 'global-lang-switcher';
+    switcher.className = 'fixed top-4 right-4 z-50 flex items-center space-x-2 bg-white rounded-lg shadow-lg border p-1';
+
+    switcher.innerHTML = `
+      <button class="lang-btn px-3 py-1 rounded text-sm ${this.currentLang === 'id' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'}"
+              data-lang="id">ID</button>
+      <button class="lang-btn px-3 py-1 rounded text-sm ${this.currentLang === 'en' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'}"
+              data-lang="en">EN</button>
+    `;
+
+    // Add event listeners
+    switcher.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newLang = btn.dataset.lang;
+        this.setLanguage(newLang);
+      });
     });
-  },
 
-  // Update the visual state of language buttons
-  updateLanguageButtonState: function() {
-    const langBtns = document.querySelectorAll('.lang-btn');
-    langBtns.forEach(btn => {
-      const btnLang = btn.dataset.lang;
-      if (btnLang === this.currentLang) {
-        btn.classList.add('bg-blue-600', 'text-white');
-        btn.classList.remove('text-gray-600', 'hover:bg-gray-100');
-      } else {
-        btn.classList.remove('bg-blue-600', 'text-white');
-        btn.classList.add('text-gray-600', 'hover:bg-gray-100');
-      }
+    // Insert into page (after body loads)
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.appendChild(switcher);
     });
   },
 
@@ -1263,8 +1063,14 @@ window.QuantumBotXI18n = {
     this.currentLang = lang;
     localStorage.setItem('quantumBotX_language', lang);
 
-    // Update the visual state of the buttons
-    this.updateLanguageButtonState();
+    // Update switcher buttons
+    const switcher = document.getElementById('global-lang-switcher');
+    if (switcher) {
+      switcher.querySelectorAll('.lang-btn').forEach(btn => {
+        const isActive = btn.dataset.lang === lang;
+        btn.className = `lang-btn px-3 py-1 rounded text-sm ${isActive ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`;
+      });
+    }
 
     this.applyTranslations();
     this.onLanguageChange(lang);
@@ -1284,18 +1090,8 @@ window.QuantumBotXI18n = {
     return fallback || key;
   },
 
+  // Apply translations to all elements with data-i18n attribute
   applyTranslations: function() {
-    // Handle page title translation using a data attribute on the <title> tag
-    const titleElement = document.querySelector('title');
-    if (titleElement) {
-        const titleKey = titleElement.getAttribute('data-i18n-key');
-        if (titleKey) {
-            const translatedTitle = this.t(titleKey);
-            // Fallback to original text if key not found, then append base title
-            document.title = (translatedTitle !== titleKey ? translatedTitle : titleElement.textContent.split(' - ')[0]) + ' - QuantumBotX';
-        }
-    }
-
     // Elements with data-i18n attribute
     document.querySelectorAll('[data-i18n]').forEach(element => {
       const key = element.getAttribute('data-i18n');
@@ -1313,8 +1109,7 @@ window.QuantumBotXI18n = {
       } else if (element.tagName === 'OPTION') {
         element.textContent = translation;
       } else {
-        // Use innerHTML to allow for simple HTML tags in translations
-        element.innerHTML = translation;
+        element.textContent = translation;
       }
     });
 
@@ -1333,8 +1128,11 @@ window.QuantumBotXI18n = {
 
   // Callback when language changes
   onLanguageChange: function(newLang) {
-    // The applyTranslations function is called by setLanguage, which already handles the title.
-    // So, no specific title logic is needed here anymore.
+    // Update page title if it contains translatable text
+    const titleKey = document.documentElement.getAttribute('data-page-title');
+    if (titleKey) {
+      document.title = this.t(titleKey);
+    }
 
     // Trigger custom event for pages to handle
     const event = new CustomEvent('languageChanged', { detail: { language: newLang } });

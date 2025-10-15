@@ -1,13 +1,14 @@
 <!-- templates/history.html (Setelah Refactor) -->
 {% extends "base.html" %}
 
-{% block title %}Riwayat Transaksi{% endblock %}
+{% block title_key %}history.title{% endblock %}
+{% block title %}Riwayat Transaksi Global{% endblock %}
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <div>
-        <h2 class="text-2xl font-bold text-gray-800">Riwayat Transaksi Global</h2>
-        <p class="text-gray-600">Semua transaksi yang telah ditutup dari akun MetaTrader 5.</p>
+        <h2 class="text-2xl font-bold text-gray-800" data-i18n="history.title">Riwayat Transaksi Global</h2>
+        <p class="text-gray-600" data-i18n="history.description">Semua transaksi yang telah ditutup dari akun MetaTrader 5.</p>
     </div>
 </div>
 
@@ -15,17 +16,17 @@
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('symbol')">Simbol</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('volume')">Volume</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('profit')">Profit <span id="profit-sort-icon"></span></th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('time')">Waktu Penutupan <span id="time-sort-icon"></span></th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('magic')">Magic Number</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('symbol')"><span data-i18n="history.symbol">Simbol</span> <span id="symbol-sort-icon"></span></th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('type')"><span data-i18n="history.type">Tipe</span> <span id="type-sort-icon"></span></th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('volume')"><span data-i18n="history.volume">Volume</span> <span id="volume-sort-icon"></span></th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('profit')"><span data-i18n="history.profit">Profit</span> <span id="profit-sort-icon"></span></th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('time')"><span data-i18n="history.close_time">Waktu Penutupan</span> <span id="time-sort-icon"></span></th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('magic')"><span data-i18n="history.magic">Magic Number</span> <span id="magic-sort-icon"></span></th>
             </tr>
         </thead>
         <tbody id="history-table-body" class="bg-white divide-y divide-gray-200">
             <!-- Data akan dimuat di sini oleh JavaScript -->
-            <tr><td colspan="6" class="p-4 text-center text-gray-500">Memuat riwayat...</td></tr>
+            <tr><td colspan="6" class="p-4 text-center text-gray-500" data-i18n="history.loading">Memuat riwayat...</td></tr>
         </tbody>
     </table>
 </div>

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}📊 Riwayat AI Mentor - QuantumBotX{% endblock %}
+{% block title_key %}ai_mentor.history_page_title{% endblock %}
+{% block title %}📊 AI Mentor History{% endblock %}
 
 {% block head_extra %}
 <style>
@@ -35,11 +36,11 @@
     font-weight: 500;
 }
 
-.emotion-tenang { background-color: #10b981; color: white; }
-.emotion-serakah { background-color: #f59e0b; color: white; }
-.emotion-takut { background-color: #8b5cf6; color: white; }
-.emotion-frustasi { background-color: #ef4444; color: white; }
-.emotion-netral { background-color: #6b7280; color: white; }
+.emotion-calm { background-color: #10b981; color: white; }
+.emotion-greedy { background-color: #f59e0b; color: white; }
+.emotion-fear { background-color: #8b5cf6; color: white; }
+.emotion-frustrated { background-color: #ef4444; color: white; }
+.emotion-neutral { background-color: #6b7280; color: white; }
 
 .profit-positive { color: #10b981; font-weight: bold; }
 .profit-negative { color: #ef4444; font-weight: bold; }
@@ -143,58 +144,58 @@
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="mentor-card">
-        <h1 class="text-3xl font-bold mb-2">📊 Riwayat AI Mentor Trading</h1>
-        <p class="text-blue-100 text-lg">Analisis lengkap perjalanan trading Anda dengan bantuan AI Indonesia</p>
+        <h1 class="text-3xl font-bold mb-2" data-i18n="ai_mentor.history_title">📊 AI Mentor Trading History</h1>
+        <p class="text-blue-100 text-lg" data-i18n="ai_mentor.history_subtitle">Complete trading journey analysis with AI assistance</p>
         <div class="mt-4 flex items-center space-x-4">
-            <span class="text-blue-200">🇮🇩 Bahasa Indonesia</span>
-            <span class="text-blue-200">• 📈 Analisis Performa</span>
-            <span class="text-blue-200">• 🧠 AI Insights</span>
+            <span class="text-blue-200" data-i18n="ai_mentor.language">🇺🇸 English Language</span>
+            <span class="text-blue-200" data-i18n="ai_mentor.performance_analysis">• 📈 Performance Analysis</span>
+            <span class="text-blue-200" data-i18n="ai_mentor.ai_insights">• 🧠 AI Insights</span>
         </div>
     </div>
 
     <!-- Quick Statistics -->
     <div class="stats-grid">
         <div class="stat-card">
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Total Laporan</h3>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.total_reports">Total Reports</h3>
             <div class="text-3xl font-bold text-blue-600">{{ reports|length if reports else 0 }}</div>
-            <p class="text-sm text-gray-500 mt-1">sesi dianalisis</p>
+            <p class="text-sm text-gray-500 mt-1" data-i18n="ai_mentor.sessions_analyzed">sessions analyzed</p>
         </div>
         
         <div class="stat-card">
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Periode</h3>
-            <div class="text-2xl font-bold text-purple-600">{{ days }} hari</div>
-            <p class="text-sm text-gray-500 mt-1">riwayat terakhir</p>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.period">Period</h3>
+            <div class="text-2xl font-bold text-purple-600">{{ days }} <span data-i18n="ai_mentor.days">days</span></div>
+            <p class="text-sm text-gray-500 mt-1" data-i18n="ai_mentor.last_history">last history</p>
         </div>
         
         <div class="stat-card">
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Performa</h3>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.performance">Performance</h3>
             {% set total_profit = reports|sum(attribute='profit_loss') if reports else 0 %}
             <div class="text-2xl font-bold {{ 'profit-positive' if total_profit > 0 else 'profit-negative' if total_profit < 0 else 'text-gray-600' }}">
                 ${{ "%.2f"|format(total_profit) }}
             </div>
-            <p class="text-sm text-gray-500 mt-1">total P&L</p>
+            <p class="text-sm text-gray-500 mt-1" data-i18n="ai_mentor.total_pnl">total P&L</p>
         </div>
         
         <div class="stat-card">
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Win Rate</h3>
+            <h3 class="text-lg font-semibold text-gray-600 mb-2" data-i18n="ai_mentor.win_rate">Win Rate</h3>
             {% set profitable_sessions = reports|selectattr('profit_loss', '>', 0)|list|length if reports else 0 %}
             {% set win_rate = (profitable_sessions / reports|length * 100) if reports|length > 0 else 0 %}
             <div class="text-2xl font-bold {{ 'text-green-600' if win_rate >= 60 else 'text-red-600' if win_rate < 40 else 'text-yellow-600' }}">
                 {{ "%.1f"|format(win_rate) }}%
             </div>
-            <p class="text-sm text-gray-500 mt-1">sesi profit</p>
+            <p class="text-sm text-gray-500 mt-1" data-i18n="ai_mentor.profit_sessions">profit sessions</p>
         </div>
     </div>
 
     <!-- Date Filter -->
     <div class="date-filter">
         <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-700">Filter Periode</h3>
+            <h3 class="text-lg font-semibold text-gray-700" data-i18n="ai_mentor.period_filter">Period Filter</h3>
             <div class="flex space-x-2">
-                <button class="filter-btn {{ 'active' if days == 7 }}" onclick="changeFilter(7)">7 Hari</button>
-                <button class="filter-btn {{ 'active' if days == 30 }}" onclick="changeFilter(30)">30 Hari</button>
-                <button class="filter-btn {{ 'active' if days == 90 }}" onclick="changeFilter(90)">90 Hari</button>
-                <button class="filter-btn {{ 'active' if days == 365 }}" onclick="changeFilter(365)">1 Tahun</button>
+                <button class="filter-btn {{ 'active' if days == 7 }}" onclick="changeFilter(7)" data-i18n="ai_mentor.filter_7_days">7 Days</button>
+                <button class="filter-btn {{ 'active' if days == 30 }}" onclick="changeFilter(30)" data-i18n="ai_mentor.filter_30_days">30 Days</button>
+                <button class="filter-btn {{ 'active' if days == 90 }}" onclick="changeFilter(90)" data-i18n="ai_mentor.filter_90_days">90 Days</button>
+                <button class="filter-btn {{ 'active' if days == 365 }}" onclick="changeFilter(365)" data-i18n="ai_mentor.filter_1_year">1 Year</button>
             </div>
         </div>
     </div>
@@ -210,7 +211,7 @@
                             📅 {{ (report.date if report.date else report.session_date).strftime('%d %B %Y') }}
                         </div>
                         <div class="text-sm text-gray-500 mt-1">
-                            {{ (report.date if report.date else report.session_date).strftime('%A') }} - {{ 'Sesi Trading' }}
+                            {{ (report.date if report.date else report.session_date).strftime('%A') }} - <span data-i18n="ai_mentor.trading_session">Trading Session</span>
                         </div>
                     </div>
                     <div class="session-performance">
@@ -220,7 +221,7 @@
                             </span>
                         {% endif %}
                         <span class="trades-count">
-                            {{ report.total_trades or report.trades|length or 0 }} trades
+                            {{ report.total_trades or report.trades|length or 0 }} <span data-i18n="ai_mentor.trades">trades</span>
                         </span>
                         <div class="text-xl font-bold {{ 'profit-positive' if (report.profit_loss or 0) > 0 else 'profit-negative' if (report.profit_loss or 0) < 0 else 'text-gray-600' }}">
                             ${{ "%.2f"|format(report.profit_loss or 0) }}
@@ -230,18 +231,18 @@
                 
                 {% if report.motivation %}
                 <div class="ai-summary">
-                    <strong>🤖 AI Summary:</strong> {{ report.motivation[:200] }}{% if report.motivation|length > 200 %}...{% endif %}
+                    <strong data-i18n="ai_mentor.ai_summary">🤖 AI Summary:</strong> {{ report.motivation[:200] }}{% if report.motivation|length > 200 %}...{% endif %}
                 </div>
                 {% endif %}
                 
                 <div class="flex items-center justify-between mt-3">
                     <div class="text-sm text-gray-500">
                         {% if report.market_conditions %}
-                            🌐 {{ report.market_conditions|title }} Market
+                            🌐 {{ report.market_conditions|title }} <span data-i18n="ai_mentor.market">Market</span>
                         {% endif %}
                     </div>
-                    <div class="text-blue-600 text-sm font-medium">
-                        Lihat Detail →
+                    <div class="text-blue-600 text-sm font-medium" data-i18n="ai_mentor.view_details">
+                        View Details →
                     </div>
                 </div>
             </div>
@@ -251,8 +252,8 @@
         <!-- Pagination (jika diperlukan) -->
         {% if reports|length >= 10 %}
         <div class="mt-8 text-center">
-            <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Muat Lebih Banyak
+            <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors" data-i18n="ai_mentor.load_more">
+                Load More
             </button>
         </div>
         {% endif %}
@@ -261,16 +262,16 @@
         <!-- Empty State -->
         <div class="empty-state">
             <div class="text-6xl mb-4">📊</div>
-            <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Riwayat Trading</h3>
-            <p class="text-gray-500 mb-6">
-                Mulai trading untuk mendapatkan analisis AI dan saran personal dari mentor digital Anda.
+            <h3 class="text-xl font-semibold text-gray-700 mb-2" data-i18n="ai_mentor.no_history">No Trading History Yet</h3>
+            <p class="text-gray-500 mb-6" data-i18n="ai_mentor.start_trading_for_history">
+                Start trading to get AI analysis and personalized advice from your digital mentor.
             </p>
             <div class="space-x-4">
                 <a href="/ai-mentor" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block">
-                    Mulai Trading Session
+                    <span data-i18n="ai_mentor.start_trading_session">Start Trading Session</span>
                 </a>
                 <a href="/trading_bots" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors inline-block">
-                    Lihat Trading Bots
+                    <span data-i18n="ai_mentor.view_trading_bots">View Trading Bots</span>
                 </a>
             </div>
         </div>

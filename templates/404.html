@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Tidak Ditemukan - QuantumBotX</title>
+    <title><span data-i18n="error.404_title">Halaman Tidak Ditemukan - QuantumBotX</span></title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -11,13 +11,21 @@
 <body class="bg-gray-100 font-sans flex items-center justify-center h-screen">
     <div class="text-center">
         <h1 class="text-9xl font-bold text-blue-500">404</h1>
-        <h2 class="text-3xl font-semibold text-gray-800 mt-4">Halaman Tidak Ditemukan</h2>
-        <p class="text-gray-600 mt-2">Maaf, halaman yang Anda cari tidak ada atau telah dipindahkan.</p>
+        <h2 class="text-3xl font-semibold text-gray-800 mt-4" data-i18n="error.404_heading">Halaman Tidak Ditemukan</h2>
+        <p class="text-gray-600 mt-2" data-i18n="error.404_message">Maaf, halaman yang Anda cari tidak ada atau telah dipindahkan.</p>
         <div class="mt-8">
             <a href="{{ url_for('dashboard') }}" class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 transition">
-                <i class="fas fa-home mr-2"></i>Kembali ke Dashboard
+                <i class="fas fa-home mr-2"></i><span data-i18n="error.back_to_dashboard">Kembali ke Dashboard</span>
             </a>
         </div>
     </div>
+    
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        // Initialize i18n for this page
+        document.addEventListener('DOMContentLoaded', function() {
+            window.QuantumBotXI18n.init();
+        });
+    </script>
 </body>
 </html>

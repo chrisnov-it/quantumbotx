@@ -10,7 +10,6 @@ import os
 import sys
 import subprocess
 import platform
-import json
 import urllib.request
 from pathlib import Path
 

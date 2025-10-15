@@ -29,9 +29,21 @@ app = create_app()
 @app.route('/api/health')
 def health_check():
     """Endpoint untuk memastikan server berjalan."""
-    return jsonify({"status": "ok", "message": "Server is running"})
+    mt5_status = "MT5 connected" if mt5.isinitialize() else "MT5 not connected"  # pyright: ignore[reportAttributeAccessIssue]
+    return jsonify({"status": "ok", "message": "Server is running", "mt5": mt5_status})
 
 if __name__ == '__main__':
+    # Skip MT5 initialization if SKIP_MT5_INIT is set (for Vercel deployment)
+    if os.getenv('SKIP_MT5_INIT') == '1':
+        logging.info("Skipping MT5 initialization (deployment mode).")
+        app.run(
+            debug=os.getenv('FLASK_DEBUG', 'False').lower() == 'true',
+            host=os.getenv('FLASK_HOST', '127.0.0.1'),
+            port=int(os.getenv('FLASK_PORT', 5000)),
+            use_reloader=False
+        )
+        sys.exit(0)
+
     # --- Inisialisasi MT5 Terpusat ---
     # Dilakukan di sini untuk memastikan hanya berjalan sekali.
     try:

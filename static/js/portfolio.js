@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
             portfolioTableBody.innerHTML = ''; // Kosongkan tabel sebelum diisi
 
             if (positions.length === 0) {
-                portfolioTableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Tidak ada posisi terbuka.</td></tr>';
+                portfolioTableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">${window.QuantumBotXI18n.t('portfolio.no_open_positions')}</td></tr>`;
             } else {
                 positions.forEach(pos => {
                     totalProfit += pos.profit;
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (totalProfit < previousTotalProfit) trendIcon = '<i class="fas fa-arrow-down text-red-500"></i>';
 
             portfolioSummary.innerHTML = `
-                <p class="text-sm text-gray-500">Total P/L Terbuka</p>
+                <p class="text-sm text-gray-500">${window.QuantumBotXI18n.t('portfolio.open_pnl_total')}</p>
                 <p class="text-2xl font-bold ${totalProfitClass}">${formatCurrency(totalProfit)} <span class="ml-2 text-lg">${trendIcon}</span></p>`;
             previousTotalProfit = totalProfit;
 

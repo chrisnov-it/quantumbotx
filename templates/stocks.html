@@ -1,13 +1,14 @@
 <!-- templates/stocks.html (Setelah Refactor) -->
 {% extends "base.html" %}
 
+{% block title_key %}market.stocks_title{% endblock %}
 {% block title %}Stocks Market{% endblock %}
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <div>
-        <h2 class="text-2xl font-bold text-gray-800">Pasar Saham</h2>
-        <p class="text-gray-600">Data harga real-time dari pasar saham global.</p>
+        <h2 class="text-2xl font-bold text-gray-800" data-i18n="market.stocks_title">Pasar Saham</h2>
+        <p class="text-gray-600" data-i18n="market.stocks_description">Data harga real-time dari pasar saham global.</p>
     </div>
 </div>
 
@@ -15,15 +16,15 @@
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Saham</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perubahan 24j</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="market.stock">Saham</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="market.price">Harga</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="market.change_24h">Perubahan 24j</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="market.time">Waktu</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="action.view">Aksi</th>
             </tr>
         </thead>
         <tbody id="stocks-table-body" class="bg-white divide-y divide-gray-200">
-            <tr><td colspan="5" class="p-4 text-center text-gray-500">Memuat data saham...</td></tr>
+            <tr><td colspan="5" class="p-4 text-center text-gray-500" data-i18n="market.loading_stocks">Memuat data saham...</td></tr>
         </tbody>
     </table>
 </div>
@@ -38,7 +39,7 @@
             </div>
             <div class="items-center px-4 py-3">
                 <button id="close-modal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                    Close
+                    <span data-i18n="market.close">Close</span>
                 </button>
             </div>
         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Dashboard{% endblock %} - QuantumBotX</title>
+    <title data-i18n-key="{% block title_key %}dashboard.title{% endblock %}">{% block title %}Dashboard{% endblock %} - QuantumBotX</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -70,6 +70,11 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
+                        <!-- Global Language Switcher -->
+                        <div class="flex items-center space-x-1 bg-white rounded-lg shadow-sm border px-2 py-1">
+                            <button class="lang-btn px-2 py-1 text-xs rounded font-medium hover:bg-gray-100 transition-colors" data-lang="id">ID</button>
+                            <button class="lang-btn px-2 py-1 text-xs rounded font-medium hover:bg-gray-100 transition-colors" data-lang="en">EN</button>
+                        </div>
                         <a href="/notifications" class="relative text-gray-500 hover:text-blue-600"><i class="fas fa-bell"></i><span id="notification-dot" class="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500 hidden"></span></a>
                         <a href="/profile" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"><i class="fas fa-user text-gray-600"></i></a>
                     </div>
