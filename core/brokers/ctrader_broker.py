@@ -399,9 +399,15 @@ class CTraderBroker(BaseBroker):
     
     def is_market_open(self) -> bool:
         """Check if forex market is open"""
-        now = datetime.now()
-        # Simplified: forex market closed on weekends
-        return now.weekday() < 5  # Monday=0, Sunday=6
+        now = datetime.utcnow()
+        # Forex market is open from Sunday 22:00 UTC to Friday 22:00 UTC
+        if now.weekday() == 5:  # Saturday
+            return False
+        if now.weekday() == 6 and now.hour < 22:  # Sunday before 22:00 UTC
+            return False
+        if now.weekday() == 4 and now.hour >= 22:  # Friday after 22:00 UTC
+            return False
+        return True
 
 # Convenience function
 def create_ctrader_broker(demo: bool = True) -> CTraderBroker:
