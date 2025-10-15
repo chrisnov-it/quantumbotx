@@ -8,4 +8,8 @@
   "env": {
     "SKIP_MT5_INIT": "1"
   }
+  ],
+  "env": {
+    "SKIP_MT5_INIT": "1"
+  }
 }
