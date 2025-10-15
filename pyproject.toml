@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-    {name = "Chris Path", email = "your.email@example.com"}
+    {name = "Reynov Christian", email = "contact@chrisnov.com"}
 ]
 dependencies = [
     "blinker==1.9.0",
