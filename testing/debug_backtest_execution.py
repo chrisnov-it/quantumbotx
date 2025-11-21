@@ -65,7 +65,6 @@ def debug_enhanced_backtest():
         df_with_signals = strategy.analyze_df(df.copy())
         
         # Add ATR
-        import pandas_ta as ta
         df_with_signals.ta.atr(length=14, append=True)
         df_with_signals.dropna(inplace=True)
         df_with_signals.reset_index(inplace=True)
@@ -78,7 +77,7 @@ def debug_enhanced_backtest():
         
         # Show signal bars
         signal_bars = df_with_signals[df_with_signals['signal'] != 'HOLD']
-        print(f"Signal bars:")
+        print("Signal bars:")
         for i, row in signal_bars.iterrows():
             print(f"  Index {i}: {row['signal']} | Close: {row['close']:.5f} | ATR: {row.get('ATRr_14', 'Missing')}")
         
@@ -87,7 +86,7 @@ def debug_enhanced_backtest():
             return
         
         # Manual backtest loop simulation
-        print(f"\\n🔄 SIMULATING BACKTEST LOOP...")
+        print("\\n🔄 SIMULATING BACKTEST LOOP...")
         
         # Initialize
         engine = EnhancedBacktestEngine()
@@ -102,7 +101,7 @@ def debug_enhanced_backtest():
         sl_atr_multiplier = float(params.get('sl_atr_multiplier', params.get('sl_pips', 2.0)))
         tp_atr_multiplier = float(params.get('tp_atr_multiplier', params.get('tp_pips', 4.0)))
         
-        print(f"Engine parameters:")
+        print("Engine parameters:")
         print(f"  Risk: {risk_percent}%")
         print(f"  SL: {sl_atr_multiplier}x ATR") 
         print(f"  TP: {tp_atr_multiplier}x ATR")
@@ -129,7 +128,7 @@ def debug_enhanced_backtest():
                     print(f"  ATR: {atr_value}")
                     
                     if atr_value <= 0:
-                        print(f"  ❌ Invalid ATR - skipping")
+                        print("  ❌ Invalid ATR - skipping")
                         continue
                     
                     # Calculate distances
@@ -147,7 +146,7 @@ def debug_enhanced_backtest():
                     print(f"  Calculated lot size: {lot_size}")
                     
                     if lot_size <= 0:
-                        print(f"  ❌ Invalid lot size - skipping")
+                        print("  ❌ Invalid lot size - skipping")
                         continue
                     
                     # Calculate entry price
@@ -174,10 +173,10 @@ def debug_enhanced_backtest():
                         estimated_risk = sl_distance * lot_size * config['contract_size']
                         max_risk_dollar = capital * config.get('emergency_brake_percent', 0.05)
                         if estimated_risk > max_risk_dollar:
-                            print(f"  🚨 Emergency brake triggered - skipping")
+                            print("  🚨 Emergency brake triggered - skipping")
                             continue
                     
-                    print(f"  ✅ Trade would be executed!")
+                    print("  ✅ Trade would be executed!")
                     
                     # For debugging, let's see if we can find the next exit
                     for j in range(i+1, len(df_with_signals)):
@@ -199,7 +198,7 @@ def debug_enhanced_backtest():
                                 break
                         
                         if j > i + 10:  # Only check next 10 bars
-                            print(f"  ⏰ No exit in next 10 bars")
+                            print("  ⏰ No exit in next 10 bars")
                             break
                     
                     trades.append({'signal': signal, 'entry': entry_price})
@@ -207,14 +206,14 @@ def debug_enhanced_backtest():
                     if len(trades) >= 3:  # Limit debug output
                         break
         
-        print(f"\\n📋 DEBUG SUMMARY:")
+        print("\\n📋 DEBUG SUMMARY:")
         print(f"Processed {len(trades)} potential trades")
         
         if len(trades) > 0:
-            print(f"✅ Trade logic is working - trades should execute")
-            print(f"❓ The issue might be in the actual enhanced_engine implementation")
+            print("✅ Trade logic is working - trades should execute")
+            print("❓ The issue might be in the actual enhanced_engine implementation")
         else:
-            print(f"❌ No trades processed - issue in trade logic")
+            print("❌ No trades processed - issue in trade logic")
         
     except Exception as e:
         print(f"Error in debug: {e}")

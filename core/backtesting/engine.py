@@ -2,7 +2,6 @@
 
 import math # Import modul math
 import logging # Import modul logging
-import os # Import for environment variables
 from core.strategies.strategy_map import STRATEGY_MAP
 
 logger = logging.getLogger(__name__)
@@ -214,7 +213,7 @@ def run_backtest(strategy_id, params, historical_data_df, symbol_name=None):
                     # Final safety check - never allow lot size above 0.03 for gold
                     if lot_size > 0.03:
                         lot_size = 0.03
-                        logger.warning(f"GOLD SAFETY: Lot capped at 0.03")
+                        logger.warning("GOLD SAFETY: Lot capped at 0.03")
                     
                     # Round to valid lot size increments
                     lot_size = round(lot_size, 2)
@@ -304,7 +303,7 @@ def run_backtest(strategy_id, params, historical_data_df, symbol_name=None):
     logger.info(f"Backtest Complete: {len(trades)} trades, ${total_profit_clean:+.0f} profit, {win_rate_clean:.0f}% win rate")
     
     # Debug detailed results
-    logger.debug(f"=== DETAILED BACKTEST RESULTS ===")
+    logger.debug("=== DETAILED BACKTEST RESULTS ===")
     logger.debug(f"Initial Capital: {initial_capital}")
     logger.debug(f"Final Capital: {capital}")
     logger.debug(f"Total Profit: {total_profit}")

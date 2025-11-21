@@ -8,7 +8,6 @@ import sys
 import os
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
 
 # Add the project root to the path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -153,7 +152,7 @@ def test_crypto_strategy_performance():
             total_profit += strategy_stats['profit']
             total_trades += strategy_stats['trades']
     
-    print(f"\\n🏆 Overall Results:")
+    print("\\n🏆 Overall Results:")
     print(f"  Total Profit: ${total_profit:,.2f}")
     print(f"  Total Trades: {total_trades}")
     print(f"  Average Profit per Trade: ${total_profit/max(total_trades,1):,.2f}")

@@ -47,7 +47,7 @@ try:
     
     def check_crypto_symbols():
         """Check if crypto symbols are available and get current prices"""
-        print(f"\\n💰 CRYPTO MARKET CHECK")
+        print("\\n💰 CRYPTO MARKET CHECK")
         print("=" * 30)
         
         if not mt5.initialize():
@@ -96,7 +96,7 @@ try:
     
     def create_trading_plan():
         """Create a trading plan for SatoshiJakarta"""
-        print(f"\\n📋 SATOSHIJAKARTA TRADING PLAN")
+        print("\\n📋 SATOSHIJAKARTA TRADING PLAN")
         print("=" * 40)
         
         plan = {
@@ -137,11 +137,11 @@ try:
         print(f"   Size: {plan['secondary_pair']['position_size']}")
         print(f"   Why: {plan['secondary_pair']['reasoning']}")
         
-        print(f"\\n🛡️ Risk Management:")
+        print("\\n🛡️ Risk Management:")
         for key, value in plan['risk_management'].items():
             print(f"   {key.replace('_', ' ').title()}: {value}")
         
-        print(f"\\n⏰ Trading Schedule:")
+        print("\\n⏰ Trading Schedule:")
         for day, activity in plan['schedule'].items():
             print(f"   {day.title()}: {activity}")
         
@@ -149,7 +149,7 @@ try:
     
     def show_next_steps():
         """Show immediate next steps"""
-        print(f"\\n🎯 IMMEDIATE NEXT STEPS")
+        print("\\n🎯 IMMEDIATE NEXT STEPS")
         print("=" * 30)
         
         steps = [
@@ -185,12 +185,12 @@ try:
             print(f"   🎯 Action: {step_info['action']}")
             print(f"   ⏱️ Time: {step_info['time']}")
         
-        print(f"\\n🔥 TOTAL SETUP TIME: 12 minutes!")
-        print(f"Then you'll have 24/7 crypto profit machine! 🚀")
+        print("\\n🔥 TOTAL SETUP TIME: 12 minutes!")
+        print("Then you'll have 24/7 crypto profit machine! 🚀")
     
     def show_crypto_advantages():
         """Show why crypto trading is perfect for Indonesian traders"""
-        print(f"\\n🇮🇩 WHY CRYPTO IS PERFECT FOR INDONESIA")
+        print("\\n🇮🇩 WHY CRYPTO IS PERFECT FOR INDONESIA")
         print("=" * 45)
         
         advantages = [
@@ -230,7 +230,7 @@ try:
         # Show next steps
         show_next_steps()
         
-        print(f"\\n" + "=" * 60)
+        print("\\n" + "=" * 60)
         print("🎉 SATOSHIJAKARTA IS READY!")
         print("=" * 60)
         print("✅ Bot configured for Bitcoin & Ethereum")
@@ -239,10 +239,10 @@ try:
         print("✅ Weekend mode active for 24/7 profits")
         print("✅ Perfect for your timezone and goals")
         
-        print(f"\\n🚀 FROM JAKARTA TO THE MOON!")
+        print("\\n🚀 FROM JAKARTA TO THE MOON!")
         print("Your crypto trading journey starts NOW! 🌙🇮🇩")
         
-        print(f"\\n💎 REMEMBER:")
+        print("\\n💎 REMEMBER:")
         print("Satoshi Nakamoto gave us Bitcoin...")
         print("SatoshiJakarta will give you PROFITS! ₿💰")
 

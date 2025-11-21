@@ -9,7 +9,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from core.ai.trading_mentor_ai import IndonesianTradingMentorAI, TradingSession
 from core.db.models import (
     create_trading_session, log_trade_for_ai_analysis, 
@@ -127,7 +127,7 @@ def test_historical_reports():
     emotions_cycle = ['tenang', 'serakah', 'frustasi', 'takut', 'tenang', 'serakah', 'tenang']
     
     for test_date, emotion in zip(historical_dates, emotions_cycle):
-        session_id = create_trading_session(
+        create_trading_session(
             session_date=test_date,
             emotions=emotion,
             market_conditions='normal',

@@ -16,7 +16,7 @@ After comprehensive testing, I identified the **PRIMARY ISSUE**:
 
 The enhanced backtesting engine was calculating spread costs that were **100% of the risk amount per trade**:
 
-```
+```text
 Original Calculation:
 - Risk per trade: $100 (1% of $10,000)
 - Spread cost: $100 (100% of risk!)
@@ -54,7 +54,7 @@ spread_cost = spread_pips * 1.0 * lot_size  # $0.50 for 0.5 lot
 ## 📊 BEFORE vs AFTER COMPARISON
 
 ### **BEFORE (Broken)**
-```
+```text
 EURUSD Bollinger Squeeze Test:
 - Gross Profit: -$10,000.03
 - Spread Costs: -$7,414.00  
@@ -64,7 +64,7 @@ EURUSD Bollinger Squeeze Test:
 ```
 
 ### **AFTER (Fixed)**
-```
+```text
 EURUSD Test Results:
 - Spread costs: ~0.5% of risk per trade
 - Reasonable drawdowns (<50%)

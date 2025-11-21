@@ -69,7 +69,7 @@ def test_atr_education_system():
         print(f"      Risk-to-Reward: {example['risk_to_reward_ratio']}")
         
         if example['protection_active']:
-            print(f"      🛡️ PROTECTION: System reduced risk for safety!")
+            print("      🛡️ PROTECTION: System reduced risk for safety!")
     
     # Test 3: Parameter validation
     print("\n3. ⚙️ Parameter Validation:")
@@ -161,7 +161,7 @@ def demonstrate_atr_protection():
             print(f"   💰 PROTECTION SAVED: ${savings:.0f}")
             print(f"   🎯 System automatically reduced risk by {(savings/example['amount_to_risk_target']*100):.0f}%")
         
-        print(f"\\n   📝 Explanation:")
+        print("\\n   📝 Explanation:")
         for exp in example['explanation']:
             print(f"      {exp}")
     

@@ -82,7 +82,7 @@ def create_desktop_shortcut():
     try:
         # Get user's desktop path
         desktop = Path.home() / "Desktop"
-        shortcut_path = desktop / "QuantumBotX.lnk"
+        desktop / "QuantumBotX.lnk"
 
         # Create a simple batch file that will be the shortcut target
         shortcut_bat = '''@echo off

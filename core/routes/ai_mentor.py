@@ -5,7 +5,7 @@ Routes untuk menampilkan laporan AI mentor dan interaksi pengguna
 """
 
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 from core.ai.trading_mentor_ai import IndonesianTradingMentorAI, TradingSession
 from core.db.models import (
     get_trading_session_data, save_ai_mentor_report, 

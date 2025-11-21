@@ -15,7 +15,7 @@
 ## ⚡ Quick Setup (3 Steps)
 
 ### Step 1: Install MT5 Platform
-```
+```text
 1. Download MT5 from: https://www.metatrader5.com/en/download
 2. Install in default location: C:\Program Files\MetaTrader 5
 3. Launch MT5 and login to your account (demo recommended)
@@ -113,7 +113,7 @@ MT5_SERVER=YourBroker-ServerName
 python lab/download_data.py
 ```
 **Expected Output:**
-```
+```text
 ✅ Successfully connected to MT5
 📡 Server: FBS-Demo
 👤 Account: 12345678
@@ -125,7 +125,7 @@ python lab/download_data.py
 ```
 
 ### Test 2: Web Interface
-```
+```text
 1. Start QuantumBotX: python run.py
 2. Open: http://localhost:5000/backtest
 3. Click: "Download Data MT5" button
@@ -147,7 +147,7 @@ pip install MetaTrader5-5.0.34-cp39-cp39-win_amd64.whl
 ```
 
 ### Error: "Failed to initialize MT5"
-```
+```text
 ✅ Check MT5 is running
 ✅ Verify account credentials in .env
 ✅ Try Demo account first
@@ -155,7 +155,7 @@ pip install MetaTrader5-5.0.34-cp39-cp39-win_amd64.whl
 ```
 
 ### Error: "Symbol not found"
-```
+```text
 ✅ MT5 shows: "Enable Auto Trading" in algo settings
 ✅ Check if symbol is visible in MT5 Market Watch
 ✅ Some symbols need manual activation in MT5
@@ -163,7 +163,7 @@ pip install MetaTrader5-5.0.34-cp39-cp39-win_amd64.whl
 ```
 
 ### Error: "Download timed out"
-```
+```text
 ✅ Reduce download period in script if needed
 ✅ Check internet connection stability
 ✅ Some brokers are faster than others
@@ -207,7 +207,7 @@ print(f"Latest close: {df['close'].iloc[-1]}")
 ```
 
 **Expected Output:**
-```
+```text
 Rows: 15800+ (4+ years of H1 data)
 Date range: 2020-01-01 to current_date
 Latest close: matches MT5 current price

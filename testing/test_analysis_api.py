@@ -31,7 +31,7 @@ try:
         # Check if bot 3 is in active_bots
         if bot_id in active_bots:
             bot_instance = active_bots[bot_id]
-            print(f"Bot instance found:")
+            print("Bot instance found:")
             print(f"  - Alive: {bot_instance.is_alive()}")
             print(f"  - Status: {bot_instance.status}")
             if hasattr(bot_instance, 'last_analysis'):
@@ -42,7 +42,7 @@ try:
         # Get bot from database
         bot_data = queries.get_bot_by_id(bot_id)
         if bot_data:
-            print(f"\\nBot in database:")
+            print("\\nBot in database:")
             print(f"  - Name: {bot_data['name']}")
             print(f"  - Market: {bot_data['market']}")
             print(f"  - Status: {bot_data['status']}")

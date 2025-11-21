@@ -74,7 +74,8 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
 2. **Create requirements.txt** (use `streamlit_requirements.txt`)
 
 3. **Create Procfile**:
-   ```
+
+   ```bash
    web: streamlit run streamlit_demo.py --server.port $PORT --server.headless true
    ```
 
