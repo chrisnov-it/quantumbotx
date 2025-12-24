@@ -3,7 +3,7 @@
 ## First Time Setup
 
 1. **Install MetaTrader 5** (Required)
-   - Download from: https://www.metatrader5.com/
+   - Download from: <https://www.metatrader5.com/>
    - Install and create a demo account
    - Keep MT5 running in the background
    - ⚠️ **IMPORTANT:** MetaTrader 5 must be running for QuantumBotX to work
@@ -11,6 +11,7 @@
 2. **Configure Your Settings**
    - Copy `.env.example` to `.env`
    - Edit `.env` with your MT5 credentials:
+
      ```ini
      MT5_LOGIN=your_account_number
      MT5_PASSWORD=your_password
@@ -19,7 +20,7 @@
 
 3. **Start the Application**
    - Double-click `start.bat` (Windows)
-   - Open http://127.0.0.1:5000 in your browser
+   - Open <http://127.0.0.1:5000> in your browser
 
 ## ✅ System Requirements
 
@@ -34,7 +35,7 @@
 
 1. Start MetaTrader 5 first
 2. Run `start.bat`
-3. Open your web browser to http://127.0.0.1:5000
+3. Open your web browser to <http://127.0.0.1:5000>
 
 ## Troubleshooting
 

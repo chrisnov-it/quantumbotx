@@ -15,13 +15,15 @@ This guide explains how to package your QuantumBotX trading application into a W
 ## 📋 Prerequisites
 
 ### For Building the Package
+
 1. **Python 3.8+** (already installed)
 2. **PyInstaller** (already installed via this guide)
 3. **NSIS (Optional)** - For creating the installer EXE
-   - Download from: https://nsis.sourceforge.io/Download
+   - Download from: <https://nsis.sourceforge.io/Download>
    - Install and ensure `makensis` is in your PATH
 
 ### For End Users
+
 1. **Windows 7+** (64-bit recommended)
 2. **MetaTrader 5** - Must be installed separately
 3. **Internet Connection** - For initial setup
@@ -29,11 +31,13 @@ This guide explains how to package your QuantumBotX trading application into a W
 ## 🚀 Quick Start
 
 ### Option 1: Build Everything (Recommended)
+
 ```bash
 python build_installer.py
 ```
 
 ### Option 2: Manual Build Process
+
 ```bash
 # 1. Build with PyInstaller
 pyinstaller --clean quantumbotx.spec
@@ -58,15 +62,17 @@ dist/QuantumBotX/            # PyInstaller output (for troubleshooting)
 ## 🎮 For End Users
 
 ### Installation Process
+
 1. **Download** `QuantumBotX-Installer.exe`
 2. **Run** the installer (requires admin privileges)
 3. **Follow** the setup wizard
 4. **Launch** from desktop shortcut or start menu
 
 ### Daily Usage
+
 1. **Start MetaTrader 5** first
 2. **Launch QuantumBotX** via desktop shortcut or start menu
-3. **Open browser** to http://127.0.0.1:5000
+3. **Open browser** to <http://127.0.0.1:5000>
 4. **Configure settings** if needed
 
 ## 🔧 Configuration Files
@@ -83,16 +89,19 @@ The installer includes these configuration files:
 ### Build Issues
 
 **PyInstaller fails:**
+
 ```bash
 # Clean and rebuild
 pyinstaller --clean quantumbotx.spec
 ```
 
 **NSIS not found:**
-- Install NSIS from https://nsis.sourceforge.io/
+
+- Install NSIS from <https://nsis.sourceforge.io/>
 - Or use the portable version instead
 
 **Missing dependencies:**
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -100,15 +109,18 @@ pip install -r requirements.txt
 ### Runtime Issues
 
 **Application won't start:**
+
 - Check if MetaTrader 5 is running
 - Verify `.env` file has correct credentials
 - Check Windows Event Viewer for errors
 
 **Port already in use:**
+
 - Close other applications using port 5000
 - Or modify `FLASK_PORT` in `.env` file
 
 **MetaTrader 5 connection fails:**
+
 - Verify MT5 credentials in `.env`
 - Ensure MT5 is running and logged in
 - Check MT5 terminal for connection status
@@ -116,10 +128,12 @@ pip install -r requirements.txt
 ## 📦 Distribution
 
 ### For Technical Users
+
 - Share `QuantumBotX-Installer.exe` for full installation
 - Or share `QuantumBotX-Portable.zip` for manual installation
 
 ### For Non-Technical Users
+
 1. **Share the installer** `QuantumBotX-Installer.exe`
 2. **Provide simple instructions:**
    - Double-click to install
@@ -128,6 +142,7 @@ pip install -r requirements.txt
    - Ensure MetaTrader 5 is running
 
 ### System Requirements for End Users
+
 - **OS:** Windows 7 SP1+ (64-bit recommended)
 - **RAM:** 4GB minimum, 8GB recommended
 - **Storage:** 500MB free space
@@ -137,12 +152,14 @@ pip install -r requirements.txt
 ## 🔄 Updates and Maintenance
 
 ### Creating Updates
+
 1. **Increment version** in `installer.nsi`
 2. **Rebuild** using `python build_installer.py`
 3. **Test** on clean system
 4. **Distribute** new installer
 
 ### Uninstallation
+
 - Use Windows Add/Remove Programs
 - Or run `Uninstall.exe` from installation directory
 - Or use the uninstall shortcut in Start Menu
@@ -151,32 +168,39 @@ pip install -r requirements.txt
 
 ### Common User Questions
 
-**"How do I configure my MT5 credentials?"**
+#### "How do I configure my MT5 credentials?"
+
 - Copy `.env.example` to `.env`
 - Edit `.env` with your MT5 account details
 - Restart the application
 
-**"The application says MT5 is not connected"**
+#### "The application says MT5 is not connected"
+
 - Ensure MetaTrader 5 is running
 - Check MT5 login credentials
 - Verify MT5 server settings
 
-**"I can't access the web interface"**
+#### "I can't access the web interface"
+
 - Check if the application is running
-- Verify the URL: http://127.0.0.1:5000
+- Verify the URL: <http://127.0.0.1:5000>
 - Check firewall settings
 
 ## 🎯 Advanced Configuration
 
 ### Customizing the Installer
+
 Edit `installer.nsi` to:
+
 - Change installation directory
 - Modify shortcuts
 - Add custom messages
 - Include additional files
 
 ### Customizing PyInstaller
+
 Edit `quantumbotx.spec` to:
+
 - Add/remove files
 - Change executable properties
 - Modify hidden imports

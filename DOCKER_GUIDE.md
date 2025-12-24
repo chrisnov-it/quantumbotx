@@ -20,6 +20,7 @@
    ```bash
    docker-compose up -d
    ```
+
    - This will build the image (first time only) and start the container
    - `-d` runs it in detached mode (background)
 
@@ -28,6 +29,7 @@
    ```bash
    docker ps
    ```
+
    You should see `quantumbotx-quantumbotx-1` in the list
 
 5. **Access your application**
@@ -126,10 +128,12 @@ docker system prune -a --volumes
 ### Environment Variables
 
 Your app reads configuration from:
+
 1. `.env` file (for local development)
 2. `docker-compose.yml` (environment section for Docker)
 
 **Important environment variables:**
+
 - `BROKER_TYPE`: Set to `CCXT` for crypto trading (default in Docker)
 - `EXCHANGE_ID`: Exchange to use (e.g., `binance`, `bybit`)
 - `FLASK_HOST`: Host to bind to (default: `0.0.0.0` in Docker)
@@ -138,6 +142,7 @@ Your app reads configuration from:
 ### Volumes (Data Persistence)
 
 Your `docker-compose.yml` mounts these directories:
+
 - `./data:/app/data` - Database and persistent data
 - `./logs:/app/logs` - Application logs
 
@@ -151,23 +156,29 @@ Your `docker-compose.yml` mounts these directories:
 
 1. **Make code changes** on your Windows machine
 2. **Rebuild the container**:
+
    ```bash
    docker-compose up --build -d
    ```
+
 3. **Check logs** to see if it worked:
+
    ```bash
    docker logs -f quantumbotx-quantumbotx-1
    ```
+
 4. **Test your changes** at `http://localhost:5000`
 
 ### Debugging Workflow
 
 1. **Check if container is running**:
+
    ```bash
    docker ps
    ```
 
 2. **If it's restarting**, check the logs:
+
    ```bash
    docker logs quantumbotx-quantumbotx-1
    ```
@@ -178,6 +189,7 @@ Your `docker-compose.yml` mounts these directories:
    - Or enter the container to debug: `docker exec -it quantumbotx-quantumbotx-1 /bin/bash`
 
 4. **Test inside the container**:
+
    ```bash
    docker exec -it quantumbotx-quantumbotx-1 /bin/bash
    # Now you're inside the container
@@ -194,9 +206,11 @@ When you're ready to deploy to a server:
 1. **Copy your project** to the server
 2. **Make sure `.env` is configured** with production credentials
 3. **Start with**:
+
    ```bash
    docker-compose up -d
    ```
+
 4. **Set up auto-restart** (already configured with `restart: unless-stopped`)
 
 ---
@@ -233,6 +247,7 @@ docker stats --no-stream
 ### Issue: Container keeps restarting
 
 **Solution:**
+
 ```bash
 # Check the logs for errors
 docker logs quantumbotx-quantumbotx-1
@@ -246,6 +261,7 @@ docker logs quantumbotx-quantumbotx-1
 ### Issue: Can't access localhost:5000
 
 **Solution:**
+
 ```bash
 # Check if container is running
 docker ps
@@ -260,6 +276,7 @@ docker exec quantumbotx-quantumbotx-1 curl http://localhost:5000/api/health
 ### Issue: Changes not reflecting
 
 **Solution:**
+
 ```bash
 # You need to rebuild after code changes
 docker-compose up --build -d
@@ -272,6 +289,7 @@ docker-compose up -d
 ### Issue: Out of disk space
 
 **Solution:**
+
 ```bash
 # Clean up old images and containers
 docker system prune
@@ -304,6 +322,7 @@ docker system prune -a --volumes
 ## 🆘 Need Help?
 
 If you're stuck:
+
 1. Check the logs: `docker logs quantumbotx-quantumbotx-1`
 2. Verify the container is running: `docker ps`
 3. Try rebuilding: `docker-compose up --build -d`

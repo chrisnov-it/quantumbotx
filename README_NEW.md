@@ -9,6 +9,7 @@ Welcome to **QuantumBotX**, your personal, modular, and smart trading assistant 
 **New to QuantumBotX?** Follow these 3 simple steps:
 
 ### ⚡ Step 1: Install MT5 Integration
+
 ```bash
 # Automatically detect, install, and configure MT5
 python install_mt5_integration.py
@@ -22,6 +23,7 @@ python install_mt5_integration.py
 ```
 
 ### 🏦 Step 2: Setup MT5 Platform
+
 ```bash
 # 1. Download MT5 from: https://www.metatrader5.com/en/download
 # 2. Install with default settings
@@ -30,6 +32,7 @@ python install_mt5_integration.py
 ```
 
 ### ⚙️ Step 3: Configure & Test
+
 ```bash
 # Edit your .env file with MT5 credentials:
 # MT5_LOGIN=your_account_number
@@ -47,6 +50,7 @@ python run.py
 ```
 
 ### ❓ Need Help?
+
 - 📖 **Full Guide**: Check `MT5_SETUP_GUIDE.md`
 - 🧪 **Quick Test**: `python test_mt5_connection.py`
 - 🔧 **Manual Config**: Edit `.env` file directly
@@ -56,24 +60,28 @@ python run.py
 ## 🎯 Key Features
 
 ### 📊 **Professional Backtesting**
+
 - **MT5 Data Integration**: Download 50+ instruments directly from brokers
 - **Realistic Modeling**: Spread, slippage, and commission simulation
 - **Strategy Testing**: 16+ strategies with custom parameters
 - **Performance Analytics**: Equity curves, drawdown analysis, risk metrics
 
 ### 🧠 **Smart Bot Management**
+
 - **Real-Time Monitoring**: Live bot status with auto-refresh
 - **Risk Protection**: Ultra-safe position sizing, especially for gold/XAUUSD
 - **Strategy Switching**: Automated strategy adaptation to market conditions
 - **Multi-Broker Support**: XM Global, FBS, Exness, IC Markets, Pepperstone
 
 ### 🔍 **Market Analysis**
+
 - **Live Data Analysis**: Real-time signals from MT5 market data
 - **Multi-Timeframe**: Daily, H1, M15 analysis for comprehensive signals
 - **Holiday Detection**: Automatic Christmas/Ramadan mode activation
 - **AI Mentor**: Personalized trading guidance in Indonesian
 
 ### 🔐 **Safety First**
+
 - **Conservative Defaults**: Beginner-safe settings out of the box
 - **Account Protection**: Emergency brakes and risk limits
 - **Testing Mode**: Demo account support before live trading
@@ -84,6 +92,7 @@ python run.py
 ## 🗂️ Data Download Features
 
 ### Available Instruments
+
 - **Forex**: EURUSD, GBPUSD, AUDUSD, JPY pairs, major crosses
 - **Gold**: XAUUSD with ultra-conservative risk management
 - **Indices**: US30, US100, US500 (S&P 500), DE30, UK100
@@ -92,12 +101,14 @@ python run.py
 - **Exotic Pairs**: Currency pairs for advanced traders
 
 ### Data Quality
+
 - ✅ **4+ Years** of historical data
 - ✅ **OHLCV Format**: Open, High, Low, Close, Volume
 - ✅ **Broker Aliasing**: Automatic XAUUSD/USDIDR variant detection
 - ✅ **Timeframes**: H1 (recommended), M1, M5, M15, H4, D1
 
 ### Download Methods
+
 1. **Web Interface**: Click "Download Data MT5" button on backtesting page
 2. **Command Line**: `python lab/download_data.py`
 3. **Automatic Installer**: `python install_mt5_integration.py`
@@ -129,18 +140,21 @@ python run.py
 ## 📚 Educational Framework
 
 ### Beginner Path (Month 1)
+
 - **Week 1**: MA Crossover on EURUSD
 - **Week 2**: Bollinger Bands for range trading
 - **Week 3**: Basic risk management practices
 - **Week 4**: Understanding ATR-based position sizing
 
 ### Intermediate Path (Month 2-3)
+
 - **Strategy Rotation**: Multiple approaches per market
 - **Parameter Optimization**: Finding edge through testing
 - **Market Analysis**: Understanding different market regimes
 - **Risk Scaling**: Position sizing based on confidence
 
 ### Advanced Mastery (Month 4+)
+
 - **Strategy Combination**: Multi-strategy portfolios
 - **Market Timing**: When to trade what
 - **Risk Management**: Advanced portfolio protection
@@ -151,12 +165,14 @@ python run.py
 ## ⚠️ Important Disclaimers
 
 **Trading Risks:**
+
 - FX trading involves substantial risk and may not be suitable for all
 - High leverage can amplify losses
 - Past performance ≠ future results
 - Never trade with money you can't afford to lose
 
 **Software Usage:**
+
 - For educational/research purposes
 - Test thoroughly on demo accounts first
 - Creator not responsible for trading losses
@@ -176,6 +192,7 @@ python run.py
 ## 📈 What's Next?
 
 ### Current Features ✅
+
 - ✅ MT5 Integration with 50+ instruments
 - ✅ 16 Trading strategies with risk management
 - ✅ AI mentor in Indonesian
@@ -184,6 +201,7 @@ python run.py
 - ✅ Ultra-conservative gold/XAUUSD protection
 
 ### Coming Soon 🚧
+
 - 🔄 Telegram notifications
 - 🔄 Advanced portfolio analytics
 - 🔄 Multi-broker arbitrage
@@ -196,8 +214,8 @@ python run.py
 
 Enjoy QuantumBotX? Consider supporting future development:
 
-[<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal" />](https://www.paypal.com/paypalme/rebarakaz)
+[img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal"](https://www.paypal.com/paypalme/rebarakaz)
 
 ---
 
-*Happy Trading! 🎯📊🏆*
+Happy Trading! 🎯📊🏆

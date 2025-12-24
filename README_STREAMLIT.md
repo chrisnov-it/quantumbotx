@@ -6,7 +6,8 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
 
 ## Why Streamlit Demo?
 
-### ✅ Advantages:
+### ✅ Advantages
+
 - **No MT5 Dependency**: Works on any cloud platform (Railway, Vercel, Heroku, etc.)
 - **Interactive Demo**: Realistic trading simulation with live data
 - **Easy Deployment**: Single command deployment with pip installs
@@ -14,7 +15,8 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
 - **Cost Effective**: Free tier available on most platforms
 - **Fast Loading**: Lightweight compared to full Flask app
 
-### ❌ Limitations:
+### ❌ Limitations
+
 - No live trading execution (by design for safety)
 - Simulated data only
 - No MT5 integration
@@ -27,11 +29,13 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
 1. **Create Account**: Go to [share.streamlit.io](https://share.streamlit.io)
 2. **Connect Repository**: Link your GitHub account
 3. **Deploy**:
+
    ```bash
    git add streamlit_demo.py streamlit_requirements.txt
    git commit -m "Add Streamlit demo for QuantumBotX"
    git push origin main
    ```
+
 4. **Configuration**:
    - Main file path: `streamlit_demo.py`
    - Requirements file: `streamlit_requirements.txt`
@@ -39,11 +43,13 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
 ### Option 2: Railway + Streamlit
 
 1. **Initialize Railway Project**:
+
    ```bash
    railway init
    ```
 
 2. **Create Railway Configuration**:
+
    ```bash
    # railway.toml
    [build]
@@ -57,6 +63,7 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
    - No MT5 credentials needed (demo only)
 
 4. **Deploy**:
+
    ```bash
    git add .
    git commit -m "Add Railway config for Streamlit demo"
@@ -67,6 +74,7 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
 ### Option 3: Heroku + Streamlit
 
 1. **Create Heroku App**:
+
    ```bash
    heroku create quantum-botx-demo
    ```
@@ -80,6 +88,7 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
    ```
 
 4. **Deploy**:
+
    ```bash
    git push heroku main
    ```
@@ -87,6 +96,7 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
 ### Option 4: Vercel + Streamlit (Experimental)
 
 1. **Create vercel.json**:
+
    ```json
    {
      "version": 2,
@@ -106,25 +116,29 @@ Since MetaTrader 5 requires **Windows OS and persistent terminal connections**, 
    ```
 
 2. **Deploy**:
+
    ```bash
    vercel --prod
    ```
 
 ## Demo Features Showcased
 
-### 📊 Interactive Dashboard:
+### 📊 Interactive Dashboard
+
 - **Live Metrics**: Balance, strategies, profits, bots running
 - **Strategy Showcase**: MA Crossover & Bollinger Band explanations
 - **Charts**: Example price movements with indicators
 - **Trading History**: Filtered historic demo trades
 
-### 🎯 Strategy Highlights:
+### 🎯 Strategy Highlights
+
 - **Beginner Friendly**: Clear explanations and examples
 - **Risk Management**: ATR-based sizing demonstrations
 - **Multi-Asset**: FOREX, Gold, Crypto, Indices examples
 - **AI Features**: Strategy complexity ratings, mentor system
 
-### 🚀 Professional Presentation:
+### 🚀 Professional Presentation
+
 - **Clean UI**: Modern Streamlit interface
 - **Responsive Design**: Works on mobile and desktop
 - **Educational Content**: Feature explanations and guides
@@ -152,18 +166,21 @@ streamlit run streamlit_demo.py
 
 ## Deployment Commands
 
-### Streamlit Cloud (Recommended):
+### Streamlit Cloud (Recommended)
+
 ```bash
 streamlit run streamlit_demo.py --server.port 8501 --server.headless false
 ```
 
-### Railway:
+### Railway
+
 ```bash
 railway init
 railway up
 ```
 
-### Heroku:
+### Heroku
+
 ```bash
 heroku create your-app-name
 git push heroku main
@@ -172,7 +189,7 @@ git push heroku main
 ## Cost Comparison
 
 | Platform | Free Tier | Cost for Demo | Best For |
-|----------|-----------|---------------|----------|
+| -------- | --------- | ------------- | -------- |
 | **Streamlit Cloud** | 100 hours/month | Free | Best choice |
 | **Railway** | $5/month | $5/month | Good alternative |
 | **Heroku** | 550 hours/month | Free | Simple option |
@@ -180,14 +197,15 @@ git push heroku main
 
 ## Why Not Live Trading Deployment?
 
-### Technical Barriers:
+### Technical Barriers
 
 1. **MT5 Windows-Only**: Terminal requires Windows OS
 2. **Persistent Connection**: Needs continuous MT5 session
 3. **GUI Requirement**: MT5 needs display server for login
 4. **License Issues**: MT5 EULA may prohibit containerization
 
-### Railway Specifically:
+### Railway Specifically
+
 - Railway uses **Linux containers** (Ubuntu/CentOS)
 - **Wine complications**: MT5 + Wine = unreliable connections
 - **No Windows support**: Railway doesn't offer Windows containers
@@ -210,4 +228,4 @@ git push heroku main
 
 ---
 
-**Happy Showcasing! 🎯🤖**
+Happy Showcasing! 🎯🤖
