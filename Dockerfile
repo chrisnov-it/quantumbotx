@@ -1,30 +1,34 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Use Python 3.13 for best performance and compatibility with QuantumBotX v2.1.0
+FROM python:3.13-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Install system dependencies (build-essential for math/financial libraries)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install system dependencies (git only for potential future use)
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# Copy only requirements first to leverage Docker cache
+COPY requirements.txt .
 
-# Upgrade pip and install dependencies with a generous timeout
-ENV PIP_DEFAULT_TIMEOUT=120
+# Upgrade pip and install dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy pandas_ta stub for compatibility
-COPY pandas_ta_stub /app/pandas_ta_stub
+# Copy the rest of the application
+COPY . .
 
-# Install dependencies and pandas_ta stub
-RUN python -m pip install --upgrade pip && \
-    pip install /app/pandas_ta_stub && \
-    pip install --no-cache-dir -r requirements-docker.txt
-
+# Set environment variables
 ENV FLASK_APP=run.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV BROKER_TYPE=CCXT
-# Default to CCXT in Docker since MT5 doesn't run on Linux easily
+ENV PYTHONUNBUFFERED=1
 
-# Run run.py when the container launches
+# Default environment to Production when using Docker
+ENV FLASK_ENV=production
+
+# Run the application
 CMD ["python", "run.py"]

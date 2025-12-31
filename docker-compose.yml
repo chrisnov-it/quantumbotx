@@ -1,18 +1,18 @@
-# Docker Compose for QuantumBotX (no version key needed)
 services:
   quantumbotx:
     build: .
+    container_name: quantumbotx_bot
     ports:
       - "5000:5000"
     volumes:
       - .:/app
-      - ./instance:/app/instance # Persist database
-      - ./logs:/app/logs # Persist logs
+      - ./instance:/app/instance # Persist database (SQLite)
+      - ./logs:/app/logs # Persist trade logs
+    env_file:
+      - .env # Gunakan konfigurasi terpusat dari .env Anda
     environment:
       - FLASK_ENV=development
       - BROKER_TYPE=CCXT
       - EXCHANGE_ID=binance
-      - FLASK_HOST=0.0.0.0
-      # - API_KEY=your_api_key
-      # - API_SECRET=your_api_secret
+      - PYTHONUNBUFFERED=1
     restart: unless-stopped
