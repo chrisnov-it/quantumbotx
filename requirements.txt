@@ -8,10 +8,9 @@ idna==3.10
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
-MetaTrader5==5.0.5120
-numpy==1.23.5
-pandas==2.3.1
-pandas_ta==0.3.14b0
+numpy>=2.2.6
+pandas>=2.2.3
+pandas-ta
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 pytz==2025.2

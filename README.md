@@ -1,28 +1,20 @@
-# 🤖 QuantumBotX — AI-Powered Modular Trading Bot for MT5
+# 🤖 QuantumBotX — AI-Powered Broker Agnostic Trading Bot
 
-!MIT License
-!Python Version
-!Framework
-!Made with Love
-
-Welcome to **QuantumBotX**, your personal, modular, and smart trading assistant built with Python and MetaTrader5 (MT5).
-Designed to be elegant, powerful, and flexible — whether you're a scalper, swing trader, or a strategy researcher.
+Welcome to **QuantumBotX**, your personal, modular, and smart trading assistant. Now powered by a **Broker Agnostic Architecture**, allowing you to trade across MetaTrader5 (MT5) and major Crypto Exchanges (Binance, Bybit, etc.) using a single unified interface.
 
 ---
 
-## ⚠️ Platform Support Notice
+## 🌍 Platform & Broker Support
 
-### **Primary Platform: Windows** 🪟
+### **Flexible Deployment** 🚀
+- **Windows**: Native support for MT5 and CCXT.
+- **Linux/Docker/Cloud**: Full support for Crypto Trading via CCXT (no MT5 required!).
+- **Local MT5**: Requires Windows (or Wine) for Forex/Gold trading.
 
-This version of QuantumBotX is **optimized for Windows** and requires MetaTrader 5 terminal to be installed locally. It's designed for learning algorithmic trading on your personal computer.
-
-### **Alternative Platforms** 🔄
-
-- **Linux**: Can attempt using Wine (experimental - see Linux Setup guide below)
-- **macOS**: Not officially supported (requires Wine or Windows VM)
-- **Cloud/VPS**: Not compatible (requires local MT5 terminal)
-
-> 💡 **Pro Tip**: For cloud deployment and multi-platform support, check out our upcoming **QuantumBotX API** version!
+### **Supported Brokers** 🏦
+- **MetaTrader 5**: XM, Exness, FBS, IC Markets, etc.
+- **Crypto Exchanges (via CCXT)**: Binance (Spot/Futures), Bybit, OKX, and 100+ others.
+- **Simulation**: Built-in **Mock Broker** for risk-free strategy testing without internet.
 
 ---
 
@@ -90,38 +82,28 @@ This version of QuantumBotX is **optimized for Windows** and requires MetaTrader
 
 ---
 
-## 🚀 Development & Testing Framework
+### 🧪 **Testing & Simulation Infrastructure**
 
-### 🧪 **Testing Infrastructure**
-
-- ✅ **30+ Test Scripts**: Comprehensive testing suite in dedicated `testing/` directory
-- ✅ **Multi-Broker Testing**: XM Global, Exness, Alpari compatibility validation
-- ✅ **Strategy Validation**: Individual strategy testing and parameter optimization
-- ✅ **ATR Education Testing**: Interactive examples and beginner tutorials
-- ✅ **Crypto Integration Tests**: Bitcoin/Ethereum weekend mode validation
-- ✅ **Indonesian Market Tests**: XM Indonesia and IDR pairs testing
-- ✅ **Risk Management Tests**: XAUUSD protection and ATR-based sizing validation
+- ✅ **Agnostic Testing**: `test_agnostic_bot.py` validates logic across different broker types.
+- ✅ **Visual Simulation**: `visual_simulation.py` provides a real-time "Mock Market" for strategy debugging.
+- ✅ **CCXT Validation**: dedicated `test_ccxt.py` and `test_ccxt_order.py` for exchange connectivity.
+- ✅ **30+ Test Scripts**: Comprehensive testing suite in dedicated `testing/` directory.
 
 ### 🔧 **Development Tools**
-
-- ✅ **Symbol Migration Tools**: Automatic broker symbol discovery and mapping
-- ✅ **Bot State Management**: Debug and fix tools for bot recovery
-- ✅ **Performance Analysis**: Backtesting debugging and optimization tools
-- ✅ **Market Diagnostics**: Real-time market condition analysis
-- ✅ **Integration Demos**: Complete workflow demonstrations
+- ✅ **Broker Factory**: Dynamic adapter switching between MT5, CCXT, and Mock providers.
+- ✅ **Symbol Discovery**: Automatic mapping between Forex (EURUSD) and Crypto (BTC/USDT) formats.
 
 > **Note**: All testing scripts are excluded from git repository for clean production deployment
 
 ---
 
-## 📦 Tech Stack
-
-- `Python 3.10+`
-- `Flask` & `TailwindCSS`
+- `Python 3.10 - 3.13` (Recommended: 3.13 for best library compatibility)
+- `CCXT` (Crypto Exchange Hybrid Integration)
+- `Flask` & `Vanilla CSS` (Modern Aesthetic)
 - `MetaTrader5` Python Integration
-- `pandas` & `pandas-ta` for data analysis
-- `Chart.js` for data visualization
-- `SQLite` for database
+- `pandas` & `pandas-ta` (Financial Engineering)
+- `Chart.js` (Simulasi & Result Visualization)
+- `SQLite` (Local Database)
 
 ---
 
@@ -211,14 +193,24 @@ This version of QuantumBotX is **optimized for Windows** and requires MetaTrader
 
 ---
 
-## 🔐 Environment Variables (`.env`)
-
 Rename `.env.example` to `.env`, and fill in the following:
 
 ```env
+# --- BROKER SELECTION ---
+BROKER_TYPE="MT5" # Options: MT5, CCXT, MOCK
+
+# --- MT5 CONFIG (If MT5 selected) ---
 MT5_LOGIN="your_mt5_login"
 MT5_PASSWORD="your_password"
 MT5_SERVER="your_broker_server"
+
+# --- CCXT CONFIG (If CCXT selected) ---
+EXCHANGE_ID="binance"
+CCXT_API_KEY="your_api_key"
+CCXT_API_SECRET="your_api_secret"
+CCXT_TESTNET=true
+
+# --- APP CONFIG ---
 SECRET_KEY="any_flask_secret_key"
 DB_NAME=bots.db
 ```

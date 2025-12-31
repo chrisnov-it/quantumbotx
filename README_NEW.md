@@ -193,6 +193,7 @@ python run.py
 
 ### Current Features ✅
 
+- ✅ **Agnostic Architecture**: Support for MT5, CCXT (Binance), and Mock Brokers
 - ✅ MT5 Integration with 50+ instruments
 - ✅ 16 Trading strategies with risk management
 - ✅ AI mentor in Indonesian

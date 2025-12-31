@@ -9,6 +9,7 @@ from typing import Dict, Optional, List
 from enum import Enum
 
 from .base_broker import BaseBroker
+from .mt5_broker import MT5Broker
 from .binance_broker import BinanceBroker
 from .ctrader_broker import CTraderBroker
 from .interactive_brokers import InteractiveBrokersBroker
@@ -65,7 +66,9 @@ class BrokerFactory:
         config = broker_config['config']
         
         try:
-            if broker_type == BrokerType.BINANCE:
+            if broker_type == BrokerType.MT5:
+                broker = MT5Broker()
+            elif broker_type == BrokerType.BINANCE:
                 broker = BinanceBroker(testnet=config.get('testnet', True))
             elif broker_type == BrokerType.BINANCE_FUTURES:
                 # Future implementation

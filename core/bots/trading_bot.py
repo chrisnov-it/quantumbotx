@@ -6,8 +6,7 @@ import logging
 from datetime import datetime
 from core.strategies.strategy_map import STRATEGY_MAP
 from core.factory.broker_factory import BrokerFactory
-# from core.mt5.trade import place_trade, close_trade  <-- DEPRECATED
-from core.utils.mt5 import TIMEFRAME_MAP  # Keep for now or move to adapter
+# from core.mt5.trade import place_trade, close_trade  # DEPRECATED
 # AI Mentor Integration
 from core.db.models import log_trade_for_ai_analysis
 # Holiday and market hours management
@@ -37,9 +36,6 @@ class TradingBot(threading.Thread):
         self.last_analysis = {"signal": "MEMUAT", "explanation": "Bot sedang memulai, menunggu analisis pertama..."}
         self._stop_event = threading.Event()
         self.strategy_instance = None
-        self.strategy_instance = None
-        # Gunakan map yang diimpor untuk menjaga konsistensi
-        self.tf_map = TIMEFRAME_MAP
         
         # Initialize Broker Adapter
         if broker:
@@ -241,7 +237,7 @@ class TradingBot(threading.Thread):
         # Logika untuk sinyal BUY
         if signal == 'BUY':
             # Jika ada posisi SELL, tutup dulu
-            if position and position.get('type') == 1: # 1 is SELL in MT5, Adapter should standardize this later
+            if position and position.get('type') == 'SELL':
                 self.log_activity('CLOSE SELL', "Menutup posisi JUAL untuk membuka posisi BELI.", is_notification=True)
                 
                 # Log untuk AI mentor analysis
@@ -266,7 +262,7 @@ class TradingBot(threading.Thread):
         # Logika untuk sinyal SELL
         elif signal == 'SELL':
             # Jika ada posisi BUY, tutup dulu
-            if position and position.get('type') == 0: # 0 is BUY in MT5
+            if position and position.get('type') == 'BUY':
                 self.log_activity('CLOSE BUY', "Menutup posisi BELI untuk membuka posisi JUAL.", is_notification=True)
                 
                 # Log untuk AI mentor analysis

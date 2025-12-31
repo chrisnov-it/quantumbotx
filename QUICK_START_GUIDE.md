@@ -1,12 +1,16 @@
 # QuantumBotX - Quick Start Guide
 
-## First Time Setup
+## Setup Your Broker
 
-1. **Install MetaTrader 5** (Required)
-   - Download from: <https://www.metatrader5.com/>
-   - Install and create a demo account
-   - Keep MT5 running in the background
-   - ⚠️ **IMPORTANT:** MetaTrader 5 must be running for QuantumBotX to work
+- **Option A: MetaTrader 5 (Forex/Gold)**
+  - Download MT5 from: <https://www.metatrader5.com/>
+  - Install and keep it running in the background.
+  
+- **Option B: Crypto Exchange (Binance/Bybit)**
+  - Create an account on your preferred exchange.
+  - For testing, use **Binance Futures Testnet**.
+
+⚠️ **Note:** MT5 is only required if you choose to trade Forex/Gold via `MT5` broker type.
 
 2. **Configure Your Settings**
    - Copy `.env.example` to `.env`
@@ -18,18 +22,20 @@
      MT5_SERVER=your_server_name
      ```
 
-3. **Start the Application**
+3. **Verify Connection**
+   - To test MT5: `python test_mt5_connection.py`
+   - To test Crypto: `python test_ccxt.py`
+   - To simulate without Internet: `python visual_simulation.py`
+
+4. **Start the Application**
    - Double-click `start.bat` (Windows)
-   - Open <http://127.0.0.1:5000> in your browser
+   - Open <http://127.0.0.1:5000>
 
-## ✅ System Requirements
-
-- **Windows 7 SP1 or later** (64-bit recommended)
-- **MetaTrader 5** (must be installed separately)
-- **4GB RAM minimum** (8GB recommended)
-- **500MB free disk space**
-- **Internet connection** for initial setup
-- **❌ Python NOT required** (already bundled in the installer)
+- **Windows 10/11** (Native MT5 support)
+- **Linux/MacOS/Docker** (CCXT/Crypto support only)
+- **Python 3.10 - 3.13**
+- **4GB RAM minimum**
+- **Stable internet connection**
 
 ## Daily Use
 

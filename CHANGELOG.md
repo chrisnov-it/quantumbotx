@@ -8,6 +8,31 @@
 
 ---
 
+## 📈 **v2.1.0 - "Agnostic Revolution"** ✨ (December 2025)
+
+### 🌍 **Broker Agnostic Architecture** ⭐⭐⭐⭐⭐
+
+- **Universal Broker Interface**: Complete abstraction of broker logic via `BrokerInterface`.
+- **Multi-Platform Support**: Now supports Crypto Exchanges (Binance, Bybit) via CCXT integration.
+- **Docker & Cloud Ready**: Crypto bots can now run on Linux/Docker without needing a local MT5 terminal.
+- **Broker Factory**: Dynamic switching between MT5, CCXT, and Mock adapters.
+- **Stateful Mock Testing**: Advanced simulation mode with `visual_simulation.py` for risk-free testing.
+
+### ⚡ **System & Performance Optimization**
+
+- **Python 3.13 Support**: Optimized for the latest stable Python versions (3.10 - 3.13).
+- **Dependency Refresh**: Fixed "CPU 100%" issue during installation by optimizing `requirements.txt`.
+- **Binary Wheels**: Configured dependencies to use pre-compiled binaries for faster setup.
+- **Agnostic Symbol Mapping**: Automatic translation between MT5 (EURUSD) and CCXT (BTC/USDT) formats.
+
+### 🧪 **New Testing Framework**
+
+- **Agnostic Bot Validator**: `test_agnostic_bot.py` for cross-platform logic verification.
+- **CCXT Connection Suite**: Dedicated tools for validating exchange connectivity and demo trading.
+- **Visual Simulation Engine**: Real-time market mock-up for strategy debugging.
+
+---
+
 ## 🎯 **Investment Highlights**
 
 **Why QuantumBotX Stands Out:**

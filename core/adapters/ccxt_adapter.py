@@ -29,20 +29,21 @@ class CCXTAdapter(BrokerInterface):
                 'options': {'defaultType': 'future'} # Default to futures for bots
             }
             
-            # Enable testnet if configured
+            if credentials.get('PASSWORD'): 
+                config['password'] = credentials.get('PASSWORD')
+                
+            # Enable testnet/demo if configured
             if credentials.get('TESTNET', False):
+                config['options']['demo'] = True
                 if self.exchange_id == 'binance':
+                    # Manually point to Futures Testnet URL to be extra safe
                     config['urls'] = {
                         'api': {
-                            'public': 'https://testnet.binance.vision/api',
-                            'private': 'https://testnet.binance.vision/api',
+                            'public': 'https://testnet.binancefuture.com/fapi/v1',
+                            'private': 'https://testnet.binancefuture.com/fapi/v1',
                         }
                     }
-                    logger.info("Using Binance TESTNET (https://testnet.binance.vision)")
-                # Add other exchange testnet URLs as needed
-            
-            if credentials.get('PASSWORD'): # For exchanges like KuCoin
-                config['password'] = credentials.get('PASSWORD')
+                logger.info(f"Using {self.exchange_id} DEMO TRADING mode")
                 
             self.exchange = exchange_class(config)
             
