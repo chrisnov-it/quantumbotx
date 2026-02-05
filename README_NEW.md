@@ -215,7 +215,7 @@ python run.py
 
 Enjoy QuantumBotX? Consider supporting future development:
 
-[img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal"](https://www.paypal.com/paypalme/rebarakaz)
+[img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal"](https://www.paypal.com/paypalme/chrisnov-it)
 
 ---
 

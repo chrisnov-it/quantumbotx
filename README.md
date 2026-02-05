@@ -224,7 +224,7 @@ DB_NAME=bots.db
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/rebarakaz/quantumbotx.git
+    git clone https://github.com/chrisnov-it/quantumbotx.git
     cd quantumbotx
     ```
 
@@ -315,7 +315,7 @@ wine xmglobal5setup.exe
 
 ```bash
 # Set up the project as usual
-git clone https://github.com/rebarakaz/quantumbotx.git
+git clone https://github.com/chrisnov-it/quantumbotx.git
 cd quantumbotx
 python -m venv venv
 source venv/bin/activate
@@ -426,7 +426,7 @@ Concept, Logic & Execution: `@chrisnov` aka BabyDev
 
 If you like this project, give it a ⭐ on GitHub, or buy me a coffee to support future versions:
 
-[img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal"](https://www.paypal.com/paypalme/rebarakaz)
+[img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Donate with PayPal"](https://www.paypal.com/paypalme/chrisnov-it)
 
 ---
 

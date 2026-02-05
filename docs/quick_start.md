@@ -14,7 +14,7 @@ Get up and running with QuantumBotX in under 10 minutes!
 
 ### Step 1: Download QuantumBotX
 ```bash
-git clone https://github.com/rebarakaz/quantumbotx.git
+git clone https://github.com/chrisnov-it/quantumbotx.git
 cd quantumbotx
 ```
 

@@ -213,6 +213,6 @@ st.markdown("""
 <div style='text-align: center; color: #666;'>
     <p><strong>QuantumBotX</strong> - Making Algorithmic Trading Accessible for Everyone</p>
     <p>Developed with ❤️ by Chrisnov IT Solutions</p>
-    <p><a href='https://github.com/rebarakaz/quantumbotx' target='_blank'>View on GitHub</a> • <a href='#' target='_blank'>Documentation</a></p>
+    <p><a href='https://github.com/chrisnov-it/quantumbotx' target='_blank'>View on GitHub</a> • <a href='#' target='_blank'>Documentation</a></p>
 </div>
 """, unsafe_allow_html=True)

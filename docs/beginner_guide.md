@@ -24,7 +24,7 @@ QuantumBotX is an intelligent, modular trading bot platform built for MetaTrader
 ### Installation Steps
 1. Clone the repository:
    ```bash
-   git clone https://github.com/rebarakaz/quantumbotx.git
+   git clone https://github.com/chrisnov-it/quantumbotx.git
    cd quantumbotx
    ```
 
