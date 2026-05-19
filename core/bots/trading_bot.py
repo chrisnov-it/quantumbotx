@@ -5,7 +5,7 @@ import time
 import logging
 from datetime import datetime
 import MetaTrader5 as mt5
-from core.strategies.strategy_map import STRATEGY_MAP
+from core.strategies.strategy_map import resolve_strategy_class
 from core.mt5.trade import place_trade, close_trade
 from core.utils.mt5 import TIMEFRAME_MAP  # <-- Impor dari lokasi terpusat
 # AI Mentor Integration
@@ -57,7 +57,7 @@ class TradingBot(threading.Thread):
             return # Hentikan eksekusi jika simbol tidak valid
 
         try:
-            strategy_class = STRATEGY_MAP.get(self.strategy_name)
+            strategy_class = resolve_strategy_class(self.strategy_name)
             if not strategy_class:
                 raise ValueError(f"Strategi '{self.strategy_name}' tidak ditemukan.")
 

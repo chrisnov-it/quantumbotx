@@ -24,7 +24,7 @@ STRATEGY_MAP = {
     'BOLLINGER_REVERSION': BollingerBandsStrategy,
     'BOLLINGER_SQUEEZE': BollingerSqueezeStrategy,
     'MERCY_EDGE': MercyEdgeStrategy,
-    'quantum_velocity': QuantumVelocityStrategy,
+    'QUANTUM_VELOCITY': QuantumVelocityStrategy,
     'PULSE_SYNC': PulseSyncStrategy,
     'TURTLE_BREAKOUT': TurtleBreakoutStrategy,
     'ICHIMOKU_CLOUD': IchimokuCloudStrategy,
@@ -32,6 +32,22 @@ STRATEGY_MAP = {
     'INDEX_MOMENTUM': IndexMomentumStrategy,
     'INDEX_BREAKOUT_PRO': IndexBreakoutProStrategy,
 }
+
+
+def normalize_strategy_id(strategy_id):
+    """Return the canonical strategy ID used by STRATEGY_MAP."""
+    if not strategy_id:
+        return strategy_id
+    aliases = {
+        "quantum_velocity": "QUANTUM_VELOCITY",
+    }
+    raw = str(strategy_id).strip()
+    return aliases.get(raw, raw.upper())
+
+
+def resolve_strategy_class(strategy_id):
+    """Resolve a strategy class while accepting legacy lowercase IDs."""
+    return STRATEGY_MAP.get(normalize_strategy_id(strategy_id))
 
 # Beginner-friendly strategy metadata
 STRATEGY_METADATA = {
@@ -181,11 +197,12 @@ def get_strategies_for_market(market_type):
 
 def get_strategy_info(strategy_name):
     """Get complete strategy information"""
-    metadata = STRATEGY_METADATA.get(strategy_name, {})
-    beginner_info = BEGINNER_DEFAULTS.get(strategy_name, {})
+    strategy_id = normalize_strategy_id(strategy_name)
+    metadata = STRATEGY_METADATA.get(strategy_id, {})
+    beginner_info = BEGINNER_DEFAULTS.get(strategy_id, {})
     
     return {
-        'strategy_class': STRATEGY_MAP.get(strategy_name),
+        'strategy_class': resolve_strategy_class(strategy_id),
         'metadata': metadata,
         'beginner_info': beginner_info
     }

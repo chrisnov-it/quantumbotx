@@ -8,7 +8,7 @@ from core.bots import controller
 from core.db import queries
 from core.utils.mt5 import get_rates_mt5
 from core.utils.mt5 import TIMEFRAME_MAP
-from core.strategies.strategy_map import STRATEGY_MAP
+from core.strategies.strategy_map import STRATEGY_MAP, resolve_strategy_class
 
 api_bots = Blueprint('api_bots', __name__)
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def get_strategies_route():
 @api_bots.route('/api/strategies/<strategy_id>/params', methods=['GET'])
 def get_strategy_params_route(strategy_id):
     """Mengembalikan parameter yang bisa diatur untuk sebuah strategi."""
-    strategy_class = STRATEGY_MAP.get(strategy_id)
+    strategy_class = resolve_strategy_class(strategy_id)
     if not strategy_class:
         return jsonify({"error": "Strategi tidak ditemukan"}), 404
     
@@ -63,7 +63,7 @@ def get_bots_route():
     # Perkaya data bot dengan nama strategi yang mudah dibaca
     for bot in bots:
         strategy_key = bot.get('strategy')
-        strategy_class = STRATEGY_MAP.get(strategy_key)  # pyright: ignore[reportArgumentType]
+        strategy_class = resolve_strategy_class(strategy_key)  # pyright: ignore[reportArgumentType]
         if strategy_class:
             bot['strategy_name'] = getattr(strategy_class, 'name', strategy_key)
         else:

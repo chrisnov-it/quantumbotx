@@ -2,7 +2,7 @@
 
 import math # Import modul math
 import logging # Import modul logging
-from core.strategies.strategy_map import STRATEGY_MAP
+from core.strategies.strategy_map import resolve_strategy_class
 
 logger = logging.getLogger(__name__)
 # Completely disable backtesting logs for silent operation
@@ -20,7 +20,7 @@ def run_backtest(strategy_id, params, historical_data_df, symbol_name=None):
         historical_data_df: DataFrame dengan data historis
         symbol_name: Nama simbol (opsional, untuk deteksi XAUUSD yang akurat)
     """
-    strategy_class = STRATEGY_MAP.get(strategy_id)
+    strategy_class = resolve_strategy_class(strategy_id)
     if not strategy_class:
         return {"error": "Strategi tidak ditemukan"}
 

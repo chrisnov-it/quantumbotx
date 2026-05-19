@@ -4,7 +4,7 @@ import json
 import logging
 from core.db import queries
 from .trading_bot import TradingBot
-from core.strategies.strategy_map import STRATEGY_MAP
+from core.strategies.strategy_map import STRATEGY_MAP, resolve_strategy_class
 
 logger = logging.getLogger(__name__)
 
@@ -280,7 +280,7 @@ def get_bot_analysis_data(bot_id: int):
             return {"signal": "ERROR", "explanation": "Unable to fetch market data"}
 
         # Instantiate strategy
-        strategy_class = STRATEGY_MAP.get(bot_data['strategy'])
+        strategy_class = resolve_strategy_class(bot_data['strategy'])
         if not strategy_class:
             return {"signal": "ERROR", "explanation": f"Strategy '{bot_data['strategy']}' not found"}
 

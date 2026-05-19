@@ -4,7 +4,7 @@
 import math
 import logging
 import os
-from core.strategies.strategy_map import STRATEGY_MAP
+from core.strategies.strategy_map import resolve_strategy_class
 
 logger = logging.getLogger(__name__)
 # Set appropriate logging level
@@ -263,7 +263,7 @@ def run_enhanced_backtest(strategy_id, params, historical_data_df, symbol_name=N
     )
     
     # Get strategy
-    strategy_class = STRATEGY_MAP.get(strategy_id)
+    strategy_class = resolve_strategy_class(strategy_id)
     if not strategy_class:
         return {"error": "Strategy not found"}
     

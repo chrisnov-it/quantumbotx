@@ -6,7 +6,11 @@ Ensures all strategies work properly with the fixed backtesting engine
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 def validate_strategy_registration():
     """Validate strategy registration and imports"""
@@ -142,8 +146,7 @@ def check_strategy_id_consistency():
         for strategy_id in strategy_ids:
             if strategy_id != strategy_id.upper() and '_' in strategy_id:
                 # Most strategies use UPPER_CASE, but some don't
-                if strategy_id not in ['quantum_velocity']:  # Known exception
-                    inconsistent_naming.append(strategy_id)
+                inconsistent_naming.append(strategy_id)
         
         if inconsistent_naming:
             print("⚠️  Naming convention inconsistencies:")
