@@ -471,13 +471,20 @@ def run_enhanced_backtest(strategy_id, params, historical_data_df, symbol_name=N
     max_drawdown_clean = round(max_drawdown * 100, 2) if math.isfinite(max_drawdown) else 0.0
     win_rate_clean = round(win_rate, 2) if math.isfinite(win_rate) else 0.0
     
-    logger.info(f"Enhanced Backtest Complete: {len(trades)} trades, ${total_profit_clean:+.0f} profit, {win_rate_clean:.0f}% win rate, ${total_spread_costs:.0f} spread costs")
+    gross_profit_clean = round(total_profit_clean + round(total_spread_costs, 2), 2)
+
+    logger.info(
+        f"Enhanced Backtest Complete: {len(trades)} trades, "
+        f"gross ${gross_profit_clean:+.0f}, net ${total_profit_clean:+.0f}, "
+        f"{win_rate_clean:.0f}% win rate, ${total_spread_costs:.0f} spread costs"
+    )
     
     return {
         "strategy_name": strategy_class.name,
         "instrument": instrument_symbol,
         "total_trades": len(trades),
         "final_capital": final_capital,
+        "gross_profit_usd": gross_profit_clean,
         "total_profit_usd": total_profit_clean,
         "total_spread_costs": round(total_spread_costs, 2),
         "net_profit_after_costs": round(total_profit_clean, 2),

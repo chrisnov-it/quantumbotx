@@ -111,9 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.classList.remove('hidden');
         
         // Enhanced display with spread costs and protection info
-        const spreadCosts = data.total_spread_costs || 0;
-        const netProfit = data.net_profit_after_costs || data.total_profit_usd;
-        const grossProfit = data.total_profit_usd || 0;
+        const spreadCosts = data.total_spread_costs ?? 0;
+        const netProfit = data.net_profit_after_costs ?? data.total_profit_usd ?? 0;
+        const grossProfit = data.gross_profit_usd ?? (netProfit + spreadCosts);
         const instrument = data.instrument || 'UNKNOWN';
         
         // Check if protection was applied
