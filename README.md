@@ -96,7 +96,13 @@ on `main`.
    DB_NAME=bots.db
    ```
 
-6. Start the app:
+6. Initialize local database schema (first run):
+
+   ```bash
+   python init_db.py
+   ```
+
+7. Start the app:
 
    ```bash
    python run.py
@@ -197,6 +203,17 @@ If dependency installation fails:
 - Use Python 3.12.
 - Upgrade pip: `python -m pip install --upgrade pip`.
 - Re-run `pip install -r requirements.txt`.
+
+If you see database errors like `no such table: bots`:
+
+- Run `python init_db.py` once in the project root.
+- Make sure you run `python run.py` from the same project folder.
+
+If `git pull` shows many conflicts after a forced remote update:
+
+- Abort merge: `git merge --abort`
+- Realign to remote main:
+  `git fetch origin && git reset --hard origin/main && git clean -fd`
 
 ## Disclaimer
 
