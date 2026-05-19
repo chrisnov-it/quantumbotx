@@ -1,0 +1,57 @@
+{
+  "preset_name": "XM Demo Baseline",
+  "broker_match": ["XM", "XMGLOBAL"],
+  "symbols": {
+    "XAUUSD": "GOLD",
+    "EURUSD": "EURUSD",
+    "GBPUSD": "GBPUSD",
+    "USDJPY": "USDJPY",
+    "BTCUSD": "BTCUSD"
+  },
+  "cases": [
+    {
+      "name": "EURUSD Conservative Trend",
+      "symbol": "EURUSD",
+      "data_file": "backtest_data/EURUSD_H1_data.csv",
+      "strategy_id": "MA_CROSSOVER",
+      "params": {
+        "risk_percent": 0.5,
+        "sl_atr_multiplier": 2.0,
+        "tp_atr_multiplier": 4.0
+      }
+    },
+    {
+      "name": "EURUSD Momentum",
+      "symbol": "EURUSD",
+      "data_file": "backtest_data/EURUSD_H1_data.csv",
+      "strategy_id": "RSI_CROSSOVER",
+      "params": {
+        "risk_percent": 0.5,
+        "sl_atr_multiplier": 2.0,
+        "tp_atr_multiplier": 4.0
+      }
+    },
+    {
+      "name": "GOLD Defensive",
+      "symbol": "XAUUSD",
+      "data_file": "backtest_data/GOLD_H1_data.csv",
+      "strategy_id": "MA_CROSSOVER",
+      "params": {
+        "risk_percent": 0.25,
+        "sl_atr_multiplier": 1.0,
+        "tp_atr_multiplier": 2.0
+      }
+    },
+    {
+      "name": "BTCUSD Volatility",
+      "symbol": "BTCUSD",
+      "data_file": "backtest_data/BTCUSD_H1_data.csv",
+      "strategy_id": "BOLLINGER_SQUEEZE",
+      "params": {
+        "risk_percent": 0.5,
+        "sl_atr_multiplier": 2.0,
+        "tp_atr_multiplier": 4.0
+      }
+    }
+  ]
+}

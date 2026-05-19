@@ -1,0 +1,46 @@
+{
+  "preset_name": "FBS Demo Baseline",
+  "broker_match": ["FBS"],
+  "symbols": {
+    "XAUUSD": "XAUUSDw",
+    "EURUSD": "EURUSDw",
+    "GBPUSD": "GBPUSDw",
+    "USDJPY": "USDJPYw",
+    "BTCUSD": "BTCUSD"
+  },
+  "cases": [
+    {
+      "name": "EURUSDw Conservative Trend",
+      "symbol": "EURUSD",
+      "data_file": "backtest_data/EURUSD_H1_data.csv",
+      "strategy_id": "MA_CROSSOVER",
+      "params": {
+        "risk_percent": 0.5,
+        "sl_atr_multiplier": 2.0,
+        "tp_atr_multiplier": 4.0
+      }
+    },
+    {
+      "name": "GBPUSDw Mean Reversion",
+      "symbol": "GBPUSD",
+      "data_file": "backtest_data/GBPUSD_H1_data.csv",
+      "strategy_id": "BOLLINGER_REVERSION",
+      "params": {
+        "risk_percent": 0.5,
+        "sl_atr_multiplier": 2.0,
+        "tp_atr_multiplier": 4.0
+      }
+    },
+    {
+      "name": "XAUUSDw Defensive",
+      "symbol": "XAUUSD",
+      "data_file": "backtest_data/XAUUSD_H1_data.csv",
+      "strategy_id": "TURTLE_BREAKOUT",
+      "params": {
+        "risk_percent": 0.25,
+        "sl_atr_multiplier": 1.0,
+        "tp_atr_multiplier": 2.0
+      }
+    }
+  ]
+}

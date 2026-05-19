@@ -141,6 +141,27 @@ strategy testing. Typical workflows:
 - Run `python lab/download_data.py`.
 - Upload CSV files through the backtesting UI.
 
+### Broker Preset Backtests (XM/FBS)
+
+You can run a preset batch backtest tuned for broker environments:
+
+```bash
+py -3.12 lab/run_preset_backtests.py
+```
+
+Optional:
+
+```bash
+py -3.12 lab/run_preset_backtests.py --preset xm_demo.json --tail 5000
+```
+
+Preset files are stored in:
+
+- `config/presets/xm_demo.json`
+- `config/presets/fbs_demo.json`
+
+Results are saved to `logs/preset_backtest_results.json`.
+
 Supported markets depend on the connected MT5 broker. Common examples include:
 
 - Forex pairs such as EURUSD, GBPUSD, USDJPY.
