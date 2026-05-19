@@ -58,7 +58,7 @@ on `main`.
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/rebarakaz/quantumbotx.git
+   git clone https://github.com/chrisnov-it/quantumbotx.git
    cd quantumbotx
    ```
 
