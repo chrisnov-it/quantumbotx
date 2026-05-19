@@ -16,6 +16,24 @@ from core.strategies.index_optimizations import get_trading_hours, is_index_symb
 
 logger = logging.getLogger(__name__)
 
+def _to_log_friendly(value):
+    """Convert numpy scalars/containers into plain Python types for cleaner logs."""
+    if isinstance(value, dict):
+        return {k: _to_log_friendly(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_to_log_friendly(v) for v in value]
+    if isinstance(value, tuple):
+        return tuple(_to_log_friendly(v) for v in value)
+
+    # NumPy scalars usually expose .item() to convert into Python scalar.
+    if hasattr(value, "item") and value.__class__.__module__.startswith("numpy"):
+        try:
+            return value.item()
+        except Exception:
+            return value
+
+    return value
+
 
 class TradingBot(threading.Thread):
     def __init__(self, id, name, market, risk_percent, sl_pips, tp_pips, timeframe, check_interval, strategy, strategy_params={}, status='Dijeda', enable_strategy_switching=False):
@@ -95,7 +113,8 @@ class TradingBot(threading.Thread):
                     continue
 
                 self.last_analysis = self.strategy_instance.analyze(df)
-                logger.info(f"Bot {self.id} [{self.strategy_name}] - Last Analysis: {self.last_analysis}")
+                log_analysis = _to_log_friendly(self.last_analysis)
+                logger.info(f"Bot {self.id} [{self.strategy_name}] - Last Analysis: {log_analysis}")
                 signal = self.last_analysis.get("signal", "HOLD")
 
                 current_position = self._get_open_position()
