@@ -72,7 +72,9 @@ def init_database():
         else:
             # Running as script
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            db_path = os.path.join(base_dir, '..', '..', 'bots.db')
+            # core/__init__.py berada di <project_root>/core,
+            # jadi naik satu level untuk mencapai root project.
+            db_path = os.path.join(base_dir, '..', 'bots.db')
 
         # Create connection
         conn = sqlite3.connect(db_path)
