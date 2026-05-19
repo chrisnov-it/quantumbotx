@@ -20,6 +20,11 @@ Always test on a demo account before considering any live trading.
 Experimental cross-platform work belongs on dedicated development branches, not
 on `main`.
 
+## Recent Changes
+
+For operational updates, setup-impacting fixes, and repository maintenance
+notes, see [CHANGELOG.md](CHANGELOG.md).
+
 ## Features
 
 - MT5 account connection and symbol validation.
@@ -41,6 +46,12 @@ on `main`.
 - Windows 10/11, 64-bit recommended.
 - MetaTrader 5 terminal installed locally.
 - Python 3.12 recommended.
+
+### Python Version Status
+
+- Recommended and verified: Python `3.12.x` (tested with `3.12.10`).
+- Newer versions such as `3.13` and `3.14` may work, but are currently treated
+  as compatibility tests, not primary baseline.
 
 ### Experimental
 
@@ -65,7 +76,7 @@ on `main`.
 2. Create and activate a virtual environment:
 
    ```bash
-   python -m venv venv
+   py -3.12 -m venv venv
    .\venv\Scripts\activate
    ```
 
