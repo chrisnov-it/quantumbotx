@@ -89,6 +89,7 @@ Thumbs.db # Untuk Windows
 # Jangan ignore CSV global; hanya data market backtesting yang besar.
 lab/*_data.csv
 lab/backtest_data/*.csv
+backtest_data/*.csv
 
 # ==============================================================================
 # File yang secara eksplisit dikecualikan
