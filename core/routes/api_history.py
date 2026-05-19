@@ -11,6 +11,8 @@ DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 
 @api_history.route('/api/history')
 def api_global_history():
+    if os.getenv("BROKER_TYPE", "MT5").strip().upper() == "CCXT":
+        return jsonify([])
     history = get_trade_history_mt5()
     return jsonify(history)
 
@@ -19,6 +21,10 @@ def api_bot_history(bot_id):
     try:
         from core.bots.controller import active_bots
         from datetime import datetime, timedelta
+
+        if os.getenv("BROKER_TYPE", "MT5").strip().upper() == "CCXT":
+            return jsonify([])
+
         import MetaTrader5 as mt5
 
         bot = active_bots.get(bot_id)

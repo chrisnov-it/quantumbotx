@@ -115,7 +115,16 @@ async function fetchAndDisplayAnalysis() {
 
         Object.entries(analysis).forEach(([key, value]) => {
             if (!specialKeys.includes(key) && value !== null) {
-                let formattedValue = typeof value === 'number' ? value.toFixed(4) : value;
+                let formattedValue = value;
+                if (typeof value === 'number') {
+                    if (Number.isInteger(value)) {
+                        formattedValue = value.toString();
+                    } else if (Math.abs(value) >= 1) {
+                        formattedValue = value.toFixed(4);
+                    } else {
+                        formattedValue = value.toFixed(8);
+                    }
+                }
                 const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 analysisContainer.innerHTML += `<div class="flex justify-between py-1"><span class="text-gray-500">${label}</span><span class="font-semibold text-gray-800">${formattedValue}</span></div>`;
             }

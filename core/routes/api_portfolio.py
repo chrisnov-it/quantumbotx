@@ -1,57 +1,87 @@
 # core/routes/api_portfolio.py
 
+import logging
+import os
+
 from flask import Blueprint, jsonify
-from core.utils.mt5 import get_open_positions_mt5
 
-# Blueprint didefinisikan dengan url_prefix untuk konsistensi
-api_portfolio = Blueprint('api_portfolio', __name__, url_prefix='/api/portfolio')
+from core.utils.market_data import get_open_positions
 
-@api_portfolio.route('/open-positions')
+api_portfolio = Blueprint("api_portfolio", __name__, url_prefix="/api/portfolio")
+logger = logging.getLogger(__name__)
+
+
+def _runtime_broker_type() -> str:
+    return (os.getenv("BROKER_TYPE", "MT5") or "MT5").strip().upper()
+
+
+def _safe_float(value, default=0.0):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _allocation_from_positions(positions):
+    allocation_summary = {
+        "Forex": 0.0,
+        "Emas": 0.0,
+        "Saham": 0.0,
+        "Crypto": 0.0,
+        "Lainnya": 0.0,
+    }
+
+    for pos in positions or []:
+        symbol = str(pos.get("symbol", "")).upper()
+        weight = _safe_float(pos.get("volume", 0.0), 0.0)
+        if "/" in symbol:
+            # For CCXT spot, use notional if available.
+            maybe_notional = _safe_float(pos.get("price_current", 0.0), 0.0) * _safe_float(pos.get("volume", 0.0), 0.0)
+            if maybe_notional > 0:
+                weight = maybe_notional
+
+        if "USD" in symbol and "XAU" not in symbol and "BTC" not in symbol:
+            allocation_summary["Forex"] += weight
+        elif "XAU" in symbol:
+            allocation_summary["Emas"] += weight
+        elif any(stock in symbol for stock in ["AAPL", "GOOGL", "TSLA", "ND100", "SP500"]):
+            allocation_summary["Saham"] += weight
+        elif any(crypto in symbol for crypto in ["BTC", "ETH", "SOL", "XRP", "LTC", "/"]):
+            allocation_summary["Crypto"] += weight
+        else:
+            allocation_summary["Lainnya"] += weight
+
+    final_allocation = {k: v for k, v in allocation_summary.items() if v > 0}
+    return {
+        "labels": list(final_allocation.keys()) or ["Belum Ada Posisi"],
+        "values": list(final_allocation.values()) or [1],
+    }
+
+
+@api_portfolio.route("/open-positions")
 def api_open_positions():
-    """Endpoint untuk menyediakan daftar posisi terbuka secara real-time."""
+    """Provide open positions for MT5 or CCXT runtime."""
     try:
-        positions = get_open_positions_mt5()
-        return jsonify(positions)
-    except Exception as e:
-        # Mengembalikan error 500 jika ada masalah di backend
-        return jsonify({"error": str(e)}), 500
+        broker_type = _runtime_broker_type()
+        positions = get_open_positions() or []
 
-@api_portfolio.route('/allocation')
+        return jsonify({"success": True, "broker_type": broker_type, "positions": positions})
+    except Exception as e:
+        logger.error("Portfolio open-positions error: %s", e, exc_info=True)
+        return jsonify({"success": False, "error": str(e), "positions": []}), 500
+
+
+@api_portfolio.route("/allocation")
 def get_asset_allocation():
-    """Endpoint untuk menghitung dan mengembalikan alokasi aset."""
+    """Calculate asset allocation from open positions."""
     try:
-        positions = get_open_positions_mt5()
-        
-        # Logika untuk mengklasifikasikan aset berdasarkan simbol
-        allocation_summary = {
-            "Forex": 0.0, "Emas": 0.0, "Saham": 0.0,
-            "Crypto": 0.0, "Lainnya": 0.0
-        }
-        
-        if positions:
-            for pos in positions:
-                symbol = pos.get('symbol', '').upper()
-                volume = pos.get('volume', 0.0)
+        broker_type = _runtime_broker_type()
+        positions = get_open_positions() or []
 
-                if 'USD' in symbol and 'XAU' not in symbol and 'BTC' not in symbol:
-                    allocation_summary["Forex"] += volume
-                elif 'XAU' in symbol:
-                    allocation_summary["Emas"] += volume
-                elif any(stock in symbol for stock in ['AAPL', 'GOOGL', 'TSLA', 'ND100', 'SP500']):
-                    allocation_summary["Saham"] += volume
-                elif 'BTC' in symbol or 'ETH' in symbol:
-                    allocation_summary["Crypto"] += volume
-                else:
-                    allocation_summary["Lainnya"] += volume
-        
-        # Hapus kategori dengan nilai nol untuk chart yang lebih bersih
-        final_allocation = {k: v for k, v in allocation_summary.items() if v > 0}
-
-        data = {
-            "labels": list(final_allocation.keys()) or ["Belum Ada Posisi"],
-            "values": list(final_allocation.values()) or [1]
-        }
+        data = _allocation_from_positions(positions)
+        data["success"] = True
+        data["broker_type"] = broker_type
         return jsonify(data)
-        
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error("Portfolio allocation error: %s", e, exc_info=True)
+        return jsonify({"success": False, "error": str(e), "labels": ["Error"], "values": [1]}), 500

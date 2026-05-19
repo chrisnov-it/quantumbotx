@@ -1,7 +1,7 @@
 # core/routes/api_indicators.py
 
 from flask import Blueprint, request, jsonify
-from core.utils.mt5 import get_rates_mt5, TIMEFRAME_MAP
+from core.utils.market_data import get_market_rates
 try:
     import pandas_ta as ta
 except ImportError:
@@ -15,9 +15,7 @@ def get_rsi_data():
     symbol = request.args.get('symbol', 'EURUSD')
     tf = request.args.get('timeframe', 'H1')
 
-    timeframe = TIMEFRAME_MAP.get(tf.upper(), TIMEFRAME_MAP['H1'])
-
-    df = get_rates_mt5(symbol, timeframe, 100)
+    df = get_market_rates(symbol, tf.upper(), 100)
     if df is None or len(df) < 20:
         return jsonify({'timestamps': [], 'rsi_values': []})
 
@@ -25,6 +23,6 @@ def get_rsi_data():
     df = df.dropna().tail(20)
 
     return jsonify({
-        'timestamps': [x.strftime('%H:%M') for x in df['time']],
+        'timestamps': [x.strftime('%H:%M') for x in df.index],
         'rsi_values': df['RSI'].round(2).tolist()
     })

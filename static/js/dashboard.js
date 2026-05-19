@@ -134,6 +134,7 @@ function loadAccountInfo() {
             if (data.success) {
                 const equityEl = document.getElementById('total-equity');
                 const profitEl = document.getElementById('todays-profit');
+                const sourceEl = document.getElementById('equity-source');
                 
                 if (equityEl) equityEl.textContent = formatter.format(data.equity);
                 if (profitEl) {
@@ -142,14 +143,19 @@ function loadAccountInfo() {
                         'mt-1 text-2xl font-semibold profit-positive' : 
                         'mt-1 text-2xl font-semibold profit-negative';
                 }
+                if (sourceEl) {
+                    sourceEl.textContent = `Source: ${data.account_source || 'MetaTrader 5'}`;
+                }
             }
         })
         .catch(error => {
             console.error('Error loading account info:', error);
             const equityEl = document.getElementById('total-equity');
             const profitEl = document.getElementById('todays-profit');
+            const sourceEl = document.getElementById('equity-source');
             if (equityEl) equityEl.textContent = 'Error';
             if (profitEl) profitEl.textContent = 'Error';
+            if (sourceEl) sourceEl.textContent = 'Source: Error';
         });
 }
 

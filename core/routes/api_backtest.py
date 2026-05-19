@@ -14,6 +14,24 @@ from core.db.connection import get_db_connection
 api_backtest = Blueprint('api_backtest', __name__)
 logger = logging.getLogger(__name__)
 
+
+def _normalize_param_value(value):
+    """Convert common string values from form payload into runtime-friendly types."""
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in ('true', 'yes', 'on'):
+            return True
+        if lowered in ('false', 'no', 'off'):
+            return False
+    return value
+
+
+def _normalize_params_dict(params):
+    if not isinstance(params, dict):
+        return {}
+    return {k: _normalize_param_value(v) for k, v in params.items()}
+
+
 def save_backtest_result(strategy_name, filename, params, results):
     # Sanitasi data sebelum menyimpan
     for key, value in results.items():
@@ -80,7 +98,7 @@ def run_backtest_route():
     try:
         df = pd.read_csv(file.stream, parse_dates=['time'])
         strategy_id = request.form.get('strategy')
-        params = json.loads(request.form.get('params', '{}'))
+        params = _normalize_params_dict(json.loads(request.form.get('params', '{}')))
         
         # Map web interface parameter names to enhanced engine parameter names
         enhanced_params = params.copy()

@@ -25,7 +25,7 @@ STRATEGY_MAP = {
     'BOLLINGER_REVERSION': BollingerBandsStrategy,
     'BOLLINGER_SQUEEZE': BollingerSqueezeStrategy,
     'MERCY_EDGE': MercyEdgeStrategy,
-    'quantum_velocity': QuantumVelocityStrategy,
+    'QUANTUM_VELOCITY': QuantumVelocityStrategy,
     'PULSE_SYNC': PulseSyncStrategy,
     'TURTLE_BREAKOUT': TurtleBreakoutStrategy,
     'ICHIMOKU_CLOUD': IchimokuCloudStrategy,
@@ -182,11 +182,36 @@ def get_strategies_for_market(market_type):
 
 def get_strategy_info(strategy_name):
     """Get complete strategy information"""
-    metadata = STRATEGY_METADATA.get(strategy_name, {})
-    beginner_info = BEGINNER_DEFAULTS.get(strategy_name, {})
+    strategy_key = normalize_strategy_id(strategy_name)
+    metadata = STRATEGY_METADATA.get(strategy_key, {})
+    beginner_info = BEGINNER_DEFAULTS.get(strategy_key, {})
     
     return {
-        'strategy_class': STRATEGY_MAP.get(strategy_name),
+        'strategy_class': resolve_strategy_class(strategy_name),
         'metadata': metadata,
         'beginner_info': beginner_info
     }
+
+def normalize_strategy_id(strategy_id):
+    """Return the canonical strategy id used by STRATEGY_MAP."""
+    if not strategy_id:
+        return strategy_id
+
+    strategy_id = str(strategy_id)
+    if strategy_id in STRATEGY_MAP:
+        return strategy_id
+
+    upper_id = strategy_id.upper()
+    if upper_id in STRATEGY_MAP:
+        return upper_id
+
+    for registered_id in STRATEGY_MAP:
+        if registered_id.upper() == upper_id:
+            return registered_id
+
+    return strategy_id
+
+def resolve_strategy_class(strategy_id):
+    """Resolve strategy classes case-insensitively while keeping legacy aliases."""
+    canonical_id = normalize_strategy_id(strategy_id)
+    return STRATEGY_MAP.get(canonical_id) or STRATEGY_MAP.get(str(strategy_id))

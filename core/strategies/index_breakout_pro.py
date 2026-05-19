@@ -1,3 +1,12 @@
+# core/strategies/index_breakout_pro.py
+
+import pandas as pd
+import pandas_ta as ta
+from .base_strategy import BaseStrategy
+import logging
+
+logger = logging.getLogger(__name__)
+
 class IndexBreakoutProStrategy(BaseStrategy):
     """
     INDEX_BREAKOUT_PRO - Advanced Stock Index Breakout Strategy
@@ -147,11 +156,20 @@ class IndexBreakoutProStrategy(BaseStrategy):
         df['vwap'] = self._calculate_vwap(df)
         
         # Bollinger Bands for volatility
-        bb = ta.bbands(df['close'], length=20)
-        if bb is not None:
-            df['bb_upper'] = bb['BBU_20_2.0']
-            df['bb_lower'] = bb['BBL_20_2.0']
-            df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / df['close'] * 100
+        bb = ta.bbands(df['close'], length=20, std=2.0)
+        if bb is not None and not getattr(bb, 'empty', True):
+            upper_col = next((c for c in bb.columns if str(c).startswith('BBU_')), None)
+            lower_col = next((c for c in bb.columns if str(c).startswith('BBL_')), None)
+            if upper_col and lower_col:
+                df['bb_upper'] = bb[upper_col]
+                df['bb_lower'] = bb[lower_col]
+                df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / df['close'] * 100
+            else:
+                sma_20 = df['close'].rolling(20).mean()
+                std_20 = df['close'].rolling(20).std()
+                df['bb_upper'] = sma_20 + (std_20 * 2)
+                df['bb_lower'] = sma_20 - (std_20 * 2)
+                df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / df['close'] * 100
         else:
             # Fallback calculation when ta.bbands returns None
             sma_20 = df['close'].rolling(20).mean()

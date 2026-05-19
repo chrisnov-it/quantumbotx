@@ -1,63 +1,59 @@
-# 📋 QuantumBotX Development Roadmap
+# QuantumBotX Roadmap
 
-**👀 Stay Tuned for Exciting Updates!**
+## Phase 0: Stabilize Core Runtime (Now)
 
-## 🎯 **What's Coming Next**
+Target: keep the app functional and consistent in the development environment.
 
-### **Q4 2025: Agnostic Revolution (RELEASED)** 🚀
- 
-We've officially laid the foundation for the **QuantumBotX API** by implementing a Broker Agnostic Architecture:
+Exit criteria:
 
-- ✅ **Multi-Broker Support**: Dynamic switching between MT5, Binance, and Mock adapters via `BrokerFactory`.
-- ✅ **Cloud Ready**: Run on Linux/Docker for Crypto trading without local MT5.
-- ✅ **Stateful Simulation**: Real-time mock testing with `visual_simulation.py`.
-- ✅ **Modern Foundation**: Optimized for Python 3.13 with seamingless dependency management.
+- App boot normal on WSL without MT5 crash path.
+- Health endpoint and core bot APIs stable.
+- No known medium/high dependency vulnerabilities.
+- No medium/high bandit issues in default scan.
 
-### **Q1 2026: Intelligence Enhancement (NEXT)**
+## Phase 1: Functional Demo Trading
 
-- 🔄 **Telegram Notifications**: Real-time trade and error alerts.
-- 🔄 **Portfolio Analytics**: Advanced performance dashboards.
-- 🔄 **AI Strategy Optimizer**: Automated parameter tuning based on market regime.
+Target: complete demo-account operational loop.
 
-### **Exciting New Project** 🚀
+Exit criteria:
 
-We're developing **QuantumBotX API** - a revolutionary cloud-based trading platform that will give users unprecedented freedom:
+- Create/start/stop bot works reliably on demo account.
+- CCXT testnet start/stop path works without MT5 runtime dependency.
+- MT5 and CCXT runtime paths are documented as one modular broker architecture.
+- Strategy analysis endpoint consistent across major strategies.
+- Trade execution + close flow can run repeatedly without deadlock.
+- Basic error handling and retry behavior defined for network failures.
 
-> **"Trade anywhere, anytime, with any broker - no local installations required!"**
+## Phase 2: Risk and Reliability Layer
 
-**QuantumBotX API will feature:**
+Target: avoid catastrophic behavior before real account consideration.
 
-- 🌐 **Cloud-native architecture** - Run on any device, anywhere
-- 🔄 **Direct broker integration** - No intermediaries, pure API trading
-- 🌏 **Cross-broker support** - IC Markets, Pepperstone, and beyond
-- ⚡ **Real-time execution** - Ultra-low latency trade processing
-- 🎓 **Advanced education** - Built-in learning with community support
+Exit criteria:
 
-### **Timeline**
+- Daily loss cap guardrail.
+- Max concurrent positions per symbol/asset.
+- Broker-agnostic risk guard behavior (same policy intent across MT5 and CCXT).
+- Broker-neutral dashboard, portfolio, history, and indicator endpoints.
+- Emergency stop and safe shutdown tested.
+- Structured logs for audit and troubleshooting.
 
-- **Q4 2025**: Closed beta testing with select users
-- **Q1 2026**: Public beta launch with premium support
-- **Q2 2026**: Full global launch with subscription tiers
+## Phase 3: Verification Discipline
 
----
+Target: objective confidence before any live-money pilot.
 
-## 🤝 **Community & Support**
+Exit criteria:
 
-**We're building more than software - we're building a trading community!**
+- Regression test checklist documented and repeatable.
+- Forward test report on demo account (minimum 4 weeks).
+- Known limitations documented in README.
+- Release checklist enforced before tagging.
 
-- **Discord Community**: Join our growing trader community
-- **Educational Content**: Free trading courses and tutorials
-- **Open Source**: Contribute to the project and shape its future
-- **Mentorship Program**: One-on-one guidance for serious traders
+## Phase 4: Optional Live Pilot
 
----
+Target: small live test with strict exposure limits.
 
-## 🗺️ **Our Mission**
+Entry conditions:
 
-**Empowering traders worldwide with safe, educational, and profitable algorithmic trading solutions.**
-
-*From local learning platform → Global trading ecosystem!* 🚀💫
-
----
-
-Roadmap Updated: September 2025*
+- All previous phases complete.
+- Explicit risk disclaimer and operator SOP finalized.
+- Capital-at-risk cap predefined and hard-enforced.

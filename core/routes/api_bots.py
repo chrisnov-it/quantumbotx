@@ -2,16 +2,112 @@
 
 import json
 import logging
+import os
+from types import SimpleNamespace
 from flask import Blueprint, jsonify, request
-from core.bots.controller import mulai_bot, hentikan_bot, ambil_semua_bot, shutdown_all_bots
+from core.bots.controller import (
+    mulai_bot,
+    hentikan_bot,
+    ambil_semua_bot,
+    shutdown_all_bots,
+    get_bot_instance_by_id,
+)
 from core.db import queries
 from core.utils import market_data
-from core.strategies.strategy_map import STRATEGY_MAP
+from core.strategies.strategy_map import STRATEGY_MAP, resolve_strategy_class
 
 api_bots = Blueprint('api_bots', __name__)
 logger = logging.getLogger(__name__)
 
+
+def is_strategy_switcher_enabled():
+    """Read strategy switcher feature flag from env."""
+    return os.getenv('ENABLE_STRATEGY_SWITCHER', '0').strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def _normalize_param_type(raw_type):
+    """Map strategy param types into HTML input types expected by current UI."""
+    raw = (raw_type or '').strip().lower()
+    if raw in ('int', 'integer', 'float', 'number', 'decimal'):
+        return 'number'
+    if raw in ('bool', 'boolean'):
+        return 'text'
+    if raw in ('string', 'str', 'text'):
+        return 'text'
+    return 'number'
+
+
+def _normalize_strategy_param(param):
+    """Normalize mixed strategy param schemas to a stable frontend shape."""
+    if not isinstance(param, dict):
+        return None
+
+    name = param.get('name')
+    if not name:
+        return None
+
+    normalized = {
+        'name': name,
+        'label': param.get('label') or param.get('display_name') or name,
+        'type': _normalize_param_type(param.get('type')),
+        'default': param.get('default', ''),
+    }
+
+    if 'step' in param:
+        normalized['step'] = param['step']
+    elif str(param.get('type', '')).lower() in ('float', 'decimal'):
+        normalized['step'] = 0.1
+
+    return normalized
+
+
+def _iter_unique_strategies():
+    """Yield canonical strategy id/class pairs and skip alias duplicates."""
+    seen_classes = set()
+    for strategy_id, strategy_class in STRATEGY_MAP.items():
+        if strategy_class in seen_classes:
+            continue
+        seen_classes.add(strategy_class)
+        yield strategy_id, strategy_class
+
+
 # --- CRUD Endpoints ---
+
+@api_bots.route('/api/strategies', methods=['GET'])
+def get_strategies():
+    """Return strategy list for bot form and backtesting dropdown."""
+    strategies = []
+    for strategy_id, strategy_class in _iter_unique_strategies():
+        name = getattr(strategy_class, 'name', strategy_id)
+        description = getattr(strategy_class, 'description', '')
+        strategies.append({
+            'id': strategy_id,
+            'name': name,
+            'description': description,
+        })
+    return jsonify(strategies)
+
+
+@api_bots.route('/api/strategies/<strategy_id>/params', methods=['GET'])
+def get_strategy_params(strategy_id):
+    """Return definable params for a single strategy."""
+    strategy_class = resolve_strategy_class(strategy_id)
+    if not strategy_class:
+        return jsonify({"error": "Strategy not found"}), 404
+
+    try:
+        raw_params = strategy_class.get_definable_params() or []
+    except Exception as e:
+        logger.error("Failed reading params for strategy %s: %s", strategy_id, e)
+        return jsonify({"error": "Failed to load strategy params"}), 500
+
+    normalized_params = []
+    for param in raw_params:
+        normalized = _normalize_strategy_param(param)
+        if normalized is not None:
+            normalized_params.append(normalized)
+
+    return jsonify(normalized_params)
 
 @api_bots.route('/api/bots', methods=['GET'])
 def get_bots():
@@ -59,6 +155,8 @@ def create_bot():
         strategy = data.get('strategy')
         strategy_params = json.dumps(data.get('params', {}))
         enable_strategy_switching = 1 if data.get('enable_strategy_switching') else 0
+        if not is_strategy_switcher_enabled():
+            enable_strategy_switching = 0
 
         bot_id = queries.add_bot(
             name, market, lot_size, sl_pips, tp_pips, timeframe, interval, 
@@ -89,6 +187,8 @@ def update_bot_route(bot_id):
         strategy = data.get('strategy')
         strategy_params = json.dumps(data.get('params', {}))
         enable_strategy_switching = 1 if data.get('enable_strategy_switching') else 0
+        if not is_strategy_switcher_enabled():
+            enable_strategy_switching = 0
 
         success = queries.update_bot(
             bot_id, name, market, lot_size, sl_pips, tp_pips, timeframe, interval, 
@@ -175,6 +275,28 @@ def get_bot_history(bot_id):
 def get_bot_analysis(bot_id):
     """Run strategy analysis for a bot and return result"""
     try:
+        active_bot = get_bot_instance_by_id(bot_id)
+        if active_bot and getattr(active_bot, "last_analysis", None):
+            analysis = active_bot.last_analysis
+            if isinstance(analysis, tuple) and len(analysis) >= 2:
+                return jsonify({
+                    "signal": analysis[0],
+                    "explanation": analysis[1],
+                    "price": None,
+                    "position_qty": getattr(active_bot, "last_position_qty", None),
+                    "cooldown_remaining_candles": getattr(active_bot, "last_cooldown_remaining", None),
+                    "last_action": getattr(active_bot, "last_action_result", None),
+                })
+            if isinstance(analysis, dict):
+                return jsonify({
+                    "signal": analysis.get("signal", "HOLD"),
+                    "explanation": analysis.get("explanation", ""),
+                    "price": analysis.get("price"),
+                    "position_qty": getattr(active_bot, "last_position_qty", None),
+                    "cooldown_remaining_candles": getattr(active_bot, "last_cooldown_remaining", None),
+                    "last_action": getattr(active_bot, "last_action_result", None),
+                })
+
         bot = queries.get_bot_by_id(bot_id)
         if not bot:
             return jsonify({"error": "Bot not found"}), 404
@@ -184,7 +306,7 @@ def get_bot_analysis(bot_id):
         strategy_name = bot['strategy']
         
         # Load Strategy
-        strategy_class = STRATEGY_MAP.get(strategy_name)
+        strategy_class = resolve_strategy_class(strategy_name)
         if not strategy_class:
             return jsonify({"error": "Strategy not found", "signal": "ERROR"}), 400
             
@@ -203,15 +325,40 @@ def get_bot_analysis(bot_id):
         elif isinstance(bot.get('strategy_params'), dict):
             strategy_params = bot['strategy_params']
             
-        strategy = strategy_class(symbol, timeframe, strategy_params)
-        signal, explanation = strategy.analyze(df)
+        # Strategy contract in this codebase uses BaseStrategy(bot_instance, params)
+        # Build a lightweight bot context so strategy code can still reference bot attrs.
+        bot_ctx = SimpleNamespace(
+            market=symbol,
+            market_for_mt5=symbol,
+            timeframe=timeframe,
+            id=bot_id,
+            name=bot.get('name', f'bot-{bot_id}')
+        )
+        strategy = strategy_class(bot_instance=bot_ctx, params=strategy_params)
+        analysis = strategy.analyze(df)
+
+        # Backward compatibility: some old strategy implementations may return tuples.
+        if isinstance(analysis, tuple) and len(analysis) >= 2:
+            signal, explanation = analysis[0], analysis[1]
+            price = df['close'].iloc[-1] if not df.empty else 0
+        elif isinstance(analysis, dict):
+            signal = analysis.get('signal', 'HOLD')
+            explanation = analysis.get('explanation', '')
+            price = analysis.get('price', df['close'].iloc[-1] if not df.empty else 0)
+        else:
+            signal = 'ERROR'
+            explanation = f'Invalid strategy response type: {type(analysis).__name__}'
+            price = df['close'].iloc[-1] if not df.empty else 0
         
         # Return analysis result
         return jsonify({
             "signal": signal,
             "explanation": explanation,
-            "price": df['close'].iloc[-1] if not df.empty else 0,
-            "rsi": df['RSI'].iloc[-1] if 'RSI' in df.columns else None
+            "price": price,
+            "rsi": df['RSI'].iloc[-1] if 'RSI' in df.columns else None,
+            "position_qty": None,
+            "cooldown_remaining_candles": None,
+            "last_action": None,
         })
         
     except Exception as e:

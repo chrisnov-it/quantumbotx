@@ -127,6 +127,7 @@
         <p id="total-equity" class="mt-1 text-2xl font-semibold text-gray-800">
           <i class="fas fa-spinner fa-spin text-gray-400"></i>
         </p>
+        <p id="equity-source" class="mt-1 text-xs text-gray-500">Source: Loading...</p>
       </div>
       <div class="text-green-500 text-2xl">
         <i class="fas fa-wallet"></i>
@@ -414,6 +415,10 @@ function loadDashboardData() {
         .then(data => {
             if (data.success) {
                 document.getElementById('total-equity').textContent = `$${data.equity.toFixed(2)}`;
+                const sourceElement = document.getElementById('equity-source');
+                if (sourceElement) {
+                    sourceElement.textContent = `Source: ${data.account_source || 'MetaTrader 5'}`;
+                }
                 
                 const profitElement = document.getElementById('todays-profit');
                 const profit = data.todays_profit;
@@ -425,6 +430,8 @@ function loadDashboardData() {
             console.error('Error loading account info:', error);
             document.getElementById('total-equity').textContent = 'Error';
             document.getElementById('todays-profit').textContent = 'Error';
+            const sourceElement = document.getElementById('equity-source');
+            if (sourceElement) sourceElement.textContent = 'Source: Error';
         });
     
     // Load bot info
@@ -682,6 +689,10 @@ function refreshDashboardData() {
         .then(data => {
             if (data.success) {
                 document.getElementById('total-equity').textContent = `$${data.equity.toFixed(2)}`;
+                const sourceElement = document.getElementById('equity-source');
+                if (sourceElement) {
+                    sourceElement.textContent = `Source: ${data.account_source || 'MetaTrader 5'}`;
+                }
                 
                 const profitElement = document.getElementById('todays-profit');
                 const profit = data.todays_profit;

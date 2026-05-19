@@ -2,13 +2,23 @@
 
 import math # Import modul math
 import logging # Import modul logging
-from core.strategies.strategy_map import STRATEGY_MAP
+from core.strategies.strategy_map import resolve_strategy_class
 
 logger = logging.getLogger(__name__)
 # Completely disable backtesting logs for silent operation
 # Since we have backtesting history, terminal logs are not needed
 logger.disabled = True
 logger.propagate = False
+
+def _resolve_atr_column(df, length=14):
+    preferred = [f'ATRr_{length}', f'ATR_{length}']
+    for col in preferred:
+        if col in df.columns:
+            return col
+    atr_candidates = [c for c in df.columns if str(c).upper().startswith('ATR')]
+    if atr_candidates:
+        return atr_candidates[0]
+    return None
 
 def run_backtest(strategy_id, params, historical_data_df, symbol_name=None):
     """
@@ -20,7 +30,7 @@ def run_backtest(strategy_id, params, historical_data_df, symbol_name=None):
         historical_data_df: DataFrame dengan data historis
         symbol_name: Nama simbol (opsional, untuk deteksi XAUUSD yang akurat)
     """
-    strategy_class = STRATEGY_MAP.get(strategy_id)
+    strategy_class = resolve_strategy_class(strategy_id)
     if not strategy_class:
         return {"error": "Strategi tidak ditemukan"}
 
@@ -42,6 +52,9 @@ def run_backtest(strategy_id, params, historical_data_df, symbol_name=None):
     df = historical_data_df.copy()
     df_with_signals = strategy_instance.analyze_df(df)
     df_with_signals.ta.atr(length=14, append=True)
+    atr_col = _resolve_atr_column(df_with_signals, length=14)
+    if not atr_col:
+        return {"error": "ATR indicator column not found (expected ATRr_14/ATR_14)"}
     df_with_signals.dropna(inplace=True)
     df_with_signals.reset_index(inplace=True)
 
@@ -150,7 +163,7 @@ def run_backtest(strategy_id, params, historical_data_df, symbol_name=None):
             if signal in ['BUY', 'SELL']:
                 entry_price = current_bar['close']
                 entry_time = current_bar['time']
-                atr_value = current_bar['ATRr_14']
+                atr_value = current_bar[atr_col]
                 if atr_value <= 0: 
                     continue
 

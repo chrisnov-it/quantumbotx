@@ -7,7 +7,7 @@
 <div class="flex justify-between items-center mb-6">
     <div>
         <h2 class="text-2xl font-bold text-gray-800" data-i18n="portfolio.title">Portfolio Real-Time</h2>
-        <p class="text-gray-600" data-i18n="portfolio.description">Posisi trading yang sedang terbuka di akun MetaTrader 5.</p>
+        <p class="text-gray-600" data-i18n="portfolio.description">Posisi trading yang sedang terbuka di akun broker aktif.</p>
     </div>
     <div id="portfolio-summary" class="text-right">
         <!-- Summary akan dimuat di sini -->
@@ -37,12 +37,13 @@
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.type">Tipe</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.volume">Volume</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.open_price">Harga Buka</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Price</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.profit_loss">Profit/Loss</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="portfolio.magic">Magic Number</th>
         </tr>
     </thead>
     <tbody id="portfolio-table-body" class="bg-white divide-y divide-gray-200">
-        <tr><td colspan="6" class="p-4 text-center text-gray-500" data-i18n="portfolio.loading">Memuat posisi terbuka...</td></tr>
+        <tr><td colspan="7" class="p-4 text-center text-gray-500" data-i18n="portfolio.loading">Memuat posisi terbuka...</td></tr>
     </tbody>
 </table>
 

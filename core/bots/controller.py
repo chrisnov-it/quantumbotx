@@ -2,12 +2,13 @@
 
 import json
 import logging
+import os
+from pathlib import Path
 from core.db import queries
 from .trading_bot import TradingBot
-from core.strategies.strategy_map import STRATEGY_MAP
-from core.factory.broker_factory import BrokerFactory
-import os
-from dotenv import load_dotenv
+from .ccxt_trading_bot import CCXTTradingBot
+from core.strategies.strategy_map import resolve_strategy_class
+from core.utils.mt5 import mt5, MT5_AVAILABLE, find_mt5_symbol
 
 logger = logging.getLogger(__name__)
 
@@ -15,17 +16,24 @@ logger = logging.getLogger(__name__)
 # Key: bot_id (int), Value: TradingBot instance
 active_bots = {}
 
+
+def _runtime_broker_type() -> str:
+    return (os.getenv("BROKER_TYPE", "MT5") or "MT5").strip().upper()
+
 def auto_migrate_broker_symbols():
     """Automatically migrate bot symbols when broker changes are detected"""
     try:
-        import MetaTrader5 as mt5
-        from pathlib import Path
-        import json
-        from core.utils.mt5 import find_mt5_symbol
+        if _runtime_broker_type() == "CCXT":
+            logger.info("BROKER_TYPE=CCXT. Lewati auto symbol migration MT5.")
+            return
+        if not MT5_AVAILABLE:
+            logger.info("MT5 module tidak tersedia. Lewati auto symbol migration.")
+            return
         
         # Get current broker info
         account_info = mt5.account_info()  # pyright: ignore[reportAttributeAccessIssue]
         if not account_info:
+            logger.info("MT5 belum terhubung. Lewati auto symbol migration.")
             return
         
         current_broker = account_info.server
@@ -125,37 +133,46 @@ def mulai_bot(bot_id: int):
     if not bot_data:
         return False, f"Bot dengan ID {bot_id} tidak ditemukan."
 
+    broker_type = _runtime_broker_type()
+
+    if broker_type != "CCXT":
+        # MT5 bot cannot run if MT5 module/runtime is unavailable.
+        if not MT5_AVAILABLE:
+            queries.update_bot_status(bot_id, 'Error')
+            return False, "MT5 module tidak tersedia di environment ini. Bot tidak dapat dijalankan."
+
+        # If MT5 module exists but terminal/session is not connected, block startup early.
+        try:
+            if not mt5.account_info():  # pyright: ignore[reportAttributeAccessIssue]
+                queries.update_bot_status(bot_id, 'Error')
+                return False, "MT5 belum terhubung. Jalankan/ login terminal MT5 terlebih dahulu."
+        except Exception:
+            queries.update_bot_status(bot_id, 'Error')
+            return False, "Gagal memverifikasi koneksi MT5. Bot tidak dijalankan."
+
     # Ubah string JSON dari DB menjadi dictionary Python
     params_dict = json.loads(bot_data.get('strategy_params', '{}'))
 
     try:
-        # Initialize Broker Adapter
-        load_dotenv()
-        broker_type = os.getenv('BROKER_TYPE', 'MT5') # Default to MT5
-        broker = BrokerFactory.get_broker(broker_type)
-        
-        if broker:
-            creds = {
-                'MT5_LOGIN': os.getenv('MT5_LOGIN'),
-                'MT5_PASSWORD': os.getenv('MT5_PASSWORD'),
-                'MT5_SERVER': os.getenv('MT5_SERVER')
-            }
-            broker.initialize(creds)
-
-        bot_thread = TradingBot(
-            id=bot_data['id'], name=bot_data['name'], market=bot_data['market'],
-            risk_percent=bot_data['lot_size'], sl_pips=bot_data['sl_pips'],
-            tp_pips=bot_data['tp_pips'], timeframe=bot_data['timeframe'],
-            check_interval=bot_data['check_interval_seconds'], strategy=bot_data['strategy'],
+        bot_cls = CCXTTradingBot if broker_type == "CCXT" else TradingBot
+        bot_thread = bot_cls(
+            id=bot_data['id'],
+            name=bot_data['name'],
+            market=bot_data['market'],
+            risk_percent=bot_data['lot_size'],
+            sl_pips=bot_data['sl_pips'],
+            tp_pips=bot_data['tp_pips'],
+            timeframe=bot_data['timeframe'],
+            check_interval=bot_data['check_interval_seconds'],
+            strategy=bot_data['strategy'],
             strategy_params=params_dict,
-            enable_strategy_switching=bool(bot_data.get('enable_strategy_switching', 0)),
-            broker=broker
+            enable_strategy_switching=bool(bot_data.get('enable_strategy_switching', 0))
         )
         bot_thread.start()
         active_bots[bot_id] = bot_thread
         queries.update_bot_status(bot_id, 'Aktif')
-        logger.info(f"Bot {bot_id} ({bot_data['name']}) berhasil dimulai.")
-        return True, f"Bot {bot_data['name']} berhasil dimulai."
+        logger.info(f"Bot {bot_id} ({bot_data['name']}) berhasil dimulai [{broker_type}].")
+        return True, f"Bot {bot_data['name']} berhasil dimulai ({broker_type})."
     except Exception as e:
         logger.error(f"Gagal memulai bot {bot_id}: {e}", exc_info=True)
         queries.update_bot_status(bot_id, 'Error')
@@ -282,22 +299,14 @@ def get_bot_analysis_data(bot_id: int):
         return None
 
     try:
-        import MetaTrader5 as mt5
-        from core.utils.mt5 import find_mt5_symbol, get_rates_mt5, TIMEFRAME_MAP
+        from core.utils.market_data import get_market_rates
 
-        # Find the symbol
-        market_for_mt5 = find_mt5_symbol(bot_data['market'])
-        if not market_for_mt5:
-            return {"signal": "ERROR", "explanation": f"Symbol '{bot_data['market']}' not found in MT5"}
-
-        # Get market data
-        tf_const = TIMEFRAME_MAP.get(bot_data['timeframe'], mt5.TIMEFRAME_H1)
-        df = get_rates_mt5(market_for_mt5, tf_const, 250)
+        df = get_market_rates(bot_data['market'], bot_data['timeframe'], 250)
         if df.empty:
             return {"signal": "ERROR", "explanation": "Unable to fetch market data"}
 
         # Instantiate strategy
-        strategy_class = STRATEGY_MAP.get(bot_data['strategy'])
+        strategy_class = resolve_strategy_class(bot_data['strategy'])
         if not strategy_class:
             return {"signal": "ERROR", "explanation": f"Strategy '{bot_data['strategy']}' not found"}
 

@@ -2,21 +2,21 @@ blinker==1.9.0
 certifi==2025.7.9
 charset-normalizer==3.4.2
 click==8.2.1
+ccxt>=4.5.38,<5
 colorama==0.4.6
 Flask==3.1.1
 idna==3.10
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
-numpy>=2.2.6
-pandas>=2.2.3
-pandas-ta
+MetaTrader5>=5.0.5735; platform_system == "Windows"
+numpy>=2.2.6,<3
+pandas>=2.2.3,<3
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 pytz==2025.2
 requests==2.32.4
 six==1.17.0
 tzdata==2025.2
-urllib3==2.5.0
-Werkzeug==3.1.3
-ccxt
+urllib3==2.6.3
+Werkzeug==3.1.5

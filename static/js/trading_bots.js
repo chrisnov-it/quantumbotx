@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelBtnFooter = document.getElementById('cancel-create-footer'); // Tombol Batal di footer
     const paramsContainer = document.getElementById('strategy-params-container');
     const strategySelect = document.getElementById('strategy');
+    const strategySwitchingCheckbox = document.getElementById('enable_strategy_switching');
     let currentBotId = null; // Variabel untuk melacak bot yang sedang diedit
 
     // --- Fungsi ---
@@ -77,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const startStopButton = bot.status === 'Aktif'
                     ? `<button data-action="stop" data-id="${bot.id}" class="text-yellow-600 hover:text-yellow-900" title="Hentikan Bot"><i class="fas fa-pause-circle fa-lg"></i></button>`
                     : `<button data-action="start" data-id="${bot.id}" class="text-green-600 hover:text-green-900" title="Jalankan Bot"><i class="fas fa-play-circle fa-lg"></i></button>`;
+                const strategyLabel = bot.strategy_name || bot.strategy || '-';
 
                 const row = `
                     <tr class="hover:bg-gray-50">
@@ -89,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div>SL: ${bot.sl_pips}x ATR | TP: ${bot.tp_pips}x ATR</div>
                         </td>
                         <td class="px-4 py-4 text-sm text-gray-500">
-                            <div>Strategi: ${bot.strategy_name}</div>
+                            <div>Strategi: ${strategyLabel}</div>
                             <div>TF: ${bot.timeframe} | Interval: ${bot.check_interval_seconds}s</div>
                         </td>
                         <td class="px-4 py-4">
@@ -132,6 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
         form.elements.sl_atr_multiplier.value = 2.0;
         form.elements.tp_atr_multiplier.value = 4.0;
         form.elements.check_interval_seconds.value = 60;
+        if (strategySwitchingCheckbox) {
+            strategySwitchingCheckbox.checked = false;
+        }
         
         // If there's a symbol from URL, pre-fill the market field
         if (symbolFromUrl) {
@@ -225,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data.params = params;
         
         // Tambahkan pengaturan strategy switching
-        data.enable_strategy_switching = document.getElementById('enable_strategy_switching').checked;
+        data.enable_strategy_switching = strategySwitchingCheckbox ? strategySwitchingCheckbox.checked : false;
 
         const url = currentBotId ? `/api/bots/${currentBotId}` : '/api/bots';
         const method = currentBotId ? 'PUT' : 'POST';
@@ -334,11 +339,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const res = await fetch(endpoint, { method });
             const result = await res.json();
             
-            if (res.ok && !result.error) {
+            if (res.ok && !result.error && result.status !== 'error') {
                 alert(`✅ ${result.message || 'Operasi berhasil'}`);
                 fetchBots(); // Refresh tabel
             } else {
-                alert(`❌ ${result.error || 'Operasi gagal'}`);
+                const errorText = result.error || result.message || 'Operasi gagal';
+                alert(`❌ ${errorText}`);
             }
         } catch (err) {
             console.error(`Error performing action '${action}' on bot ${botId}:`, err);

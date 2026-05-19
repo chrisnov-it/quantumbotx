@@ -3,26 +3,42 @@
 import logging
 import os
 from datetime import datetime
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from core.utils.symbols import get_stock_symbols
 from core.utils.external import get_mt5_symbol_profile
 from core.utils import market_data
-from core.factory.broker_factory import BrokerFactory
-
-try:
-    import pandas_ta as ta
-except ImportError:
-    from core.utils.pandas_ta_compat import ta
+from core.utils.ccxt_spot import create_spot_exchange
 
 logger = logging.getLogger(__name__)
 
 api_stocks = Blueprint('api_stocks', __name__)
 
+
+def _runtime_broker_type() -> str:
+    return (os.getenv("BROKER_TYPE", "MT5") or "MT5").strip().upper()
+
+
+def _create_public_ccxt_exchange():
+    exchange_id = (os.getenv("EXCHANGE_ID") or os.getenv("CCXT_EXCHANGE") or "binance").strip().lower()
+    exchange = create_spot_exchange(exchange_id=exchange_id, require_credentials=False)
+    exchange.load_markets()
+    return exchange
+
+
+def _format_bar_timestamp(df, row) -> str:
+    timestamp = row.get("time") if hasattr(row, "get") else None
+    if timestamp is None:
+        timestamp = row.name
+    try:
+        return timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    except AttributeError:
+        return str(timestamp)
+
 @api_stocks.route('/api/stocks/<symbol>/profile')
 def get_stock_profile(symbol):
     # Profile fetching is currently external/MT5 specific. 
     # For CCXT we might need a different source or just return empty.
-    if os.getenv("BROKER_TYPE") == "CCXT":
+    if _runtime_broker_type() == "CCXT":
         return jsonify({"description": symbol, "sector": "Crypto", "industry": "Digital Assets"})
         
     profile = get_mt5_symbol_profile(symbol)
@@ -35,26 +51,25 @@ def get_stocks():
     """
     Mengambil daftar harga saham/crypto terkini.
     """
-    broker_type = os.getenv("BROKER_TYPE", "MT5")
+    broker_type = _runtime_broker_type()
     
     if broker_type == "CCXT":
         try:
-            broker = BrokerFactory.get_broker()
-            if not broker or not hasattr(broker, 'exchange'):
-                return jsonify([])
-                
+            exchange = _create_public_ccxt_exchange()
+
             # Fetch top crypto pairs (hardcoded for now or fetch from exchange)
             # Fetching all tickers is heavy, so we fetch a few popular ones
             top_symbols = ['BTC/USDT', 'ETH/USDT', 'BNB/USDT', 'XRP/USDT', 'ADA/USDT', 'SOL/USDT', 'DOGE/USDT']
+            top_symbols = [symbol for symbol in top_symbols if symbol in exchange.markets]
             
             result = []
             # Use fetch_tickers if supported for batch fetching
             try:
-                tickers = broker.exchange.fetch_tickers(top_symbols)
+                tickers = exchange.fetch_tickers(top_symbols)
                 for symbol, ticker in tickers.items():
                     result.append({
                         'symbol': symbol,
-                        'last_price': ticker['last'],
+                        'last_price': ticker.get('last') or ticker.get('bid') or ticker.get('ask'),
                         'change': ticker['percentage'] if ticker.get('percentage') else 0.0, # CCXT percentage is usually 24h change
                         'time': datetime.fromtimestamp(ticker['timestamp']/1000).strftime('%H:%M:%S') if ticker.get('timestamp') else datetime.now().strftime('%H:%M:%S')
                     })
@@ -122,14 +137,16 @@ def get_stock_detail(symbol):
         return jsonify({"error": f"Tidak bisa mengambil data untuk {symbol}"}), 404
 
     last = df.iloc[-1]
+    timestamp = _format_bar_timestamp(df, last)
+    volume = last.get('tick_volume', last.get('volume', 0)) if hasattr(last, "get") else 0
     return jsonify({
         "symbol": symbol,
-        "time": last['time'].strftime('%Y-%m-%d %H:%M:%S'),
+        "time": timestamp,
         "open": last['open'],
         "high": last['high'],
         "low": last['low'],
         "close": last['close'],
-        "volume": last['tick_volume']
+        "volume": volume
     })
 
 @api_stocks.route('/api/symbols/all')
@@ -137,19 +154,12 @@ def get_all_symbols_with_path():
     """
     Endpoint diagnostik.
     """
-    broker_type = os.getenv("BROKER_TYPE", "MT5")
+    broker_type = _runtime_broker_type()
     if broker_type == "CCXT":
         try:
-            broker = BrokerFactory.get_broker()
-            if broker and hasattr(broker, 'exchange'):
-                # Return list of loaded markets
-                markets = broker.exchange.markets
-                if not markets:
-                    broker.exchange.load_markets()
-                    markets = broker.exchange.markets
-                
-                symbols_info = [{"name": s, "path": "Crypto"} for s in markets.keys()]
-                return jsonify(symbols_info)
+            exchange = _create_public_ccxt_exchange()
+            symbols_info = [{"name": s, "path": "Crypto"} for s in exchange.markets.keys()]
+            return jsonify(symbols_info)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
             
