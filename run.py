@@ -33,7 +33,7 @@ def health_check():
     return jsonify({"status": "ok", "message": "Server is running", "mt5": mt5_status})
 
 if __name__ == '__main__':
-    # Skip MT5 initialization if SKIP_MT5_INIT is set (for Vercel deployment)
+    # Skip MT5 initialization for import checks and local diagnostics.
     if os.getenv('SKIP_MT5_INIT') == '1':
         logging.info("Skipping MT5 initialization (deployment mode).")
         app.run(
