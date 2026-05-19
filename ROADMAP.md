@@ -1,52 +1,29 @@
-# 📋 QuantumBotX Development Roadmap
+# QuantumBotX Roadmap
 
-**👀 Stay Tuned for Exciting Updates!**
+QuantumBotX `main` is currently maintained as a Windows-first MetaTrader 5
+trading platform. Cross-platform broker work is intentionally developed outside
+`main` until it is mature enough to merge cleanly.
 
-## 🎯 **What's Coming Next**
+## Current Focus
 
-### **Q4 2025: Intelligence Enhancement**
-- **Advanced AI Features**: Enhanced strategy analysis with machine learning
-- **Real-time Notifications**: Telegram integration for trade alerts
-- **Portfolio Analytics**: Advanced performance dashboards
-- **Enterprise Features**: Multi-account management and compliance logging
+- Keep MT5 demo/live workflow stable on Windows.
+- Keep strategy registration, backtesting, and dashboard modules installable on
+  modern Python.
+- Improve public-safe tests and documentation.
+- Keep broker/account-specific diagnostics out of the public repository.
 
-### **Exciting New Project** 🚀
-We're developing **QuantumBotX API** - a revolutionary cloud-based trading platform that will give users unprecedented freedom:
+## Near-Term Work
 
-> **"Trade anywhere, anytime, with any broker - no local installations required!"**
+- Harden setup for Python 3.12.
+- Improve MT5 connection diagnostics and clearer user-facing error messages.
+- Expand regression checks for strategy imports and backtesting.
+- Review packaging scripts for Windows installer reliability.
 
-**QuantumBotX API will feature:**
-- 🌐 **Cloud-native architecture** - Run on any device, anywhere
-- 🔄 **Direct broker integration** - No intermediaries, pure API trading
-- 🌏 **Cross-broker support** - IC Markets, Pepperstone, and beyond
-- ⚡ **Real-time execution** - Ultra-low latency trade processing
-- 🎓 **Advanced education** - Built-in learning with community support
+## Deferred Work
 
-### **Timeline**
-- **Q4 2025**: Closed beta testing with select users
-- **Q1 2026**: Public beta launch with premium support
-- **Q2 2026**: Full global launch with subscription tiers
+- Cross-platform broker backends on dedicated development branches.
+- Broker-neutral order and market-data interfaces outside `main`.
+- Cloud/API trading platform concepts outside `main`.
 
----
-
-## 🤝 **Community & Support**
-
-**We're building more than software - we're building a trading community!**
-
-- **Discord Community**: Join our growing trader community
-- **Educational Content**: Free trading courses and tutorials
-- **Open Source**: Contribute to the project and shape its future
-- **Mentorship Program**: One-on-one guidance for serious traders
-
----
-
-## 🗺️ **Our Mission**
-
-**Empowering traders worldwide with safe, educational, and profitable algorithmic trading solutions.**
-
-*From local learning platform → Global trading ecosystem!* 🚀💫
-
----
-
-**Roadmap Updated: September 2025**
-</content>
+Those items should stay on dedicated development branches until the MT5 platform
+on `main` remains clean and stable.
