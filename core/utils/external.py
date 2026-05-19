@@ -12,10 +12,20 @@ logger = logging.getLogger(__name__)
 
 CMC_API_KEY = os.getenv("CMC_API_KEY")
 CMC_API_BASE_URL = os.getenv("CMC_API_BASE_URL", "https://pro-api.coinmarketcap.com")
-if not CMC_API_KEY:
-    logger.warning("CMC_API_KEY not found in .env file.")
+CMC_ENABLED = os.getenv("CMC_ENABLED", "0").strip().lower() in {"1", "true", "yes", "on"}
+
+if CMC_ENABLED and not CMC_API_KEY:
+    logger.warning("CMC_ENABLED aktif tapi CMC_API_KEY tidak ditemukan di .env.")
 
 def get_crypto_data_from_cmc():
+    if not CMC_ENABLED:
+        logger.info("CMC integration disabled on this branch/runtime.")
+        return []
+
+    if not CMC_API_KEY:
+        logger.warning("CMC integration enabled but API key is missing.")
+        return []
+
     url = f"{CMC_API_BASE_URL}/v1/cryptocurrency/listings/latest"
     headers = {'Accepts': 'application/json', 'X-CMC-PRO-API-KEY': CMC_API_KEY}
     params = {'start': '1', 'limit': '5', 'convert': 'IDR', 'sort': 'market_cap', 'sort_dir': 'desc'}
