@@ -83,13 +83,12 @@ Thumbs.db # Untuk Windows
 *.h5   # Format lain untuk model AI
 
 
-# === PERUBAHAN PENTING ===
-# JANGAN abaikan file data .csv secara global.
-# File data untuk backtesting adalah bagian penting dari proyek.
-# Simpan mereka di dalam folder 'data/'. Jika ada file CSV lain
-# (seperti laporan hasil) yang ingin diabaikan, sebutkan secara spesifik.
-# Contoh:
-# reports/*.csv
+# ==============================================================================
+# Data Backtesting (dibangkitkan/didownload ulang via script)
+# ==============================================================================
+# Jangan ignore CSV global; hanya data market backtesting yang besar.
+lab/*_data.csv
+lab/backtest_data/*.csv
 
 # ==============================================================================
 # File yang secara eksplisit dikecualikan
