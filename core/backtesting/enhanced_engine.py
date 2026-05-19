@@ -303,6 +303,7 @@ def run_enhanced_backtest(strategy_id, params, historical_data_df, symbol_name=N
     peak_equity = initial_capital
     max_drawdown = 0.0
     total_spread_costs = 0.0
+    stop_out_triggered = False
     
     position_type = None
     entry_price = 0.0
@@ -380,6 +381,11 @@ def run_enhanced_backtest(strategy_id, params, historical_data_df, symbol_name=N
                     profit = 0.0
                 
                 capital += profit
+                if capital <= 0:
+                    # Simulate account stop-out in backtesting mode.
+                    capital = 0.0
+                    stop_out_triggered = True
+
                 trades.append({
                     'entry_time': str(entry_time),
                     'exit_time': str(current_bar['time']),
@@ -395,10 +401,14 @@ def run_enhanced_backtest(strategy_id, params, historical_data_df, symbol_name=N
                 equity_curve.append(capital)
                 peak_equity = max(peak_equity, capital)
                 drawdown = (peak_equity - capital) / peak_equity if peak_equity > 0 else 0
-                max_drawdown = max(max_drawdown, drawdown)
+                max_drawdown = min(1.0, max(max_drawdown, drawdown))
                 in_position = False
                 
                 logger.debug(f"Trade closed: {position_type} | Entry: {entry_price:.4f} | Exit: {exit_price:.4f} | Profit: ${profit:.2f} | Spread Cost: ${spread_cost:.2f}")
+
+                if stop_out_triggered:
+                    logger.warning("Backtest stop-out triggered: capital reached zero.")
+                    break
         
         if not in_position:
             signal = current_bar.get("signal", "HOLD")
@@ -454,7 +464,9 @@ def run_enhanced_backtest(strategy_id, params, historical_data_df, symbol_name=N
     win_rate = (wins / len(trades) * 100) if trades else 0
     
     # Clean up results
-    final_capital = round(capital, 2) if math.isfinite(capital) else 10000.0
+    capital = max(0.0, capital)
+    total_profit = capital - initial_capital
+    final_capital = round(capital, 2) if math.isfinite(capital) else initial_capital
     total_profit_clean = round(total_profit, 2) if math.isfinite(total_profit) else 0.0
     max_drawdown_clean = round(max_drawdown * 100, 2) if math.isfinite(max_drawdown) else 0.0
     win_rate_clean = round(win_rate, 2) if math.isfinite(win_rate) else 0.0

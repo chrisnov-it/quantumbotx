@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Enhanced display with spread costs and protection info
         const spreadCosts = data.total_spread_costs || 0;
         const netProfit = data.net_profit_after_costs || data.total_profit_usd;
+        const grossProfit = data.total_profit_usd || 0;
         const instrument = data.instrument || 'UNKNOWN';
         
         // Check if protection was applied
@@ -130,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="p-4 bg-gray-50 rounded-lg">
                 <p class="text-sm text-gray-500">Gross Profit</p>
-                <p class="text-2xl font-bold text-green-600">${data.total_profit_usd.toFixed(2)} $</p>
+                <p class="text-2xl font-bold ${grossProfit >= 0 ? 'text-green-600' : 'text-red-600'}">${grossProfit.toFixed(2)} $</p>
                 <p class="text-xs text-gray-400">Before costs</p>
             </div>
             <div class="p-4 bg-gray-50 rounded-lg">
