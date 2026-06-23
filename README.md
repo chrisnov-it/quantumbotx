@@ -1,9 +1,13 @@
 # QuantumBotX
 
-QuantumBotX is a Windows-first trading bot and backtesting platform for
+QuantumBotX is a **Windows-first trading bot and backtesting platform** for
 MetaTrader 5. The `main` branch is intentionally kept focused on MT5 so users
 can install, test, and run the current app without confusion from experimental
 cross-platform work.
+
+> 🚧 **Development Status:** Actively maintained but built in spare time.
+> New features and fixes land when the developer's schedule allows.
+> Contributions, ideas, and bug reports are always welcome.
 
 Use this project for education, research, demo trading, and strategy validation.
 Always test on a demo account before considering any live trading.
@@ -169,33 +173,13 @@ Supported markets depend on the connected MT5 broker. Common examples include:
 - Indices such as US30, US100, US500, DE30, UK100, when available.
 - Crypto CFD symbols such as BTCUSD or ETHUSD, when available through MT5.
 
-## Strategy Collection
+## Strategy Collection (14 Active)
 
-Beginner-friendly:
-
-- MA Crossover
-- RSI Crossover
-- Turtle Breakout
-
-Intermediate:
-
-- Bollinger Reversion
-- Bollinger Squeeze
-- Ichimoku Cloud
-- Pulse Sync
-- Index Momentum
-
-Advanced:
-
-- Quantum Velocity
-- Mercy Edge
-- Dynamic Breakout
-- Index Breakout Pro
-
-Expert:
-
-- QuantumBotX Hybrid
-- QuantumBotX Crypto
+| Difficulty | Strategies |
+|------------|------------|
+| 🟢 Beginner | MA Crossover, RSI Crossover, Turtle Breakout |
+| 🟡 Intermediate | Bollinger Reversion, Bollinger Squeeze, Ichimoku Cloud, Pulse Sync, Index Momentum, QuantumBotX Hybrid, QuantumBotX Crypto |
+| 🔴 Advanced | Quantum Velocity, Mercy Edge, Dynamic Breakout, Index Breakout Pro |
 
 Strategy availability and behavior are validated by:
 

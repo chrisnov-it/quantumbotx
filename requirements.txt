@@ -8,7 +8,7 @@ idna==3.10
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
-MetaTrader5==5.0.5120
+MetaTrader5>=5.0.5735; platform_system == "Windows"
 numpy>=1.26.4,<3
 pandas==2.3.1
 python-dateutil==2.9.0.post0

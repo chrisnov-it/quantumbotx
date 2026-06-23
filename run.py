@@ -29,7 +29,8 @@ app = create_app()
 @app.route('/api/health')
 def health_check():
     """Endpoint untuk memastikan server berjalan."""
-    mt5_status = "MT5 connected" if mt5.isinitialize() else "MT5 not connected"  # pyright: ignore[reportAttributeAccessIssue]
+    mt5_status = "MT5 connected" if mt5.terminal_info() else "MT5 not connected"
+    # pyright: ignore[reportAttributeAccessIssue]
     return jsonify({"status": "ok", "message": "Server is running", "mt5": mt5_status})
 
 if __name__ == '__main__':
