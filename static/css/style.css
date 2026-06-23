@@ -4,6 +4,29 @@
         .sidebar.collapsed .nav-item { justify-content: center; }
         .sidebar.collapsed .nav-item i.w-5 { width: auto; }
 
+        /* Mobile sidebar: hidden by default, slides in from left */
+        @media (max-width: 767px) {
+            .sidebar {
+                position: fixed;
+                left: -256px;
+                top: 0;
+                bottom: 0;
+                z-index: 50;
+                transition: left 0.3s ease;
+                width: 256px !important;
+                height: 100vh;
+            }
+            .sidebar.mobile-open { left: 0; }
+            .sidebar.mobile-closed { left: -256px; }
+            .flex-1.overflow-auto { margin-left: 0 !important; }
+        }
+
+        /* Desktop collapsed sidebar adjustment */
+        @media (min-width: 768px) {
+            .sidebar.collapsed + .flex-1.overflow-auto { margin-left: 70px; }
+            .sidebar:not(.collapsed) + .flex-1.overflow-auto { margin-left: 0; }
+        }
+
         /* Dark mode scrollbar */
         .dark .overflow-auto::-webkit-scrollbar { width: 6px; }
         .dark .overflow-auto::-webkit-scrollbar-track { background: #1e293b; }

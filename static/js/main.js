@@ -21,13 +21,80 @@
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Logika untuk Sidebar Toggle ---
+    // --- Sidebar Toggle + Responsive ---
+    const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-        });
+    const mainContent = document.querySelector('.flex-1.overflow-auto');
+
+    function isMobile() {
+        return window.innerWidth < 768;
     }
+
+    function updateSidebarState() {
+        if (isMobile()) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('mobile-closed');
+            sidebar.style.position = 'fixed';
+            sidebar.style.zIndex = '50';
+        } else {
+            sidebar.classList.remove('mobile-closed', 'mobile-open');
+            sidebar.style.position = '';
+            sidebar.style.zIndex = '';
+        }
+        updateOverlay();
+    }
+
+    function updateOverlay() {
+        let overlay = document.getElementById('sidebar-overlay');
+        if (isMobile() && sidebar.classList.contains('mobile-open')) {
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'sidebar-overlay';
+                overlay.className = 'fixed inset-0 bg-black/50 z-40 transition-opacity duration-300';
+                overlay.addEventListener('click', closeSidebar);
+                document.body.appendChild(overlay);
+            }
+            overlay.classList.remove('hidden');
+        } else if (overlay) {
+            overlay.classList.add('hidden');
+        }
+    }
+
+    function openSidebar() {
+        if (isMobile()) {
+            sidebar.classList.remove('mobile-closed');
+            sidebar.classList.add('mobile-open');
+            updateOverlay();
+        }
+    }
+
+    function closeSidebar() {
+        if (isMobile()) {
+            sidebar.classList.remove('mobile-open');
+            sidebar.classList.add('mobile-closed');
+            updateOverlay();
+        }
+    }
+
+    function toggleSidebar() {
+        if (isMobile()) {
+            if (sidebar.classList.contains('mobile-open')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        } else {
+            sidebar.classList.toggle('collapsed');
+        }
+    }
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', toggleSidebar);
+    }
+
+    // Initial state
+    updateSidebarState();
+    window.addEventListener('resize', updateSidebarState);
 
     // --- Logika untuk Notifikasi Real-time dengan Toast ---
     const notificationDot = document.getElementById('notification-dot');
