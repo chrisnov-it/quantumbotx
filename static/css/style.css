@@ -2,3 +2,9 @@
         .sidebar.collapsed { width: 70px; }
         .sidebar.collapsed .sidebar-text, .sidebar.collapsed .logo-text { display: none; }
         .sidebar.collapsed .nav-item { justify-content: center; }
+        .sidebar.collapsed .nav-item i.w-5 { width: auto; }
+
+        /* Dark mode scrollbar */
+        .dark .overflow-auto::-webkit-scrollbar { width: 6px; }
+        .dark .overflow-auto::-webkit-scrollbar-track { background: #1e293b; }
+        .dark .overflow-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }

@@ -1,5 +1,25 @@
 // static/js/main.js
 
+// --- Dark Mode Toggle ---
+(function initDarkMode() {
+    const isDark = localStorage.getItem('dark-mode') === 'true';
+    const toggle = document.getElementById('dark-mode-toggle');
+    const icon = document.getElementById('dark-mode-icon');
+
+    if (toggle && icon) {
+        // Set initial icon
+        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        icon.style.color = isDark ? '#fbbf24' : '';
+
+        toggle.addEventListener('click', function() {
+            const isCurrentlyDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('dark-mode', isCurrentlyDark);
+            icon.className = isCurrentlyDark ? 'fas fa-sun' : 'fas fa-moon';
+            icon.style.color = isCurrentlyDark ? '#fbbf24' : '';
+        });
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
     // --- Logika untuk Sidebar Toggle ---
     const sidebarToggle = document.getElementById('sidebar-toggle');
