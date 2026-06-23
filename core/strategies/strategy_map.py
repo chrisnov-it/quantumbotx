@@ -13,8 +13,7 @@ from .turtle_breakout import TurtleBreakoutStrategy
 from .ichimoku_cloud import IchimokuCloudStrategy
 from .dynamic_breakout import DynamicBreakoutStrategy
 from .index_momentum import IndexMomentumStrategy
-# TEMPORARILY DISABLED - needs import fix
-# from .index_breakout_pro import IndexBreakoutProStrategy
+from .index_breakout_pro import IndexBreakoutProStrategy
 from .beginner_defaults import BEGINNER_DEFAULTS
 
 STRATEGY_MAP = {
@@ -31,7 +30,7 @@ STRATEGY_MAP = {
     'ICHIMOKU_CLOUD': IchimokuCloudStrategy,
     'DYNAMIC_BREAKOUT': DynamicBreakoutStrategy,
     'INDEX_MOMENTUM': IndexMomentumStrategy,
-    # 'INDEX_BREAKOUT_PRO': IndexBreakoutProStrategy,  # TEMPORARILY DISABLED
+    'INDEX_BREAKOUT_PRO': IndexBreakoutProStrategy,
 }
 
 # Beginner-friendly strategy metadata
@@ -124,18 +123,18 @@ STRATEGY_METADATA = {
     
     # 🚀 EXPERT
     'QUANTUMBOTX_HYBRID': {
-        'difficulty': 'EXPERT',
-        'complexity_score': 8,
+        'difficulty': 'INTERMEDIATE',
+        'complexity_score': 6,
         'recommended_for_beginners': False,
-        'description': 'Multi-asset adaptive strategy',
+        'description': 'Multi-indicator hybrid strategy for forex and crypto',
         'market_types': ['FOREX', 'GOLD', 'CRYPTO'],
         'learning_priority': 11
     },
     'QUANTUMBOTX_CRYPTO': {
-        'difficulty': 'EXPERT',
-        'complexity_score': 12,
+        'difficulty': 'INTERMEDIATE',
+        'complexity_score': 7,
         'recommended_for_beginners': False,
-        'description': 'Crypto-specialized advanced system',
+        'description': 'Crypto-specialized strategy with volatility management',
         'market_types': ['CRYPTO'],
         'learning_priority': 12
     },
@@ -149,14 +148,14 @@ STRATEGY_METADATA = {
         'market_types': ['INDICES'],
         'learning_priority': 8
     },
-    # 'INDEX_BREAKOUT_PRO': {
-    #     'difficulty': 'ADVANCED',
-    #     'complexity_score': 7,
-    #     'recommended_for_beginners': False,
-    #     'description': 'Professional index breakout with institutional analysis',
-    #     'market_types': ['INDICES'],
-    #     'learning_priority': 10
-    # }
+    'INDEX_BREAKOUT_PRO': {
+        'difficulty': 'ADVANCED',
+        'complexity_score': 7,
+        'recommended_for_beginners': False,
+        'description': 'Professional index breakout with institutional analysis',
+        'market_types': ['INDICES'],
+        'learning_priority': 10
+    }
 }
 
 def get_beginner_strategies():
