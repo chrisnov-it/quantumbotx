@@ -112,7 +112,7 @@ def place_trade(symbol, order_type, risk_percent, sl_atr_multiplier, tp_atr_mult
             "magic": magic_id,
             "comment": "QuantumBotX Trade",
             "type_time": mt5.ORDER_TIME_GTC,
-            "type_filling": mt5.ORDER_FILLING_FOK,
+            "type_filling": mt5.ORDER_FILLING_IOC,
         }
 
         result = mt5.order_send(request)
@@ -137,7 +137,7 @@ def close_trade(position):
         request = {
             "action": mt5.TRADE_ACTION_DEAL, "position": position.ticket, "symbol": position.symbol,
             "volume": position.volume, "type": close_order_type, "price": price, "magic": position.magic,
-            "comment": "QuantumBotX Close", "type_time": mt5.ORDER_TIME_GTC, "type_filling": mt5.ORDER_FILLING_FOK,
+            "comment": "QuantumBotX Close", "type_time": mt5.ORDER_TIME_GTC, "type_filling": mt5.ORDER_FILLING_IOC,
         }
 
         result = mt5.order_send(request)

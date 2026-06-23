@@ -178,22 +178,24 @@ def find_mt5_symbol(base_symbol: str) -> Optional[str]:
     if base_symbol_cleaned in BROKER_SYMBOL_MAP:
         symbol_variants = BROKER_SYMBOL_MAP[base_symbol_cleaned]
         
-        # Prioritize based on broker
+        # Broker-specific priority (only for XAUUSD/GOLD variants)
+        # IMPORTANT: guard with base_symbol_cleaned check to avoid
+        # overwriting symbol_variants for EURUSD, GBPUSD, etc.
         if 'XM' in broker_name:
-            # XM Global: prioritize GOLD, GOLDmicro
-            symbol_variants = ['GOLD', 'GOLDmicro', 'XAUUSD'] + [s for s in symbol_variants if s not in ['GOLD', 'GOLDmicro', 'XAUUSD']]
+            if base_symbol_cleaned == 'XAUUSD':
+                symbol_variants = ['GOLD', 'GOLDmicro', 'XAUUSD'] + [s for s in symbol_variants if s not in ['GOLD', 'GOLDmicro', 'XAUUSD']]
         elif 'DEMO' in broker_name or 'METAQUOTES' in broker_name:
-            # MetaTrader Demo: prioritize XAUUSD
-            symbol_variants = ['XAUUSD', 'GOLD'] + [s for s in symbol_variants if s not in ['XAUUSD', 'GOLD']]
+            if base_symbol_cleaned == 'XAUUSD':
+                symbol_variants = ['XAUUSD', 'GOLD'] + [s for s in symbol_variants if s not in ['XAUUSD', 'GOLD']]
         elif 'EXNESS' in broker_name:
-            # Exness: prioritize XAUUSDm, GOLD
-            symbol_variants = ['XAUUSDm', 'GOLD', 'XAUUSD'] + [s for s in symbol_variants if s not in ['XAUUSDm', 'GOLD', 'XAUUSD']]
+            if base_symbol_cleaned == 'XAUUSD':
+                symbol_variants = ['XAUUSDm', 'GOLD', 'XAUUSD'] + [s for s in symbol_variants if s not in ['XAUUSDm', 'GOLD', 'XAUUSD']]
         elif 'ALPARI' in broker_name:
-            # Alpari: prioritize XAUUSD.c
-            symbol_variants = ['XAUUSD.c', 'XAUUSD'] + [s for s in symbol_variants if s not in ['XAUUSD.c', 'XAUUSD']]
+            if base_symbol_cleaned == 'XAUUSD':
+                symbol_variants = ['XAUUSD.c', 'XAUUSD'] + [s for s in symbol_variants if s not in ['XAUUSD.c', 'XAUUSD']]
         elif 'FBS' in broker_name:
-            # FBS: typically uses standard naming
-            symbol_variants = ['XAUUSD', 'GOLD'] + [s for s in symbol_variants if s not in ['XAUUSD', 'GOLD']]
+            if base_symbol_cleaned == 'XAUUSD':
+                symbol_variants = ['XAUUSD', 'GOLD'] + [s for s in symbol_variants if s not in ['XAUUSD', 'GOLD']]
         
         # Test each variant in priority order
         for variant in symbol_variants:
