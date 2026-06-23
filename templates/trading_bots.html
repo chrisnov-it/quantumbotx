@@ -11,8 +11,8 @@
 <!-- Header Halaman: Judul di kiri, tombol di kanan -->
 <div class="flex justify-between items-center mb-6">
     <div>
-        <h2 class="text-2xl font-bold text-gray-800" data-i18n="bots.title">Trading Bots</h2>
-        <p class="text-gray-600" data-i18n="bots.manage">Kelola semua bot dan strategi Anda.</p>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="bots.title">Trading Bots</h2>
+        <p class="text-gray-600 dark:text-gray-300" data-i18n="bots.manage">Kelola semua bot dan strategi Anda.</p>
     </div>
     <div class="flex items-center space-x-2">
             <button id="start-all-btn" class="bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition flex items-center" data-i18n-title="bots.start_all_title" title="Jalankan semua bot yang dijeda">
@@ -22,35 +22,35 @@
             <button id="create-bot-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition flex items-center"><i class="fas fa-plus mr-2"></i> <span data-i18n="action.create_new_bot">Buat Bot Baru</span></button>
     </div>
 </div>
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200" aria-label="Trading Bots Table">
-        <thead class="bg-gray-50">
+<div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700" aria-label="Trading Bots Table">
+        <thead class="bg-gray-50 dark:bg-slate-700">
             <tr>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="bots.name_market">Nama / Pasar</th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="bots.parameters">Parameter</th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="bots.configuration">Konfigurasi</th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="label.status">Status</th>
-                <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="bots.actions">Aksi</th>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="bots.name_market">Nama / Pasar</th>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="bots.parameters">Parameter</th>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="bots.configuration">Konfigurasi</th>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="label.status">Status</th>
+                <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="bots.actions">Aksi</th>
             </tr>
         </thead>
-        <tbody id="bots-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+        <tbody id="bots-table-body" class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700"></tbody>
     </table>
 </div>
 <!-- Modal untuk Membuat/Mengedit Bot -->
 <div id="create-bot-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
     <!-- PERBAIKAN: Panel modal kini menggunakan flexbox vertikal dan tinggi maksimal -->
-    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+    <div class="relative bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]">
         <!-- Loading Overlay -->
-        <div id="modal-loading-overlay" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 hidden">
+        <div id="modal-loading-overlay" class="absolute inset-0 bg-white dark:bg-slate-800 bg-opacity-75 flex items-center justify-center z-10 hidden">
             <i class="fas fa-spinner fa-spin text-blue-600 text-4xl"></i>
         </div>
         
         <!-- Header Modal (Tidak akan ikut ter-scroll) -->
-        <div class="flex-shrink-0 flex items-start justify-between p-5 border-b rounded-t">
-            <h3 id="modal-title" class="text-xl font-semibold text-gray-900" data-i18n="bots.create_new">
+        <div class="flex-shrink-0 flex items-start justify-between p-5 border-b border-gray-200 dark:border-slate-700 rounded-t">
+            <h3 id="modal-title" class="text-xl font-semibold text-gray-900 dark:text-white" data-i18n="bots.create_new">
                 🚀 Buat Bot Baru
             </h3>
-            <button type="button" id="cancel-create" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
+            <button type="button" id="cancel-create" class="text-gray-400 bg-transparent hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
                 <i class="fas fa-times"></i>
                 <span class="sr-only" data-i18n="bots.close_modal">Tutup modal</span>
             </button>
@@ -62,34 +62,34 @@
                 <!-- Baris 1: Nama & Pasar -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900" data-i18n="label.bot_name">Nama Bot</label>
-                        <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" data-i18n-placeholder="bots.example_name" placeholder="Contoh: XAUUSD Hybrid H1" required>
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="label.bot_name">Nama Bot</label>
+                        <input type="text" name="name" id="name" class="bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" data-i18n-placeholder="bots.example_name" placeholder="Contoh: XAUUSD Hybrid H1" required>
                     </div>
                     <div>
-                        <label for="market" class="block mb-2 text-sm font-medium text-gray-900" data-i18n="label.market">Pasar</label>
-                        <input type="text" name="market" id="market" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" data-i18n-placeholder="bots.example_market" placeholder="Contoh: XAUUSD atau EURUSD" required>
+                        <label for="market" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="label.market">Pasar</label>
+                        <input type="text" name="market" id="market" class="bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" data-i18n-placeholder="bots.example_market" placeholder="Contoh: XAUUSD atau EURUSD" required>
                     </div>
                 </div>
                 <!-- Baris 2: Lot, SL, TP -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label for="risk_percent" class="block mb-2 text-sm font-medium text-gray-900" data-i18n="label.risk_per_trade">Risk per Trade (%)</label>
-                        <input type="number" name="risk_percent" id="risk_percent" value="1.0" step="0.1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <label for="risk_percent" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="label.risk_per_trade">Risk per Trade (%)</label>
+                        <input type="number" name="risk_percent" id="risk_percent" value="1.0" step="0.1" class="bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                     </div>
                     <div>
-                        <label for="sl_atr_multiplier" class="block mb-2 text-sm font-medium text-gray-900" data-i18n="label.sl_atr">SL (ATR Multiplier)</label>
-                        <input type="number" name="sl_atr_multiplier" id="sl_atr_multiplier" value="2.0" step="0.1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <label for="sl_atr_multiplier" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="label.sl_atr">SL (ATR Multiplier)</label>
+                        <input type="number" name="sl_atr_multiplier" id="sl_atr_multiplier" value="2.0" step="0.1" class="bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                     </div>
                     <div>
-                        <label for="tp_atr_multiplier" class="block mb-2 text-sm font-medium text-gray-900" data-i18n="label.tp_atr">TP (ATR Multiplier)</label>
-                        <input type="number" name="tp_atr_multiplier" id="tp_atr_multiplier" value="4.0" step="0.1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <label for="tp_atr_multiplier" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="label.tp_atr">TP (ATR Multiplier)</label>
+                        <input type="number" name="tp_atr_multiplier" id="tp_atr_multiplier" value="4.0" step="0.1" class="bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                     </div>
                 </div>
                 <!-- Baris 3: Timeframe & Interval -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="timeframe" class="block mb-2 text-sm font-medium text-gray-900" data-i18n="label.timeframe">Timeframe</label>
-                        <select id="timeframe" name="timeframe" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        <label for="timeframe" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="label.timeframe">Timeframe</label>
+                        <select id="timeframe" name="timeframe" class="bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                             <option value="M1" data-i18n="bots.timeframe_1m">1 Menit</option>
                             <option value="M5" data-i18n="bots.timeframe_5m">5 Menit</option>
                             <option value="M15" data-i18n="bots.timeframe_15m">15 Menit</option>
@@ -100,26 +100,26 @@
                         </select>
                     </div>
                     <div>
-                        <label for="check_interval_seconds" class="block mb-2 text-sm font-medium text-gray-900" data-i18n="label.check_interval">Interval Cek (detik)</label>
-                        <input type="number" name="check_interval_seconds" id="check_interval_seconds" value="60" step="1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <label for="check_interval_seconds" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="label.check_interval">Interval Cek (detik)</label>
+                        <input type="number" name="check_interval_seconds" id="check_interval_seconds" value="60" step="1" class="bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                     </div>
                 </div>
                 <!-- Strategy Switching Option -->
-                <div class="border-t pt-4">
+                <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
                     <div class="flex items-center">
-                        <input type="checkbox" id="enable_strategy_switching" name="enable_strategy_switching" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="enable_strategy_switching" class="ml-2 text-sm font-medium text-gray-900" data-i18n="bots.enable_strategy_switching">Aktifkan Automatic Strategy Switching</label>
+                        <input type="checkbox" id="enable_strategy_switching" name="enable_strategy_switching" class="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-slate-600 border-gray-300 dark:border-slate-600 rounded focus:ring-blue-500">
+                        <label for="enable_strategy_switching" class="ml-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="bots.enable_strategy_switching">Aktifkan Automatic Strategy Switching</label>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500" data-i18n="bots.strategy_switching_info">Jika diaktifkan, bot akan secara otomatis beralih ke strategi terbaik berdasarkan kinerja terkini.</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" data-i18n="bots.strategy_switching_info">Jika diaktifkan, bot akan secara otomatis beralih ke strategi terbaik berdasarkan kinerja terkini.</p>
                 </div>
                 <!-- Baris 4: Strategi & Parameternya -->
                 <div>
-                    <label for="strategy" class="block mb-2 text-sm font-medium text-gray-900" data-i18n="label.strategy">Strategi</label>
-                    <select id="strategy" name="strategy" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    <label for="strategy" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" data-i18n="label.strategy">Strategi</label>
+                    <select id="strategy" name="strategy" class="bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                         <option value="" disabled selected data-i18n="bots.select_strategy">Pilih sebuah strategi</option>
                     </select>
                 </div>
-                <div id="strategy-params-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                <div id="strategy-params-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200 dark:border-slate-700">
                     <!-- Parameter strategi akan dimuat di sini oleh JavaScript -->
                     <span data-i18n="bots.strategy_params_loaded">Parameter strategi akan dimuat di sini oleh JavaScript</span>
                 </div>
@@ -127,9 +127,9 @@
         </form>
 
         <!-- Footer Modal (Tidak akan ikut ter-scroll) -->
-        <div class="flex-shrink-0 flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b">
+        <div class="flex-shrink-0 flex items-center p-6 space-x-2 border-t border-gray-200 dark:border-slate-700 rounded-b">
             <button type="submit" id="submit-bot-btn" form="create-bot-form" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" data-i18n="bots.create_bot">Buat Bot</button>
-            <button type="button" id="cancel-create-footer" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" data-i18n="bots.cancel">Batal</button>
+            <button type="button" id="cancel-create-footer" class="text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700/50 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 dark:border-slate-700 text-sm font-medium px-5 py-2.5 hover:text-gray-900 dark:hover:text-white focus:z-10" data-i18n="bots.cancel">Batal</button>
         </div>
     </div>
 </div>
