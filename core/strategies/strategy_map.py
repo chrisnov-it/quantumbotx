@@ -139,18 +139,18 @@ STRATEGY_METADATA = {
     
     # 🚀 EXPERT
     'QUANTUMBOTX_HYBRID': {
-        'difficulty': 'EXPERT',
-        'complexity_score': 8,
+        'difficulty': 'INTERMEDIATE',
+        'complexity_score': 6,
         'recommended_for_beginners': False,
-        'description': 'Multi-asset adaptive strategy',
+        'description': 'Multi-indicator hybrid strategy for forex and crypto',
         'market_types': ['FOREX', 'GOLD', 'CRYPTO'],
         'learning_priority': 11
     },
     'QUANTUMBOTX_CRYPTO': {
-        'difficulty': 'EXPERT',
-        'complexity_score': 12,
+        'difficulty': 'INTERMEDIATE',
+        'complexity_score': 7,
         'recommended_for_beginners': False,
-        'description': 'Crypto-specialized advanced system',
+        'description': 'Crypto-specialized strategy with volatility management',
         'market_types': ['CRYPTO'],
         'learning_priority': 12
     },
