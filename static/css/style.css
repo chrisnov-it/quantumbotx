@@ -31,3 +31,40 @@
         .dark .overflow-auto::-webkit-scrollbar { width: 6px; }
         .dark .overflow-auto::-webkit-scrollbar-track { background: #1e293b; }
         .dark .overflow-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+
+        /* Card & UI Polish */
+        .stat-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -5px rgba(0, 0, 0, 0.05);
+        }
+        .dark .stat-card:hover {
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3), 0 4px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .activity-item {
+            border-left: 4px solid #6366f1;
+            transition: background-color 0.2s ease;
+        }
+        .activity-item:hover {
+            background-color: #f8fafc;
+        }
+        .dark .activity-item:hover {
+            background-color: rgba(51, 65, 85, 0.5);
+        }
+        .gradient-border {
+            border-left: 4px solid;
+            border-image: linear-gradient(to bottom, #6366f1, #8b5cf6) 1;
+        }
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(99, 102, 241, 0.3), transparent);
+        }
+        .dark .section-divider {
+            background: linear-gradient(to right, transparent, rgba(99, 102, 241, 0.15), transparent);
+        }
