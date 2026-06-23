@@ -34,14 +34,55 @@ class MACrossoverStrategy(BaseStrategy):
 
         price = last["close"]
         signal = "HOLD"
-        explanation = f"MA({fast_period}): {last['ma_fast']:.2f}, MA({slow_period}): {last['ma_slow']:.2f}. Tidak ada sinyal."
+
+        # Market context: price position vs MAs
+        price_vs_fast = price - last['ma_fast']
+        price_vs_slow = price - last['ma_slow']
+        ma_gap = last['ma_fast'] - last['ma_slow']
+        ma_gap_pct = abs(ma_gap) / last['ma_slow'] * 100
+
+        # Determine trend strength from MA separation
+        if ma_gap > 0:
+            trend_side = "bullish"
+            if ma_gap_pct > 0.5:
+                trend_strength = "kuat"
+            elif ma_gap_pct > 0.2:
+                trend_strength = "moderat"
+            else:
+                trend_strength = "lemah"
+        else:
+            trend_side = "bearish"
+            if ma_gap_pct > 0.5:
+                trend_strength = "kuat"
+            elif ma_gap_pct > 0.2:
+                trend_strength = "moderat"
+            else:
+                trend_strength = "lemah"
+
+        # Price position context
+        if price_vs_fast > 0 and price_vs_slow > 0:
+            position = "di atas kedua MA"
+        elif price_vs_fast < 0 and price_vs_slow < 0:
+            position = "di bawah kedua MA"
+        elif price_vs_fast > 0 and price_vs_slow < 0:
+            position = "di antara MA (sideways)"
+        else:
+            position = "di antara MA (sideways)"
+
+        signal = "HOLD"
+        explanation = (
+            f"Tren {trend_side} {trend_strength} | "
+            f"MA({fast_period}) {last['ma_fast']:.5f}, MA({slow_period}) {last['ma_slow']:.5f} | "
+            f"Harga {position}. "
+            f"Menunggu persilangan MA untuk sinyal entry."
+        )
 
         if prev["ma_fast"] <= prev["ma_slow"] and last["ma_fast"] > last["ma_slow"]:
             signal = "BUY"
-            explanation = f"Golden Cross: MA({fast_period}) memotong ke atas MA({slow_period})"
+            explanation = f"Golden Cross: MA({fast_period})={last['ma_fast']:.5f} memotong ke atas MA({slow_period})={last['ma_slow']:.5f}. Tren {trend_side} {trend_strength}."
         elif prev["ma_fast"] >= prev["ma_slow"] and last["ma_fast"] < last["ma_slow"]:
             signal = "SELL"
-            explanation = f"Death Cross: MA({fast_period}) memotong ke bawah MA({slow_period})"
+            explanation = f"Death Cross: MA({fast_period})={last['ma_fast']:.5f} memotong ke bawah MA({slow_period})={last['ma_slow']:.5f}. Tren {trend_side} {trend_strength}."
 
         return {"signal": signal, "price": price, "explanation": explanation}
 

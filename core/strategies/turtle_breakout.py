@@ -37,8 +37,35 @@ class TurtleBreakoutStrategy(BaseStrategy):
 
         last = df.iloc[-1]
         price = last["close"]
+
+        # Market context: distance from channel
+        upper = last['entry_upper']
+        lower = last['entry_lower']
+        channel_width = (upper - lower) / lower * 100 if lower != 0 else 0
+        price_vs_upper = (price - upper) / upper * 100 if upper != 0 else 0
+        price_vs_lower = (lower - price) / lower * 100 if lower != 0 else 0
+
+        if channel_width > 5:
+            channel_note = "lebar (volatilitas tinggi)"
+        elif channel_width > 2:
+            channel_note = "sedang"
+        else:
+            channel_note = "sempit (volatilitas rendah)"
+
+        if price > upper:
+            pos_note = f"di atas channel ({price_vs_upper:.1f}%突破)"
+        elif price < lower:
+            pos_note = f"di bawah channel ({price_vs_lower:.1f}% breakdown)"
+        else:
+            pos_note = f"di dalam channel ({price_vs_upper*-1:.1f}% dari upper, {price_vs_lower*-1:.1f}% dari lower)"
+
         signal = "HOLD"
-        explanation = "Tidak ada sinyal."
+        explanation = (
+            f"Channel {entry_period}periode: High={upper:.5f}, Low={lower:.5f} | "
+            f"Lebar {channel_width:.1f}% ({channel_note}) | "
+            f"Harga {pos_note}. "
+            f"Menunggu breakout harga keluar channel untuk entry."
+        )
 
         # Dapatkan status posisi saat ini dari instance bot
         in_position = getattr(self.bot, 'in_position', False)

@@ -36,23 +36,53 @@ class RSICrossoverStrategy(BaseStrategy):
         last = df.iloc[-1]
         prev = df.iloc[-2]
         price = last["close"]
-        signal = "HOLD"
-        explanation = f"RSI ({last['RSI']:.2f}) / RSI MA ({last['RSI_MA']:.2f}) - No Cross."
+        rsi_val = last['RSI']
+        rsi_ma_val = last['RSI_MA']
 
-        # Kondisi Filter Tren
+        # Market context
         is_uptrend = last['close'] > last['SMA_Trend']
         is_downtrend = last['close'] < last['SMA_Trend']
+        trend_text = "uptrend" if is_uptrend else ("downtrend" if is_downtrend else "sideways")
+
+        # RSI zone context
+        if rsi_val >= 70:
+            zone = "overbought"
+            zone_note = "berpotensi reversal turun"
+        elif rsi_val <= 30:
+            zone = "oversold"
+            zone_note = "berpotensi reversal naik"
+        elif rsi_val >= 55:
+            zone = "bullish"
+            zone_note = "momentum positif"
+        elif rsi_val <= 45:
+            zone = "bearish"
+            zone_note = "momentum negatif"
+        else:
+            zone = "netral"
+            zone_note = "tidak ada dominasi"
+
+        # RSI vs RSI_MA gap
+        rsi_gap = rsi_val - rsi_ma_val
+        gap_direction = "di atas" if rsi_gap > 0 else "di bawah"
+
+        signal = "HOLD"
+        explanation = (
+            f"RSI {rsi_val:.1f} ({zone}, {zone_note}) | "
+            f"RSI MA {rsi_ma_val:.1f} (gap {gap_direction} sebesar {abs(rsi_gap):.1f}) | "
+            f"Tren: {trend_text}. "
+            f"Menunggu persilangan RSI-MA untuk konfirmasi sinyal."
+        )
 
         # Kondisi Sinyal Crossover RSI
-        rsi_bullish_cross = prev['RSI'] <= prev['RSI_MA'] and last['RSI'] > last['RSI_MA']
-        rsi_bearish_cross = prev['RSI'] >= prev['RSI_MA'] and last['RSI'] < last['RSI_MA']
+        rsi_bullish_cross = prev['RSI'] <= prev['RSI_MA'] and rsi_val > rsi_ma_val
+        rsi_bearish_cross = prev['RSI'] >= prev['RSI_MA'] and rsi_val < rsi_ma_val
 
         if is_uptrend and rsi_bullish_cross:
             signal = "BUY"
-            explanation = f"Uptrend & RSI Bullish Crossover."
+            explanation = f"BUY signal: Uptrend terkonfirmasi + RSI Golden Cross ({rsi_val:.1f} naik di atas {rsi_ma_val:.1f}). {zone_note}."
         elif is_downtrend and rsi_bearish_cross:
             signal = "SELL"
-            explanation = f"Downtrend & RSI Bearish Crossover."
+            explanation = f"SELL signal: Downtrend terkonfirmasi + RSI Death Cross ({rsi_val:.1f} turun di bawah {rsi_ma_val:.1f}). {zone_note}."
 
         return {"signal": signal, "price": price, "explanation": explanation}
 

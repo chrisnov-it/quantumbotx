@@ -37,18 +37,47 @@ class BollingerBandsStrategy(BaseStrategy):
 
         last = df.iloc[-1]
         price = last["close"]
-        signal = "HOLD"
-        explanation = "Harga di dalam Bands atau tren tidak sesuai."
-        
+        upper = last[bbu_col]
+        lower = last[bbl_col]
+        mid = (upper + lower) / 2
+        bandwidth = (upper - lower) / mid * 100 if mid != 0 else 0
+
+        # Market context
         is_uptrend = price > last[trend_filter_col]
         is_downtrend = price < last[trend_filter_col]
+        trend_text = "uptrend" if is_uptrend else ("downtrend" if is_downtrend else "sideways")
 
-        if is_uptrend and last['low'] <= last[bbl_col]:
+        # Price position within bands
+        if price >= upper:
+            band_pos = "di atas band atas"
+            band_note = "overbought, potensi reversal turun"
+        elif price <= lower:
+            band_pos = "di bawah band bawah"
+            band_note = "oversold, potensi reversal naik"
+        elif price > mid + (upper - mid) * 0.5:
+            band_pos = "setengah atas band"
+            band_note = "cenderung bullish"
+        elif price < mid - (mid - lower) * 0.5:
+            band_pos = "setengah bawah band"
+            band_note = "cenderung bearish"
+        else:
+            band_pos = "tengah band"
+            band_note = "netral"
+
+        signal = "HOLD"
+        explanation = (
+            f"BB width {bandwidth:.1f}% ({'melebar' if bandwidth > 4 else 'menyempit'}) | "
+            f"Harga {band_pos} ({band_note}) | "
+            f"Tren: {trend_text}. "
+            f"Menunggu sentuhan band + konfirmasi tren untuk entry."
+        )
+
+        if is_uptrend and last['low'] <= lower:
             signal = "BUY"
-            explanation = "Uptrend & Oversold: Harga menyentuh Band Bawah."
-        elif is_downtrend and last['high'] >= last[bbu_col]:
+            explanation = f"BUY signal: Uptrend + harga oversold sentuh band bawah ({lower:.5f}). Ekspektasi mean reversion naik."
+        elif is_downtrend and last['high'] >= upper:
             signal = "SELL"
-            explanation = "Downtrend & Overbought: Harga menyentuh Band Atas."
+            explanation = f"SELL signal: Downtrend + harga overbought sentuh band atas ({upper:.5f}). Ekspektasi mean reversion turun."
 
         return {"signal": signal, "price": price, "explanation": explanation}
 
