@@ -119,6 +119,49 @@ class TradingBot(threading.Thread):
 
                 current_position = self._get_open_position()
 
+                # --- Spread Guard (check even without position) ---
+                try:
+                    symbol_info = mt5.symbol_info(self.market_for_mt5)
+                    if symbol_info and symbol_info.spread > 60:
+                        logger.info(f"Bot {self.id} [{self.strategy_name}] - Spread {symbol_info.spread} terlalu lebar. Skip entry.")
+                        if not current_position:
+                            time.sleep(self.check_interval)
+                            continue
+                except Exception:
+                    pass
+
+                # --- Break-even: move SL to entry when profit > 1x ATR ---
+                if current_position:
+                    try:
+                        from core.utils.mt5 import get_rates_mt5
+                        atr_df = get_rates_mt5(self.market_for_mt5, self.tf_map.get(self.timeframe, mt5.TIMEFRAME_H1), 20)
+                        if atr_df is not None and len(atr_df) > 14:
+                            import pandas_ta as ta
+                            atr_val = ta.atr(atr_df['high'], atr_df['low'], atr_df['close'], length=14).iloc[-1]
+                            if atr_val and atr_val > 0:
+                                if current_position.type == mt5.ORDER_TYPE_BUY:
+                                    tick = mt5.symbol_info_tick(self.market_for_mt5)
+                                    if tick:
+                                        profit = tick.bid - current_position.price_open
+                                        if profit > atr_val and current_position.sl < current_position.price_open:
+                                            req = {"action": mt5.TRADE_ACTION_SLTP, "position": current_position.ticket,
+                                                   "symbol": self.market_for_mt5, "sl": current_position.price_open,
+                                                   "tp": current_position.tp, "magic": self.id}
+                                            mt5.order_send(req)
+                                            logger.info(f"Bot {self.id} [{self.strategy_name}] - Break-even BUY di {current_position.price_open}")
+                                elif current_position.type == mt5.ORDER_TYPE_SELL:
+                                    tick = mt5.symbol_info_tick(self.market_for_mt5)
+                                    if tick:
+                                        profit = current_position.price_open - tick.ask
+                                        if profit > atr_val and (current_position.sl == 0 or current_position.sl > current_position.price_open):
+                                            req = {"action": mt5.TRADE_ACTION_SLTP, "position": current_position.ticket,
+                                                   "symbol": self.market_for_mt5, "sl": current_position.price_open,
+                                                   "tp": current_position.tp, "magic": self.id}
+                                            mt5.order_send(req)
+                                            logger.info(f"Bot {self.id} [{self.strategy_name}] - Break-even SELL di {current_position.price_open}")
+                    except Exception as e:
+                        logger.debug(f"Bot {self.id} - Break-even check non-fatal: {e}")
+
                 # Check if market is open before handling trade signal
                 if self._is_market_open_for_symbol():
                     self._handle_trade_signal(signal, current_position)

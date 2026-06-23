@@ -89,8 +89,15 @@ def place_trade(symbol, order_type, risk_percent, sl_atr_multiplier, tp_atr_mult
 
         # --- 2. Tentukan harga & level SL/TP ---
         price = mt5.symbol_info_tick(symbol).ask if order_type == mt5.ORDER_TYPE_BUY else mt5.symbol_info_tick(symbol).bid
-        sl_distance = atr * sl_atr_multiplier
-        tp_distance = atr * tp_atr_multiplier
+
+        # Cap ATR multiplier to safe bounds (default 2x SL, 4x TP if absurd values)
+        sl_mult = max(1, min(sl_atr_multiplier, 5))
+        tp_mult = max(2, min(tp_atr_multiplier, 10))
+        if sl_mult != sl_atr_multiplier or tp_mult != tp_atr_multiplier:
+            logger.warning(f"ATR multiplier capped: SL {sl_atr_multiplier}→{sl_mult}, TP {tp_atr_multiplier}→{tp_mult}")
+
+        sl_distance = atr * sl_mult
+        tp_distance = atr * tp_mult
 
         sl_level = round(price - sl_distance if order_type == mt5.ORDER_TYPE_BUY else price + sl_distance, digits)
         tp_level = round(price + tp_distance if order_type == mt5.ORDER_TYPE_BUY else price - tp_distance, digits)
